@@ -317,18 +317,15 @@ export function renderApp(data) {
   document.getElementById('hero-headline').textContent = generateHeroSentence(current, hourly);
   document.getElementById('hero-temp').textContent = `${Math.round(current.temp_c)}°`;
 
-  // Hero meta (rain chance directly below temp, then other details)
+  // Hero meta (rain / wind on same line, centered)
   const heroMeta = document.getElementById('hero-meta');
   if (heroMeta) {
-    const lines = [];
+    const parts = [];
     if (current.rain_probability > 0) {
-      lines.push(`${current.rain_probability}% chance of rain`);
+      parts.push(`${current.rain_probability}% chance of rain`);
     }
-    const details = [];
-    details.push(getWindDescription(current.wind_speed_ms));
-    if (current.uv_index > 0 && current.is_day) details.push(`UV ${current.uv_index}`);
-    lines.push(details.join(' · '));
-    heroMeta.innerHTML = lines.join('<br>');
+    parts.push(getWindDescription(current.wind_speed_ms));
+    heroMeta.textContent = parts.join(' / ');
   }
 
   // Render Solar Arc

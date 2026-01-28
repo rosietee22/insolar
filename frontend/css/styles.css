@@ -176,7 +176,7 @@ body {
   font-weight: 600;
   line-height: 1.2;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
   letter-spacing: -0.02em;
 }
 
@@ -186,7 +186,7 @@ body {
   color: var(--text-primary);
   line-height: 0.9;
   letter-spacing: -0.04em;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
 }
 
 /* Solar Arc (below hourly strip) */
@@ -242,8 +242,8 @@ body {
 .hero-meta {
   font-size: 0.9rem;
   color: var(--text-secondary);
-  margin-top: auto;
-  padding-top: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+  text-align: center;
 }
 
 /* ==================== HOURLY STRIP ==================== */
