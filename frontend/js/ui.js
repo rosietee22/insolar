@@ -1,5 +1,5 @@
 /**
- * UI Renderer
+ * UI Renderer - Poster-like Editorial Design
  */
 
 import {
@@ -48,8 +48,6 @@ export function showError(message) {
  * @param {string} timestamp - Last updated timestamp
  */
 export function showOfflineWarning(timestamp) {
-  const timeEl = document.getElementById('offline-time');
-  timeEl.textContent = formatRelativeTime(timestamp);
   show('offline-warning');
 }
 
@@ -98,6 +96,13 @@ function formatHourShort(timestamp) {
 }
 
 /**
+ * Format time as HH:MM
+ */
+function formatTime(date) {
+  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+}
+
+/**
  * Get weather emoji based on conditions and time of day
  * @param {number} rain_probability
  * @param {number} cloud_percent
@@ -108,65 +113,196 @@ function getWeatherEmoji(rain_probability, cloud_percent, is_day) {
   const isNight = !is_day;
 
   if (rain_probability > 60) return '🌧️';
-  if (rain_probability > 30) return isNight ? '🌧️' : '🌦️';  // 🌦️ has sun peeking through
+  if (rain_probability > 30) return isNight ? '🌧️' : '🌦️';
   if (cloud_percent > 70) return '☁️';
-  if (cloud_percent > 30) return isNight ? '☁️' : '⛅';  // ⛅ has sun peeking through
+  if (cloud_percent > 30) return isNight ? '☁️' : '⛅';
   return isNight ? '🌙' : '☀️';
 }
 
 /**
- * Group hours into time blocks (This Evening, Overnight, etc.)
+ * Estimate sunrise/sunset times from hourly is_day transitions
  * @param {Array} hourly - Hourly forecast data
- * @returns {Array} Array of time blocks
+ * @returns {Object} { sunrise: Date, sunset: Date }
  */
-function groupIntoTimeBlocks(hourly) {
-  const blocks = [];
+function estimateSunriseSunset(hourly) {
+  let sunrise = null;
+  let sunset = null;
+  const now = new Date();
+  const today = now.toDateString();
+
+  for (let i = 1; i < hourly.length; i++) {
+    const prev = hourly[i - 1];
+    const curr = hourly[i];
+    const currDate = new Date(curr.timestamp);
+
+    // Only look at today's data
+    if (currDate.toDateString() !== today) continue;
+
+    // Night to day transition = sunrise
+    if (!prev.is_day && curr.is_day && !sunrise) {
+      sunrise = new Date(curr.timestamp);
+    }
+    // Day to night transition = sunset
+    if (prev.is_day && !curr.is_day && !sunset) {
+      sunset = new Date(curr.timestamp);
+    }
+  }
+
+  // Fallback defaults if transitions not found in data
+  if (!sunrise) {
+    sunrise = new Date(now);
+    sunrise.setHours(6, 30, 0, 0);
+  }
+  if (!sunset) {
+    sunset = new Date(now);
+    sunset.setHours(18, 30, 0, 0);
+  }
+
+  return { sunrise, sunset };
+}
+
+/**
+ * Calculate solar progress (0-100) based on current time vs sunrise/sunset
+ */
+function calculateSolarProgress(sunrise, sunset) {
   const now = new Date();
 
-  // Skip the first few hours (shown in the strip)
-  const startIndex = Math.min(6, hourly.length);
-  const remaining = hourly.slice(startIndex);
+  // Before sunrise
+  if (now < sunrise) return 0;
+  // After sunset
+  if (now > sunset) return 100;
 
-  if (remaining.length === 0) return blocks;
+  // During day
+  const dayLength = sunset - sunrise;
+  const elapsed = now - sunrise;
+  return Math.round((elapsed / dayLength) * 100);
+}
 
-  // Group by time of day
-  let currentBlock = null;
+/**
+ * Generate Key Moments - narrative insights about weather changes
+ * @param {Array} hourly - Hourly forecast data
+ * @returns {Array} Array of moment objects
+ */
+function generateKeyMoments(hourly) {
+  const moments = [];
+  const now = new Date();
 
-  remaining.forEach(hour => {
-    const date = new Date(hour.timestamp);
-    const hourNum = date.getHours();
-    const isToday = date.toDateString() === now.toDateString();
-    const isTomorrow = date.toDateString() === new Date(now.getTime() + 86400000).toDateString();
+  // Look for significant weather events in next 12 hours
+  const next12 = hourly.slice(0, 12);
 
-    let blockName;
-    if (hourNum >= 18 || hourNum < 0) {
-      blockName = isToday ? 'This Evening' : (isTomorrow ? 'Tomorrow Evening' : 'Evening');
-    } else if (hourNum >= 0 && hourNum < 6) {
-      blockName = 'Overnight';
-    } else if (hourNum >= 6 && hourNum < 12) {
-      blockName = isTomorrow ? 'Tomorrow Morning' : 'Morning';
-    } else {
-      blockName = isTomorrow ? 'Tomorrow Afternoon' : 'Afternoon';
+  // 1. Rain starting/stopping
+  let rainStartHour = null;
+  let rainStopHour = null;
+  let currentlyRaining = next12[0]?.rain_probability > 40;
+
+  for (let i = 1; i < next12.length; i++) {
+    const hour = next12[i];
+    const isRaining = hour.rain_probability > 40;
+
+    if (!currentlyRaining && isRaining && !rainStartHour) {
+      rainStartHour = hour;
     }
-
-    if (!currentBlock || currentBlock.name !== blockName) {
-      currentBlock = { name: blockName, hours: [] };
-      blocks.push(currentBlock);
+    if (currentlyRaining && !isRaining && !rainStopHour) {
+      rainStopHour = hour;
     }
+  }
 
-    currentBlock.hours.push(hour);
+  if (rainStartHour) {
+    moments.push({
+      time: formatHourShort(rainStartHour.timestamp),
+      text: `Rain likely to start`,
+      detail: `${rainStartHour.rain_probability}% chance, ${Math.round(rainStartHour.temp_c)}°`
+    });
+  }
+
+  if (rainStopHour) {
+    moments.push({
+      time: formatHourShort(rainStopHour.timestamp),
+      text: `Rain expected to clear`,
+      detail: `Dropping to ${rainStopHour.rain_probability}%`
+    });
+  }
+
+  // 2. Temperature peak/trough
+  const temps = next12.map(h => h.temp_c);
+  const maxTemp = Math.max(...temps);
+  const minTemp = Math.min(...temps);
+  const tempRange = maxTemp - minTemp;
+
+  if (tempRange >= 3) {
+    const peakHour = next12.find(h => h.temp_c === maxTemp);
+    if (peakHour && new Date(peakHour.timestamp) > now) {
+      moments.push({
+        time: formatHourShort(peakHour.timestamp),
+        text: `Warmest at ${Math.round(maxTemp)}°`,
+        detail: getWeatherEmoji(peakHour.rain_probability, peakHour.cloud_percent, peakHour.is_day)
+      });
+    }
+  }
+
+  // 3. Sunset/darkness coming (if it's daytime)
+  if (next12[0]?.is_day) {
+    const sunsetHour = next12.find((h, i) => i > 0 && next12[i - 1].is_day && !h.is_day);
+    if (sunsetHour) {
+      moments.push({
+        time: formatHourShort(sunsetHour.timestamp),
+        text: `Sun sets`,
+        detail: `${Math.round(sunsetHour.temp_c)}°`
+      });
+    }
+  }
+
+  // 4. Wind picking up
+  const windyHour = next12.find((h, i) => i > 0 && h.wind_speed_ms > 8 && next12[i - 1].wind_speed_ms <= 8);
+  if (windyHour) {
+    moments.push({
+      time: formatHourShort(windyHour.timestamp),
+      text: `Wind picks up`,
+      detail: `${Math.round(windyHour.wind_speed_ms)} m/s`
+    });
+  }
+
+  // Limit to 3 most relevant moments
+  return moments.slice(0, 3);
+}
+
+/**
+ * Get tomorrow's forecast summary
+ * @param {Array} hourly - Hourly forecast data
+ * @returns {Object|null}
+ */
+function getTomorrowSummary(hourly) {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  const tomorrowEnd = new Date(tomorrow);
+  tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
+
+  const tomorrowHours = hourly.filter(h => {
+    const d = new Date(h.timestamp);
+    return d >= tomorrow && d < tomorrowEnd;
   });
 
-  // Calculate summary for each block
-  blocks.forEach(block => {
-    const temps = block.hours.map(h => h.temp_c);
-    const maxRain = Math.max(...block.hours.map(h => h.rain_probability));
-    block.tempRange = `${Math.round(Math.min(...temps))}°–${Math.round(Math.max(...temps))}°`;
-    block.maxRain = maxRain;
-    block.icon = getWeatherEmoji(maxRain, block.hours[0].cloud_percent, block.hours[0].is_day);
-  });
+  if (tomorrowHours.length === 0) return null;
 
-  return blocks;
+  const temps = tomorrowHours.map(h => h.temp_c);
+  const maxRain = Math.max(...tomorrowHours.map(h => h.rain_probability));
+  const avgCloud = tomorrowHours.reduce((sum, h) => sum + h.cloud_percent, 0) / tomorrowHours.length;
+  const midday = tomorrowHours.find(h => new Date(h.timestamp).getHours() === 12) || tomorrowHours[Math.floor(tomorrowHours.length / 2)];
+
+  let condition = 'Clear skies';
+  if (maxRain > 50) condition = 'Rain expected';
+  else if (maxRain > 25) condition = 'Chance of rain';
+  else if (avgCloud > 70) condition = 'Overcast';
+  else if (avgCloud > 30) condition = 'Partly cloudy';
+
+  return {
+    low: Math.round(Math.min(...temps)),
+    high: Math.round(Math.max(...temps)),
+    condition,
+    icon: getWeatherEmoji(maxRain, avgCloud, true)
+  };
 }
 
 /**
@@ -178,8 +314,10 @@ export function renderApp(data) {
   hide('error');
   show('content');
 
-  // Apply weather theme
   const current = data.current;
+  const hourly = data.hourly;
+
+  // Apply weather theme
   const timePeriod = getTimePeriod(current.is_day, current.timestamp);
   const weatherType = getWeatherType(current.rain_probability, current.cloud_percent);
   const gradient = selectGradient(weatherType, timePeriod);
@@ -191,57 +329,116 @@ export function renderApp(data) {
   // Update location display
   updateLocationDisplay(data.location);
 
+  // Update current time
+  const timeEl = document.getElementById('current-time');
+  if (timeEl) {
+    timeEl.textContent = formatTime(new Date());
+  }
+
   // Render Hero Section
-  document.getElementById('hero-sentence').textContent = generateHeroSentence(current, data.hourly);
+  document.getElementById('hero-headline').textContent = generateHeroSentence(current, hourly);
   document.getElementById('hero-temp').textContent = `${Math.round(current.temp_c)}°`;
-  document.getElementById('hero-details').innerHTML = `
-    ${current.rain_probability > 0 ? `${current.rain_probability}% rain · ` : ''}Wind ${Math.round(current.wind_speed_ms)} m/s
-  `;
 
-  // Render Hours Strip (next 6 hours)
-  const hoursStrip = document.getElementById('hours-strip');
-  const stripHours = data.hourly.slice(0, 6);
-  hoursStrip.innerHTML = stripHours.map((hour, index) => `
-    <div class="hour-pill${index === 0 ? ' now' : ''}">
-      <div class="hour-pill-time">${index === 0 ? 'Now' : formatHourShort(hour.timestamp)}</div>
-      <div class="hour-pill-icon">${getWeatherEmoji(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
-      <div class="hour-pill-temp">${Math.round(hour.temp_c)}°</div>
-      ${hour.rain_probability > 0 ? `<div class="hour-pill-rain">${hour.rain_probability}%</div>` : ''}
-    </div>
-  `).join('');
+  // Hero meta
+  const heroMeta = document.getElementById('hero-meta');
+  if (heroMeta) {
+    const parts = [];
+    if (current.rain_probability > 0) parts.push(`${current.rain_probability}% rain`);
+    parts.push(`Wind ${Math.round(current.wind_speed_ms)} m/s`);
+    if (current.uv_index > 0 && current.is_day) parts.push(`UV ${current.uv_index}`);
+    heroMeta.textContent = parts.join(' · ');
+  }
 
-  // Render Time-blocked Forecast Sections
-  const timeBlocks = groupIntoTimeBlocks(data.hourly);
-  const forecastSections = document.getElementById('forecast-sections');
-  forecastSections.innerHTML = timeBlocks.map((block, index) => `
-    <div class="forecast-block${index === 0 ? ' expanded' : ''}" data-block="${index}">
-      <div class="forecast-block-header" onclick="toggleForecastBlock(${index})">
-        <span class="forecast-block-title">${block.name}</span>
-        <span class="forecast-block-summary">
-          ${block.icon} ${block.tempRange}
-          ${block.maxRain > 20 ? `<span>${block.maxRain}%</span>` : ''}
-          <svg class="forecast-block-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </span>
+  // Render Solar Arc
+  const { sunrise, sunset } = estimateSunriseSunset(hourly);
+  const sunriseEl = document.getElementById('sunrise-time');
+  const sunsetEl = document.getElementById('sunset-time');
+  const solarProgress = document.getElementById('solar-progress');
+  const solarMarker = document.getElementById('solar-marker');
+
+  if (sunriseEl) sunriseEl.textContent = formatTime(sunrise);
+  if (sunsetEl) sunsetEl.textContent = formatTime(sunset);
+
+  const progress = calculateSolarProgress(sunrise, sunset);
+  if (solarProgress) solarProgress.style.width = `${progress}%`;
+  if (solarMarker) solarMarker.style.left = `${progress}%`;
+
+  // Render Hourly Strip (next 12 hours)
+  const hourlyStrip = document.getElementById('hourly-strip');
+  if (hourlyStrip) {
+    const stripHours = hourly.slice(0, 12);
+    hourlyStrip.innerHTML = stripHours.map((hour, index) => `
+      <div class="hour-item${index === 0 ? ' now' : ''}">
+        <div class="hour-time">${index === 0 ? 'Now' : formatHourShort(hour.timestamp)}</div>
+        <div class="hour-icon">${getWeatherEmoji(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
+        <div class="hour-temp">${Math.round(hour.temp_c)}°</div>
+        ${hour.rain_probability > 0 ? `<div class="hour-rain">${hour.rain_probability}%</div>` : ''}
       </div>
-      <div class="forecast-block-content">
-        <div class="forecast-block-hours">
-          ${block.hours.map(hour => `
-            <div class="forecast-hour">
-              <span class="forecast-hour-time">${formatHourShort(hour.timestamp)}</span>
-              <span class="forecast-hour-icon">${getWeatherEmoji(hour.rain_probability, hour.cloud_percent, hour.is_day)}</span>
-              <span class="forecast-hour-temp">${Math.round(hour.temp_c)}°</span>
-              <span class="forecast-hour-rain">${hour.rain_probability > 0 ? `${hour.rain_probability}%` : ''}</span>
-            </div>
-          `).join('')}
+    `).join('');
+  }
+
+  // Render Key Moments
+  const momentsEl = document.getElementById('moments');
+  if (momentsEl) {
+    const moments = generateKeyMoments(hourly);
+    if (moments.length > 0) {
+      momentsEl.innerHTML = moments.map(m => `
+        <div class="moment">
+          <div class="moment-time">${m.time}</div>
+          <div class="moment-text">${m.text}</div>
+          ${m.detail ? `<div class="moment-detail">${m.detail}</div>` : ''}
         </div>
-      </div>
-    </div>
-  `).join('');
+      `).join('');
+    } else {
+      momentsEl.innerHTML = `
+        <div class="moment">
+          <div class="moment-time">Next 12 hours</div>
+          <div class="moment-text">No significant changes expected</div>
+        </div>
+      `;
+    }
+  }
+
+  // Render Tomorrow Glance
+  const tomorrowEl = document.getElementById('tomorrow');
+  if (tomorrowEl) {
+    const tomorrow = getTomorrowSummary(hourly);
+    if (tomorrow) {
+      tomorrowEl.innerHTML = `
+        <div class="tomorrow-label">Tomorrow</div>
+        <div class="tomorrow-summary">
+          <span class="tomorrow-icon">${tomorrow.icon}</span>
+          <span>${tomorrow.condition}</span>
+          <span class="tomorrow-temps">${tomorrow.low}° / ${tomorrow.high}°</span>
+        </div>
+      `;
+    } else {
+      tomorrowEl.innerHTML = '';
+    }
+  }
 
   // Update freshness indicator
   updateFreshness(data.generated_at);
+
+  // Start time updater
+  startTimeUpdater();
+}
+
+// Time updater interval
+let timeUpdateInterval = null;
+
+/**
+ * Start updating current time every minute
+ */
+function startTimeUpdater() {
+  if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+
+  timeUpdateInterval = setInterval(() => {
+    const timeEl = document.getElementById('current-time');
+    if (timeEl) {
+      timeEl.textContent = formatTime(new Date());
+    }
+  }, 60000);
 }
 
 /**
@@ -274,16 +471,6 @@ export function updateFreshness(timestamp) {
 }
 
 /**
- * Toggle forecast block expansion (called from onclick)
- */
-window.toggleForecastBlock = function(index) {
-  const block = document.querySelector(`[data-block="${index}"]`);
-  if (block) {
-    block.classList.toggle('expanded');
-  }
-};
-
-/**
  * Update location display
  * @param {Object} location - Location object with lat, lon, name, etc.
  */
@@ -292,11 +479,9 @@ export function updateLocationDisplay(location) {
 
   if (!locationEl) return;
 
-  // If location has a name (from city search), show it
   if (location.name) {
     locationEl.textContent = location.name;
   } else {
-    // Show rounded coordinates for GPS
     locationEl.textContent = `${location.lat}°, ${location.lon}°`;
   }
 }

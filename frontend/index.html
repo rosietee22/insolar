@@ -18,7 +18,7 @@
   <!-- Inter Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="/css/styles.css">
@@ -27,19 +27,6 @@
 </head>
 <body>
   <div id="app">
-    <!-- Header (minimal) -->
-    <header class="header">
-      <div class="location-group">
-        <button id="update-location-btn" class="location-btn" title="Update location">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </button>
-        <span id="location-display" class="location-display">--</span>
-      </div>
-    </header>
-
     <!-- Loading state -->
     <div id="loading" class="loading hidden">
       <div class="spinner"></div>
@@ -54,41 +41,72 @@
 
     <!-- Offline warning -->
     <div id="offline-warning" class="warning hidden">
-      ⚠ Offline. Showing forecast from <span id="offline-time"></span>
+      Offline · Showing cached forecast
     </div>
 
     <!-- Main content -->
     <main id="content" class="content hidden">
-      <!-- Hero Now Section -->
-      <section class="hero-section">
-        <p class="hero-sentence" id="hero-sentence">--</p>
-        <div class="hero-temp" id="hero-temp">--°</div>
-        <div class="hero-details" id="hero-details"></div>
-      </section>
 
-      <!-- Next Few Hours (Scrollable) -->
-      <section class="hours-strip-section">
-        <div class="hours-strip" id="hours-strip"></div>
-      </section>
-
-      <!-- Time-blocked Forecast -->
-      <section class="forecast-sections" id="forecast-sections"></section>
-
-      <!-- Footer with freshness -->
-      <footer class="footer">
-        <div class="freshness" id="freshness">
-          <span class="freshness-dot"></span>
-          <span id="freshness-text">Updated just now</span>
+      <!-- Hero Zone -->
+      <section class="hero">
+        <!-- Top bar: location + time -->
+        <div class="hero-top">
+          <button id="update-location-btn" class="location-btn" title="Update location">
+            <span id="location-display">--</span>
+          </button>
+          <span class="current-time" id="current-time"></span>
         </div>
-        <button id="refresh-btn" class="btn btn-primary">Refresh</button>
+
+        <!-- Main headline -->
+        <h1 class="hero-headline" id="hero-headline">--</h1>
+
+        <!-- Temperature -->
+        <div class="hero-temp" id="hero-temp">--°</div>
+
+        <!-- Solar arc -->
+        <div class="solar-arc" id="solar-arc">
+          <span class="solar-time sunrise">☀ <span id="sunrise-time">--:--</span></span>
+          <div class="solar-track">
+            <div class="solar-progress" id="solar-progress"></div>
+            <div class="solar-marker" id="solar-marker"></div>
+          </div>
+          <span class="solar-time sunset">🌙 <span id="sunset-time">--:--</span></span>
+        </div>
+
+        <!-- Metadata -->
+        <div class="hero-meta" id="hero-meta"></div>
+      </section>
+
+      <!-- Hourly Strip (12 hours, scrollable) -->
+      <section class="hourly-section">
+        <div class="hourly-strip" id="hourly-strip"></div>
+      </section>
+
+      <!-- Key Moments -->
+      <section class="moments" id="moments"></section>
+
+      <!-- Tomorrow Glance -->
+      <div class="tomorrow" id="tomorrow"></div>
+
+      <!-- Freshness -->
+      <footer class="freshness" id="freshness">
+        <span class="freshness-dot"></span>
+        <span id="freshness-text">Updated just now</span>
+        <button id="refresh-btn" class="refresh-btn" title="Refresh">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6"/>
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+          </svg>
+        </button>
       </footer>
+
     </main>
 
     <!-- Location permission prompt -->
     <div id="location-prompt" class="modal hidden">
-      <div class="modal-content card">
+      <div class="modal-content">
         <h2>Location Access</h2>
-        <p>This app needs your location to show accurate weather forecasts.</p>
+        <p>Insolar needs your location to show accurate weather forecasts.</p>
         <button id="allow-location-btn" class="btn btn-primary">Allow Location</button>
         <button id="use-city-btn" class="btn">Search by City</button>
       </div>
@@ -96,7 +114,7 @@
 
     <!-- City search modal -->
     <div id="city-search-modal" class="modal hidden">
-      <div class="modal-content card">
+      <div class="modal-content">
         <h2>Search City</h2>
         <input type="text" id="city-input" class="input" placeholder="Enter city name...">
         <button id="search-city-btn" class="btn btn-primary">Search</button>

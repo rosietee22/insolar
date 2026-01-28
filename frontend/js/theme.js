@@ -116,13 +116,13 @@ export function applyTheme(gradient) {
   root.style.setProperty('--text-secondary',
     gradient.isDark ? 'rgba(255,255,255,0.7)' : 'rgba(26,26,46,0.6)');
 
-  // Update card styles based on theme darkness
+  // Update glass styles based on theme darkness
   if (gradient.isDark) {
-    root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.1)');
-    root.style.setProperty('--card-border', 'rgba(255, 255, 255, 0.2)');
+    root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');
+    root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.15)');
   } else {
-    root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.25)');
-    root.style.setProperty('--card-border', 'rgba(255, 255, 255, 0.4)');
+    root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.1)');
+    root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.2)');
   }
 }
 
