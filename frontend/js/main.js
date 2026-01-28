@@ -25,11 +25,27 @@ const CACHE_MAX_AGE = 60 * 60 * 1000; // 60 minutes
 async function init() {
   console.log('Insolar initializing...');
 
-  // Register service worker
+  // Register service worker with auto-update checking
   if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.register('/service-worker.js');
       console.log('Service Worker registered:', registration);
+      
+      // Check for updates on every page load
+      registration.update();
+      
+      // Listen for new service worker waiting to activate
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New version available - auto-refresh
+            console.log('New version available, refreshing...');
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+            window.location.reload();
+          }
+        });
+      });
     } catch (error) {
       console.error('Service Worker registration failed:', error);
     }

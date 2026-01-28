@@ -57,8 +57,20 @@ app.use(cors({
 // JSON parsing
 app.use(express.json());
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Serve static frontend files with cache control
+app.use(express.static(path.join(__dirname, '../frontend'), {
+  maxAge: '1h', // Cache most assets for 1 hour
+  setHeaders: (res, filePath) => {
+    // Never cache the service worker - always check for updates
+    if (filePath.endsWith('service-worker.js')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+    // Short cache for HTML to pick up SW changes quickly
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
