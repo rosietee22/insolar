@@ -430,10 +430,10 @@ export function renderApp(data) {
     if (solarMarker) solarMarker.style.left = `${progress}%`;
   }
 
-  // Render Hourly Strip (4 large typographic blocks)
+  // Render Hourly Strip (12 hours, scrollable showing 5.5 at a time)
   const hourlyStrip = document.getElementById('hourly-strip');
   if (hourlyStrip) {
-    const stripHours = hourly.slice(0, 4);
+    const stripHours = hourly.slice(0, 12);
     let prevIconName = null;
     
     hourlyStrip.innerHTML = stripHours.map((hour, index) => {
