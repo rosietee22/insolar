@@ -57,12 +57,17 @@ async function init() {
 
   // Initialize UI event listeners
   document.getElementById('refresh-btn').addEventListener('click', refresh);
-  document.getElementById('update-location-btn').addEventListener('click', updateLocation);
+  document.getElementById('update-location-btn').addEventListener('click', showLocationOptions);
   document.getElementById('retry-btn').addEventListener('click', retry);
   document.getElementById('allow-location-btn').addEventListener('click', requestGPS);
   document.getElementById('use-city-btn').addEventListener('click', showCitySearch);
   document.getElementById('search-city-btn').addEventListener('click', handleCitySearch);
   document.getElementById('cancel-search-btn').addEventListener('click', hideCitySearch);
+  
+  // Location options popup
+  document.getElementById('refresh-location-btn').addEventListener('click', refreshGPSLocation);
+  document.getElementById('search-location-btn').addEventListener('click', showCitySearchFromOptions);
+  document.getElementById('cancel-location-btn').addEventListener('click', hideLocationOptions);
 
   // Try to load cached forecast first
   const cachedForecast = getCachedForecast();
@@ -235,9 +240,24 @@ async function refresh() {
 }
 
 /**
- * Update location (re-request GPS)
+ * Show location options popup
  */
-async function updateLocation() {
+function showLocationOptions() {
+  document.getElementById('location-options-modal').classList.remove('hidden');
+}
+
+/**
+ * Hide location options popup
+ */
+function hideLocationOptions() {
+  document.getElementById('location-options-modal').classList.add('hidden');
+}
+
+/**
+ * Refresh GPS location from options popup
+ */
+async function refreshGPSLocation() {
+  hideLocationOptions();
   showLoading();
 
   try {
@@ -248,6 +268,15 @@ async function updateLocation() {
     console.error('Location update error:', error.message);
     showError(error.message);
   }
+}
+
+/**
+ * Show city search from location options
+ */
+function showCitySearchFromOptions() {
+  hideLocationOptions();
+  document.getElementById('city-search-modal').classList.remove('hidden');
+  document.getElementById('city-input').focus();
 }
 
 /**
