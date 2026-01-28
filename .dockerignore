@@ -1,0 +1,8 @@
+node_modules
+.env
+.api_secret
+.git
+.gitignore
+*.md
+*.log
+.DS_Store
