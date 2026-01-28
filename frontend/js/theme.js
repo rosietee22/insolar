@@ -120,9 +120,11 @@ export function applyTheme(gradient) {
   if (gradient.isDark) {
     root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');
     root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.15)');
+    root.style.setProperty('--icon-filter', 'invert(1)');
   } else {
     root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.1)');
     root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.2)');
+    root.style.setProperty('--icon-filter', 'none');
   }
 }
 
