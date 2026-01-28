@@ -240,19 +240,7 @@ function generateKeyMoments(hourly) {
     }
   }
 
-  // 3. Sunset/darkness coming (if it's daytime)
-  if (next12[0]?.is_day) {
-    const sunsetHour = next12.find((h, i) => i > 0 && next12[i - 1].is_day && !h.is_day);
-    if (sunsetHour) {
-      moments.push({
-        time: formatHourShort(sunsetHour.timestamp),
-        text: `Sun sets`,
-        detail: `${Math.round(sunsetHour.temp_c)}°`
-      });
-    }
-  }
-
-  // 4. Wind picking up
+  // 3. Wind picking up
   const windyHour = next12.find((h, i) => i > 0 && h.wind_speed_ms > 8 && next12[i - 1].wind_speed_ms <= 8);
   if (windyHour) {
     moments.push({
