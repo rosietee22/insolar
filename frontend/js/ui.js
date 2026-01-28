@@ -255,11 +255,11 @@ function generateKeyMoments(hourly) {
 }
 
 /**
- * Get tomorrow's forecast summary
+ * Get tomorrow's forecast data
  * @param {Array} hourly - Hourly forecast data
  * @returns {Object|null}
  */
-function getTomorrowSummary(hourly) {
+function getTomorrowData(hourly) {
   const now = new Date();
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -277,7 +277,6 @@ function getTomorrowSummary(hourly) {
   const temps = tomorrowHours.map(h => h.temp_c);
   const maxRain = Math.max(...tomorrowHours.map(h => h.rain_probability));
   const avgCloud = tomorrowHours.reduce((sum, h) => sum + h.cloud_percent, 0) / tomorrowHours.length;
-  const midday = tomorrowHours.find(h => new Date(h.timestamp).getHours() === 12) || tomorrowHours[Math.floor(tomorrowHours.length / 2)];
 
   let condition = 'Clear skies';
   if (maxRain > 50) condition = 'Rain expected';
@@ -289,7 +288,8 @@ function getTomorrowSummary(hourly) {
     low: Math.round(Math.min(...temps)),
     high: Math.round(Math.max(...temps)),
     condition,
-    icon: getWeatherEmoji(maxRain, avgCloud, true)
+    icon: getWeatherEmoji(maxRain, avgCloud, true),
+    hours: tomorrowHours
   };
 }
 
@@ -387,17 +387,32 @@ export function renderApp(data) {
     }
   }
 
-  // Render Tomorrow Glance
+  // Render Tomorrow (expandable)
   const tomorrowEl = document.getElementById('tomorrow');
   if (tomorrowEl) {
-    const tomorrow = getTomorrowSummary(hourly);
+    const tomorrow = getTomorrowData(hourly);
     if (tomorrow) {
       tomorrowEl.innerHTML = `
-        <div class="tomorrow-label">Tomorrow</div>
-        <div class="tomorrow-summary">
-          <span class="tomorrow-icon">${tomorrow.icon}</span>
-          <span>${tomorrow.condition}</span>
-          <span class="tomorrow-temps">${tomorrow.low}° / ${tomorrow.high}°</span>
+        <div class="tomorrow-header" onclick="toggleTomorrow()">
+          <span class="tomorrow-label">Tomorrow</span>
+          <div class="tomorrow-summary">
+            <span class="tomorrow-icon">${tomorrow.icon}</span>
+            <span>${tomorrow.condition}</span>
+            <span class="tomorrow-temps">${tomorrow.low}° / ${tomorrow.high}°</span>
+          </div>
+          <svg class="tomorrow-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="tomorrow-hours">
+          ${tomorrow.hours.map(hour => `
+            <div class="tomorrow-hour">
+              <span class="tomorrow-hour-time">${formatHourShort(hour.timestamp)}</span>
+              <span class="tomorrow-hour-icon">${getWeatherEmoji(hour.rain_probability, hour.cloud_percent, hour.is_day)}</span>
+              <span class="tomorrow-hour-temp">${Math.round(hour.temp_c)}°</span>
+              <span class="tomorrow-hour-rain">${hour.rain_probability > 0 ? `${hour.rain_probability}%` : ''}</span>
+            </div>
+          `).join('')}
         </div>
       `;
     } else {
@@ -414,6 +429,16 @@ export function renderApp(data) {
 
 // Time updater interval
 let timeUpdateInterval = null;
+
+/**
+ * Toggle tomorrow section expansion
+ */
+window.toggleTomorrow = function() {
+  const tomorrowEl = document.getElementById('tomorrow');
+  if (tomorrowEl) {
+    tomorrowEl.classList.toggle('expanded');
+  }
+};
 
 /**
  * Start updating current time every minute
