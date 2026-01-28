@@ -295,6 +295,13 @@ body {
   color: var(--text-primary);
 }
 
+/* Emoji fallback visibility in dark mode */
+.hour-icon,
+.tomorrow-hour-icon,
+.tomorrow-icon {
+  filter: drop-shadow(0 0 1px var(--text-primary));
+}
+
 .hour-time {
   font-size: 0.65rem;
   font-weight: 600;
