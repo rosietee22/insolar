@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: insolar
+    runtime: node
+    plan: free  # or 'starter' for $7/mo always-on
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GOOGLE_WEATHER_API_KEY
+        sync: false  # Set manually in Render dashboard

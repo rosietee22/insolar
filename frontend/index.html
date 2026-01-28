@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0066FF">
+  <meta name="description" content="GPS-based weather forecast for the next 24 hours">
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Apple touch icon -->
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <title>Insolar</title>
+</head>
+<body>
+  <div id="app">
+    <!-- Header (minimal) -->
+    <header class="header">
+      <div class="location-group">
+        <button id="update-location-btn" class="location-btn" title="Update location">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+        <span id="location-display" class="location-display">--</span>
+      </div>
+    </header>
+
+    <!-- Loading state -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Loading forecast...</p>
+    </div>
+
+    <!-- Error state -->
+    <div id="error" class="error hidden">
+      <p class="error-message"></p>
+      <button id="retry-btn" class="btn">Retry</button>
+    </div>
+
+    <!-- Offline warning -->
+    <div id="offline-warning" class="warning hidden">
+      ⚠ Offline. Showing forecast from <span id="offline-time"></span>
+    </div>
+
+    <!-- Main content -->
+    <main id="content" class="content hidden">
+      <!-- Hero Now Section -->
+      <section class="hero-section">
+        <p class="hero-sentence" id="hero-sentence">--</p>
+        <div class="hero-temp" id="hero-temp">--°</div>
+        <div class="hero-details" id="hero-details"></div>
+      </section>
+
+      <!-- Next Few Hours (Scrollable) -->
+      <section class="hours-strip-section">
+        <div class="hours-strip" id="hours-strip"></div>
+      </section>
+
+      <!-- Time-blocked Forecast -->
+      <section class="forecast-sections" id="forecast-sections"></section>
+
+      <!-- Footer with freshness -->
+      <footer class="footer">
+        <div class="freshness" id="freshness">
+          <span class="freshness-dot"></span>
+          <span id="freshness-text">Updated just now</span>
+        </div>
+        <button id="refresh-btn" class="btn btn-primary">Refresh</button>
+      </footer>
+    </main>
+
+    <!-- Location permission prompt -->
+    <div id="location-prompt" class="modal hidden">
+      <div class="modal-content card">
+        <h2>Location Access</h2>
+        <p>This app needs your location to show accurate weather forecasts.</p>
+        <button id="allow-location-btn" class="btn btn-primary">Allow Location</button>
+        <button id="use-city-btn" class="btn">Search by City</button>
+      </div>
+    </div>
+
+    <!-- City search modal -->
+    <div id="city-search-modal" class="modal hidden">
+      <div class="modal-content card">
+        <h2>Search City</h2>
+        <input type="text" id="city-input" class="input" placeholder="Enter city name...">
+        <button id="search-city-btn" class="btn btn-primary">Search</button>
+        <button id="cancel-search-btn" class="btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts (modules) -->
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
