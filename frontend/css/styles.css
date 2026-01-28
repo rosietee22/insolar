@@ -608,6 +608,96 @@ body {
 }
 
 /* ==================== RESPONSIVE ==================== */
+
+/* Short phones (under 700px height) - compact everything to fit */
+@media (max-height: 700px) {
+  #app {
+    padding: var(--spacing-sm);
+    padding-bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom));
+  }
+
+  .hero {
+    padding: var(--spacing-xs) 0;
+  }
+
+  .hero-top {
+    padding-bottom: var(--spacing-xs);
+  }
+
+  .hero-headline {
+    font-size: 1.3rem;
+    margin-bottom: 0;
+  }
+
+  .hero-temp {
+    font-size: 5rem;
+    margin-bottom: 0;
+  }
+
+  .hero-meta {
+    margin-top: 0;
+    font-size: 0.8rem;
+  }
+
+  .hourly-section {
+    margin: var(--spacing-xs) calc(-1 * var(--spacing-sm));
+    padding: 0 var(--spacing-sm);
+  }
+
+  .hour-item {
+    padding: 0.4rem 0.35rem;
+    min-width: 44px;
+  }
+
+  .hour-time {
+    font-size: 0.6rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .hour-icon {
+    font-size: 1rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .hour-temp {
+    font-size: 0.85rem;
+  }
+
+  .solar-arc {
+    margin-top: var(--spacing-xs);
+  }
+
+  .tomorrow-header {
+    padding: var(--spacing-sm) 0;
+  }
+
+  .moments {
+    padding: var(--spacing-sm) 0;
+    gap: var(--spacing-sm);
+  }
+}
+
+/* Very short phones (under 600px height) - extra compact */
+@media (max-height: 600px) {
+  .hero-headline {
+    font-size: 1.1rem;
+  }
+
+  .hero-temp {
+    font-size: 4rem;
+  }
+
+  .hour-item {
+    padding: 0.3rem 0.3rem;
+    min-width: 40px;
+  }
+
+  .solar-arc {
+    display: none;
+  }
+}
+
+/* Narrow phones */
 @media (max-width: 380px) {
   #app {
     padding: var(--spacing-sm);
@@ -631,17 +721,16 @@ body {
   }
 }
 
+/* Tall phones - more breathing room */
 @media (min-height: 800px) {
   .hero {
-    min-height: 50vh;
+    padding: var(--spacing-md) 0;
   }
 }
 
-/* Tall phones - more breathing room */
 @media (min-height: 900px) {
   .hero {
-    min-height: 45vh;
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-lg) 0;
   }
   
   .moments {
