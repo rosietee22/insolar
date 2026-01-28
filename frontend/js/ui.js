@@ -430,18 +430,29 @@ export function renderApp(data) {
     if (solarMarker) solarMarker.style.left = `${progress}%`;
   }
 
-  // Render Hourly Strip (next 12 hours)
+  // Render Hourly Strip (4 large typographic blocks)
   const hourlyStrip = document.getElementById('hourly-strip');
   if (hourlyStrip) {
-    const stripHours = hourly.slice(0, 12);
-    hourlyStrip.innerHTML = stripHours.map((hour, index) => `
-      <div class="hour-item${index === 0 ? ' now' : ''}">
-        <div class="hour-time">${index === 0 ? 'Now' : formatHourShort(hour.timestamp)}</div>
-        <div class="hour-icon">${getWeatherIcon(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
-        <div class="hour-temp">${Math.round(hour.temp_c)}°</div>
-        ${hour.rain_probability > 0 ? `<div class="hour-rain">${hour.rain_probability}%</div>` : ''}
-      </div>
-    `).join('');
+    const stripHours = hourly.slice(0, 4);
+    let prevIconName = null;
+    
+    hourlyStrip.innerHTML = stripHours.map((hour, index) => {
+      const iconName = getWeatherIconName(hour.rain_probability, hour.cloud_percent, hour.is_day);
+      const isFaded = index > 0 && iconName === prevIconName;
+      prevIconName = iconName;
+      
+      // Only show rain if > 25%
+      const showRain = hour.rain_probability > 25;
+      
+      return `
+        <div class="hour-item${isFaded ? ' faded' : ''}">
+          <div class="hour-time">${index === 0 ? 'Now' : formatHourShort(hour.timestamp)}</div>
+          <div class="hour-icon">${getWeatherIcon(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
+          <div class="hour-temp">${Math.round(hour.temp_c)}°</div>
+          ${showRain ? `<div class="hour-rain">${hour.rain_probability}%</div>` : ''}
+        </div>
+      `;
+    }).join('');
   }
 
   // Render Key Moments (only if unusual weather)

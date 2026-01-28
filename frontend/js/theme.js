@@ -149,35 +149,40 @@ export function generateHeroSentence(current, hourly) {
   const cooling = avgFutureTemp < temp_c - 3;
   const warming = avgFutureTemp > temp_c + 3;
 
-  // Priority-based sentence selection
+  // Check time of day for context
+  const hour = new Date().getHours();
+  const isEvening = hour >= 17 || hour < 5;
+  const isMorning = hour >= 5 && hour < 12;
+
+  // Priority-based declarative headlines
   if (rain_probability > 70) {
-    return 'Heavy rain. Take an umbrella.';
+    return isEvening ? 'Wet evening ahead.' : 'Rain expected.';
   }
   if (rainComing) {
-    return 'Rain starting soon.';
+    return 'Rain likely later.';
   }
   if (rainStopping) {
-    return 'Rain clearing shortly.';
+    return 'Clearing soon.';
   }
   if (rain_probability > 40) {
-    return 'Chance of rain today.';
+    return 'Showers possible.';
   }
   if (wind_speed_ms > 10) {
-    return 'Windy conditions.';
+    return 'Blustery out there.';
   }
   if (cooling) {
-    return 'Cooling down later.';
+    return isEvening ? 'Cooling after sunset.' : 'Getting colder.';
   }
   if (warming) {
-    return 'Warming up today.';
+    return isMorning ? 'Warming up nicely.' : 'Mild ahead.';
   }
   if (cloud_percent > 70) {
-    return 'Overcast skies.';
+    return 'Grey skies.';
   }
   if (cloud_percent > 30) {
-    return 'Partly cloudy.';
+    return isEvening ? 'Quiet evening.' : 'Mixed skies.';
   }
-  return 'Clear skies ahead.';
+  return isEvening ? 'Dry tonight.' : 'Clear and calm.';
 }
 
 // Export gradients for default theme
