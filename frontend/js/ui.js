@@ -103,6 +103,20 @@ function formatTime(date) {
 }
 
 /**
+ * Get descriptive wind term from speed in m/s
+ * Based on simplified Beaufort scale
+ */
+function getWindDescription(speedMs) {
+  if (speedMs < 0.5) return 'Calm';
+  if (speedMs < 3) return 'Light breeze';
+  if (speedMs < 6) return 'Gentle breeze';
+  if (speedMs < 9) return 'Moderate wind';
+  if (speedMs < 12) return 'Fresh wind';
+  if (speedMs < 15) return 'Strong wind';
+  return 'Very strong wind';
+}
+
+/**
  * Get weather emoji based on conditions and time of day
  * @param {number} rain_probability
  * @param {number} cloud_percent
@@ -311,7 +325,7 @@ export function renderApp(data) {
       lines.push(`${current.rain_probability}% chance of rain`);
     }
     const details = [];
-    details.push(`Wind ${Math.round(current.wind_speed_ms)} m/s`);
+    details.push(getWindDescription(current.wind_speed_ms));
     if (current.uv_index > 0 && current.is_day) details.push(`UV ${current.uv_index}`);
     lines.push(details.join(' · '));
     heroMeta.innerHTML = lines.join('<br>');
