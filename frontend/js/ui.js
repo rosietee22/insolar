@@ -179,79 +179,55 @@ function calculateSolarProgress(sunrise, sunset) {
 }
 
 /**
- * Generate Key Moments - narrative insights about weather changes
+ * Generate Key Moments - only for UNUSUAL weather events
  * @param {Array} hourly - Hourly forecast data
- * @returns {Array} Array of moment objects
+ * @returns {Array} Array of moment objects (empty if nothing unusual)
  */
 function generateKeyMoments(hourly) {
   const moments = [];
-  const now = new Date();
 
   // Look for significant weather events in next 12 hours
   const next12 = hourly.slice(0, 12);
 
-  // 1. Rain starting/stopping
-  let rainStartHour = null;
-  let rainStopHour = null;
-  let currentlyRaining = next12[0]?.rain_probability > 40;
-
+  // 1. Heavy rain starting (>60% probability)
+  let currentlyRaining = next12[0]?.rain_probability > 50;
+  
   for (let i = 1; i < next12.length; i++) {
     const hour = next12[i];
-    const isRaining = hour.rain_probability > 40;
+    const isHeavyRain = hour.rain_probability >= 60;
 
-    if (!currentlyRaining && isRaining && !rainStartHour) {
-      rainStartHour = hour;
-    }
-    if (currentlyRaining && !isRaining && !rainStopHour) {
-      rainStopHour = hour;
-    }
-  }
-
-  if (rainStartHour) {
-    moments.push({
-      time: formatHourShort(rainStartHour.timestamp),
-      text: `Rain likely to start`,
-      detail: `${rainStartHour.rain_probability}% chance, ${Math.round(rainStartHour.temp_c)}°`
-    });
-  }
-
-  if (rainStopHour) {
-    moments.push({
-      time: formatHourShort(rainStopHour.timestamp),
-      text: `Rain expected to clear`,
-      detail: `Dropping to ${rainStopHour.rain_probability}%`
-    });
-  }
-
-  // 2. Temperature peak/trough
-  const temps = next12.map(h => h.temp_c);
-  const maxTemp = Math.max(...temps);
-  const minTemp = Math.min(...temps);
-  const tempRange = maxTemp - minTemp;
-
-  if (tempRange >= 3) {
-    const peakHour = next12.find(h => h.temp_c === maxTemp);
-    if (peakHour && new Date(peakHour.timestamp) > now) {
+    if (!currentlyRaining && isHeavyRain) {
       moments.push({
-        time: formatHourShort(peakHour.timestamp),
-        text: `Warmest at ${Math.round(maxTemp)}°`,
-        detail: getWeatherEmoji(peakHour.rain_probability, peakHour.cloud_percent, peakHour.is_day)
+        time: formatHourShort(hour.timestamp),
+        text: `Heavy rain expected`,
+        detail: `${hour.rain_probability}% chance`
       });
+      break;
     }
   }
 
-  // 3. Wind picking up
-  const windyHour = next12.find((h, i) => i > 0 && h.wind_speed_ms > 8 && next12[i - 1].wind_speed_ms <= 8);
-  if (windyHour) {
+  // 2. Strong wind warning (>10 m/s)
+  const strongWindHour = next12.find((h, i) => i > 0 && h.wind_speed_ms > 10 && next12[i - 1].wind_speed_ms <= 10);
+  if (strongWindHour) {
     moments.push({
-      time: formatHourShort(windyHour.timestamp),
-      text: `Wind picks up`,
-      detail: `${Math.round(windyHour.wind_speed_ms)} m/s`
+      time: formatHourShort(strongWindHour.timestamp),
+      text: `Strong winds expected`,
+      detail: `${Math.round(strongWindHour.wind_speed_ms)} m/s`
     });
   }
 
-  // Limit to 3 most relevant moments
-  return moments.slice(0, 3);
+  // 3. Rapid temperature drop (>8° in next few hours)
+  const currentTemp = next12[0]?.temp_c || 0;
+  const coldestHour = next12.slice(1).find(h => currentTemp - h.temp_c >= 8);
+  if (coldestHour) {
+    moments.push({
+      time: formatHourShort(coldestHour.timestamp),
+      text: `Temperature dropping sharply`,
+      detail: `Down to ${Math.round(coldestHour.temp_c)}°`
+    });
+  }
+
+  return moments.slice(0, 2);
 }
 
 /**
@@ -327,14 +303,18 @@ export function renderApp(data) {
   document.getElementById('hero-headline').textContent = generateHeroSentence(current, hourly);
   document.getElementById('hero-temp').textContent = `${Math.round(current.temp_c)}°`;
 
-  // Hero meta
+  // Hero meta (rain chance directly below temp, then other details)
   const heroMeta = document.getElementById('hero-meta');
   if (heroMeta) {
-    const parts = [];
-    if (current.rain_probability > 0) parts.push(`${current.rain_probability}% rain`);
-    parts.push(`Wind ${Math.round(current.wind_speed_ms)} m/s`);
-    if (current.uv_index > 0 && current.is_day) parts.push(`UV ${current.uv_index}`);
-    heroMeta.textContent = parts.join(' · ');
+    const lines = [];
+    if (current.rain_probability > 0) {
+      lines.push(`${current.rain_probability}% chance of rain`);
+    }
+    const details = [];
+    details.push(`Wind ${Math.round(current.wind_speed_ms)} m/s`);
+    if (current.uv_index > 0 && current.is_day) details.push(`UV ${current.uv_index}`);
+    lines.push(details.join(' · '));
+    heroMeta.innerHTML = lines.join('<br>');
   }
 
   // Render Solar Arc
@@ -365,7 +345,7 @@ export function renderApp(data) {
     `).join('');
   }
 
-  // Render Key Moments
+  // Render Key Moments (only if unusual weather)
   const momentsEl = document.getElementById('moments');
   if (momentsEl) {
     const moments = generateKeyMoments(hourly);
@@ -377,13 +357,10 @@ export function renderApp(data) {
           ${m.detail ? `<div class="moment-detail">${m.detail}</div>` : ''}
         </div>
       `).join('');
+      momentsEl.style.display = '';
     } else {
-      momentsEl.innerHTML = `
-        <div class="moment">
-          <div class="moment-time">Next 12 hours</div>
-          <div class="moment-text">No significant changes expected</div>
-        </div>
-      `;
+      momentsEl.innerHTML = '';
+      momentsEl.style.display = 'none';
     }
   }
 
