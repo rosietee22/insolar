@@ -157,6 +157,8 @@ body {
   color: var(--text-secondary);
   transition: color 0.2s;
   text-align: left;
+  display: flex;
+  align-items: center;
 }
 
 .location-btn:hover {
