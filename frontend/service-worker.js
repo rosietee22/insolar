@@ -3,7 +3,7 @@
  * Handles offline caching and network-first strategy for API calls
  */
 
-const CACHE_NAME = 'insolar-v4';
+const CACHE_NAME = 'insolar-v5';
 
 // Static assets to precache
 const STATIC_ASSETS = [
@@ -94,7 +94,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: Cache-first, fallback to network
+  // HTML and JS: Network-first to always get latest
+  if (url.pathname.endsWith('.html') || url.pathname.endsWith('.js') || url.pathname === '/') {
+    event.respondWith(networkFirstStrategy(request));
+    return;
+  }
+
+  // Other static assets: Cache-first, fallback to network
   event.respondWith(cacheFirstStrategy(request));
 });
 
