@@ -282,6 +282,19 @@ body {
   background: var(--glass-bg);
 }
 
+.hour-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* Weather SVG icons */
+.weather-icon {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+
 .hour-time {
   font-size: 0.65rem;
   font-weight: 600;

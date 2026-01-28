@@ -117,21 +117,50 @@ function getWindDescription(speedMs) {
 }
 
 /**
- * Get weather emoji based on conditions and time of day
+ * Get weather icon filename based on conditions and time of day
  * @param {number} rain_probability
  * @param {number} cloud_percent
  * @param {boolean} is_day - From API (based on actual sunrise/sunset)
- * @returns {string}
+ * @returns {string} Icon filename (without path)
  */
-function getWeatherEmoji(rain_probability, cloud_percent, is_day) {
+function getWeatherIconName(rain_probability, cloud_percent, is_day) {
   const isNight = !is_day;
 
+  if (rain_probability > 60) return 'rain-heavy';
+  if (rain_probability > 30) return 'rain';
+  if (rain_probability > 10) return 'drizzle';
+  if (cloud_percent > 80) return 'cloudy';
+  if (cloud_percent > 30) return isNight ? 'partly-cloudy-night' : 'partly-cloudy-day';
+  return isNight ? 'clear-night' : 'clear-day';
+}
+
+/**
+ * Get weather icon HTML (SVG img tag)
+ * Falls back to emoji if SVG not found
+ * @param {number} rain_probability
+ * @param {number} cloud_percent
+ * @param {boolean} is_day
+ * @returns {string} HTML string
+ */
+function getWeatherIcon(rain_probability, cloud_percent, is_day) {
+  const iconName = getWeatherIconName(rain_probability, cloud_percent, is_day);
+  // Returns img tag - falls back gracefully if file missing
+  return `<img src="/icons/weather/${iconName}.svg" alt="${iconName}" class="weather-icon" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">${getWeatherEmojiFallback(rain_probability, cloud_percent, is_day)}</span>`;
+}
+
+/**
+ * Fallback emoji for when SVG icons aren't available
+ */
+function getWeatherEmojiFallback(rain_probability, cloud_percent, is_day) {
+  const isNight = !is_day;
   if (rain_probability > 60) return '🌧️';
-  if (rain_probability > 30) return isNight ? '🌧️' : '🌦️';
-  if (cloud_percent > 70) return '☁️';
-  if (cloud_percent > 30) return isNight ? '☁️' : '⛅';
+  if (rain_probability > 30) return '🌦️';
+  if (rain_probability > 10) return '🌤️';
+  if (cloud_percent > 80) return '☁️';
+  if (cloud_percent > 30) return isNight ? '🌙' : '⛅';
   return isNight ? '🌙' : '☀️';
 }
+
 
 /**
  * Estimate sunrise/sunset times from hourly is_day transitions
@@ -278,7 +307,7 @@ function getTomorrowData(hourly) {
     low: Math.round(Math.min(...temps)),
     high: Math.round(Math.max(...temps)),
     condition,
-    icon: getWeatherEmoji(maxRain, avgCloud, true),
+    icon: getWeatherIcon(maxRain, avgCloud, true),
     hours: tomorrowHours
   };
 }
@@ -349,7 +378,7 @@ export function renderApp(data) {
     hourlyStrip.innerHTML = stripHours.map((hour, index) => `
       <div class="hour-item${index === 0 ? ' now' : ''}">
         <div class="hour-time">${index === 0 ? 'Now' : formatHourShort(hour.timestamp)}</div>
-        <div class="hour-icon">${getWeatherEmoji(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
+        <div class="hour-icon">${getWeatherIcon(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
         <div class="hour-temp">${Math.round(hour.temp_c)}°</div>
         ${hour.rain_probability > 0 ? `<div class="hour-rain">${hour.rain_probability}%</div>` : ''}
       </div>
@@ -396,7 +425,7 @@ export function renderApp(data) {
           ${tomorrow.hours.map(hour => `
             <div class="tomorrow-hour">
               <span class="tomorrow-hour-time">${formatHourShort(hour.timestamp)}</span>
-              <span class="tomorrow-hour-icon">${getWeatherEmoji(hour.rain_probability, hour.cloud_percent, hour.is_day)}</span>
+              <span class="tomorrow-hour-icon">${getWeatherIcon(hour.rain_probability, hour.cloud_percent, hour.is_day)}</span>
               <span class="tomorrow-hour-temp">${Math.round(hour.temp_c)}°</span>
               <span class="tomorrow-hour-rain">${hour.rain_probability > 0 ? `${hour.rain_probability}%` : ''}</span>
             </div>
