@@ -177,6 +177,9 @@ function estimateSunriseSunset(hourly) {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toDateString();
 
+  // Check if currently night (first hour is_day = false)
+  const currentlyNight = hourly[0] && !hourly[0].is_day;
+
   for (let i = 1; i < hourly.length; i++) {
     const prev = hourly[i - 1];
     const curr = hourly[i];
@@ -185,34 +188,52 @@ function estimateSunriseSunset(hourly) {
 
     // Night to day transition = sunrise
     if (!prev.is_day && curr.is_day) {
+      if (!nextSunrise) {
+        nextSunrise = new Date(curr.timestamp);
+      }
       if (dateStr === today && !sunrise) {
         sunrise = new Date(curr.timestamp);
-      } else if ((dateStr === tomorrowStr || dateStr === today) && !nextSunrise && new Date(curr.timestamp) > now) {
-        nextSunrise = new Date(curr.timestamp);
       }
     }
     // Day to night transition = sunset
-    if (prev.is_day && !curr.is_day && dateStr === today && !sunset) {
-      sunset = new Date(curr.timestamp);
+    if (prev.is_day && !curr.is_day) {
+      if (!sunset) {
+        sunset = new Date(curr.timestamp);
+      }
     }
   }
 
-  // Fallback defaults if transitions not found in data
+  // If currently night and no sunset found in future data, estimate it was earlier today
+  if (currentlyNight && !sunset) {
+    // Sunset already happened - estimate based on typical winter time
+    sunset = new Date(now);
+    const hour = now.getHours();
+    // If evening (after 4pm), sunset was probably around 4-5pm
+    if (hour >= 16) {
+      sunset.setHours(16, 30, 0, 0);
+    } else {
+      // Early morning before sunrise
+      sunset.setDate(sunset.getDate() - 1);
+      sunset.setHours(16, 30, 0, 0);
+    }
+  }
+
+  // Fallback defaults
   if (!sunrise) {
     sunrise = new Date(now);
-    sunrise.setHours(6, 30, 0, 0);
+    sunrise.setHours(7, 30, 0, 0);
   }
   if (!sunset) {
     sunset = new Date(now);
-    sunset.setHours(18, 30, 0, 0);
+    sunset.setHours(16, 30, 0, 0);
   }
   if (!nextSunrise) {
     nextSunrise = new Date(tomorrow);
-    nextSunrise.setHours(6, 30, 0, 0);
+    nextSunrise.setHours(7, 30, 0, 0);
   }
 
-  // Determine if it's currently night
-  const isNight = now < sunrise || now > sunset;
+  // Determine if it's currently night based on actual API data
+  const isNight = currentlyNight;
 
   return { sunrise, sunset, nextSunrise, isNight };
 }
@@ -377,24 +398,32 @@ export function renderApp(data) {
   const solarProgress = document.getElementById('solar-progress');
   const solarMarker = document.getElementById('solar-marker');
 
+  // Get icon elements
+  const solarArc = document.getElementById('solar-arc');
+  const leftIcon = solarArc?.querySelector('.sunrise');
+  const rightIcon = solarArc?.querySelector('.sunset');
+
   if (isNight) {
-    // Night mode: show sunset to sunrise
+    // Night mode: show sunset (left) to sunrise (right)
     if (sunriseEl) sunriseEl.textContent = formatTime(sunset);
     if (sunsetEl) sunsetEl.textContent = formatTime(nextSunrise);
     
+    // Swap icons for night
+    if (leftIcon) leftIcon.innerHTML = `🌙 <span id="sunrise-time">${formatTime(sunset)}</span>`;
+    if (rightIcon) rightIcon.innerHTML = `☀ <span id="sunset-time">${formatTime(nextSunrise)}</span>`;
+    
     // Calculate night progress
     const now = new Date();
-    const nightStart = now > sunset ? sunset : new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
-    const nightLength = nextSunrise - nightStart;
-    const elapsed = now - nightStart;
+    const nightLength = nextSunrise - sunset;
+    const elapsed = now - sunset;
     const progress = Math.min(100, Math.max(0, Math.round((elapsed / nightLength) * 100)));
     
     if (solarProgress) solarProgress.style.width = `${progress}%`;
     if (solarMarker) solarMarker.style.left = `${progress}%`;
   } else {
-    // Day mode: show sunrise to sunset
-    if (sunriseEl) sunriseEl.textContent = formatTime(sunrise);
-    if (sunsetEl) sunsetEl.textContent = formatTime(sunset);
+    // Day mode: show sunrise (left) to sunset (right)
+    if (leftIcon) leftIcon.innerHTML = `☀ <span id="sunrise-time">${formatTime(sunrise)}</span>`;
+    if (rightIcon) rightIcon.innerHTML = `🌙 <span id="sunset-time">${formatTime(sunset)}</span>`;
     
     const progress = calculateSolarProgress(sunrise, sunset);
     if (solarProgress) solarProgress.style.width = `${progress}%`;
