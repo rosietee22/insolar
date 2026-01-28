@@ -165,28 +165,34 @@ function getWeatherEmojiFallback(rain_probability, cloud_percent, is_day) {
 /**
  * Estimate sunrise/sunset times from hourly is_day transitions
  * @param {Array} hourly - Hourly forecast data
- * @returns {Object} { sunrise: Date, sunset: Date }
+ * @returns {Object} { sunrise: Date, sunset: Date, nextSunrise: Date, isNight: boolean }
  */
 function estimateSunriseSunset(hourly) {
   let sunrise = null;
   let sunset = null;
+  let nextSunrise = null;
   const now = new Date();
   const today = now.toDateString();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toDateString();
 
   for (let i = 1; i < hourly.length; i++) {
     const prev = hourly[i - 1];
     const curr = hourly[i];
     const currDate = new Date(curr.timestamp);
-
-    // Only look at today's data
-    if (currDate.toDateString() !== today) continue;
+    const dateStr = currDate.toDateString();
 
     // Night to day transition = sunrise
-    if (!prev.is_day && curr.is_day && !sunrise) {
-      sunrise = new Date(curr.timestamp);
+    if (!prev.is_day && curr.is_day) {
+      if (dateStr === today && !sunrise) {
+        sunrise = new Date(curr.timestamp);
+      } else if ((dateStr === tomorrowStr || dateStr === today) && !nextSunrise && new Date(curr.timestamp) > now) {
+        nextSunrise = new Date(curr.timestamp);
+      }
     }
     // Day to night transition = sunset
-    if (prev.is_day && !curr.is_day && !sunset) {
+    if (prev.is_day && !curr.is_day && dateStr === today && !sunset) {
       sunset = new Date(curr.timestamp);
     }
   }
@@ -200,8 +206,15 @@ function estimateSunriseSunset(hourly) {
     sunset = new Date(now);
     sunset.setHours(18, 30, 0, 0);
   }
+  if (!nextSunrise) {
+    nextSunrise = new Date(tomorrow);
+    nextSunrise.setHours(6, 30, 0, 0);
+  }
 
-  return { sunrise, sunset };
+  // Determine if it's currently night
+  const isNight = now < sunrise || now > sunset;
+
+  return { sunrise, sunset, nextSunrise, isNight };
 }
 
 /**
@@ -358,18 +371,35 @@ export function renderApp(data) {
   }
 
   // Render Solar Arc
-  const { sunrise, sunset } = estimateSunriseSunset(hourly);
+  const { sunrise, sunset, nextSunrise, isNight } = estimateSunriseSunset(hourly);
   const sunriseEl = document.getElementById('sunrise-time');
   const sunsetEl = document.getElementById('sunset-time');
   const solarProgress = document.getElementById('solar-progress');
   const solarMarker = document.getElementById('solar-marker');
 
-  if (sunriseEl) sunriseEl.textContent = formatTime(sunrise);
-  if (sunsetEl) sunsetEl.textContent = formatTime(sunset);
-
-  const progress = calculateSolarProgress(sunrise, sunset);
-  if (solarProgress) solarProgress.style.width = `${progress}%`;
-  if (solarMarker) solarMarker.style.left = `${progress}%`;
+  if (isNight) {
+    // Night mode: show sunset to sunrise
+    if (sunriseEl) sunriseEl.textContent = formatTime(sunset);
+    if (sunsetEl) sunsetEl.textContent = formatTime(nextSunrise);
+    
+    // Calculate night progress
+    const now = new Date();
+    const nightStart = now > sunset ? sunset : new Date(sunset.getTime() - 24 * 60 * 60 * 1000);
+    const nightLength = nextSunrise - nightStart;
+    const elapsed = now - nightStart;
+    const progress = Math.min(100, Math.max(0, Math.round((elapsed / nightLength) * 100)));
+    
+    if (solarProgress) solarProgress.style.width = `${progress}%`;
+    if (solarMarker) solarMarker.style.left = `${progress}%`;
+  } else {
+    // Day mode: show sunrise to sunset
+    if (sunriseEl) sunriseEl.textContent = formatTime(sunrise);
+    if (sunsetEl) sunsetEl.textContent = formatTime(sunset);
+    
+    const progress = calculateSolarProgress(sunrise, sunset);
+    if (solarProgress) solarProgress.style.width = `${progress}%`;
+    if (solarMarker) solarMarker.style.left = `${progress}%`;
+  }
 
   // Render Hourly Strip (next 12 hours)
   const hourlyStrip = document.getElementById('hourly-strip');
