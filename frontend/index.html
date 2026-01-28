@@ -71,19 +71,22 @@
         <div class="hero-meta" id="hero-meta"></div>
       </section>
 
-      <!-- Hourly Strip (12 hours, scrollable) -->
+      <!-- Hourly Strip (5.5 visible, scrollable) -->
       <section class="hourly-section">
         <div class="hourly-strip" id="hourly-strip"></div>
-        <!-- Solar arc -->
-        <div class="solar-arc" id="solar-arc">
-          <span class="solar-time sunrise">☀ <span id="sunrise-time">--:--</span></span>
-          <div class="solar-track">
-            <div class="solar-progress" id="solar-progress"></div>
-            <div class="solar-marker" id="solar-marker"></div>
-          </div>
-          <span class="solar-time sunset">🌙 <span id="sunset-time">--:--</span></span>
-        </div>
       </section>
+
+      <!-- Solar Timeline (below hourly) -->
+      <div class="solar-arc" id="solar-arc">
+        <span class="solar-label" id="left-time">--:--</span>
+        <span class="solar-icon" id="left-icon">🌙</span>
+        <div class="solar-track">
+          <div class="solar-progress" id="solar-progress"></div>
+          <div class="solar-marker" id="solar-marker"></div>
+        </div>
+        <span class="solar-icon" id="right-icon">☀</span>
+        <span class="solar-label" id="right-time">--:--</span>
+      </div>
 
       <!-- Key Moments -->
       <section class="moments" id="moments"></section>
@@ -109,8 +112,13 @@
     <div id="location-options-modal" class="modal hidden">
       <div class="modal-content">
         <h2>Update Location</h2>
-        <button id="refresh-location-btn" class="btn btn-primary">📍 Use My Location</button>
-        <button id="search-location-btn" class="btn">🔍 Search by City</button>
+        <button id="refresh-location-btn" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; vertical-align: middle;">
+            <path d="M23 4v6h-6M1 20v-6h6"/>
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+          </svg>
+          Refresh My Location
+        </button>
         <button id="cancel-location-btn" class="btn btn-secondary">Cancel</button>
       </div>
     </div>

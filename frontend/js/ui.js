@@ -398,54 +398,72 @@ export function renderApp(data) {
   const solarProgress = document.getElementById('solar-progress');
   const solarMarker = document.getElementById('solar-marker');
 
-  // Get icon elements
-  const solarArc = document.getElementById('solar-arc');
-  const leftIcon = solarArc?.querySelector('.sunrise');
-  const rightIcon = solarArc?.querySelector('.sunset');
+  // Get elements for new structure
+  const leftTime = document.getElementById('left-time');
+  const leftIcon = document.getElementById('left-icon');
+  const rightIcon = document.getElementById('right-icon');
+  const rightTime = document.getElementById('right-time');
+
+  const now = new Date();
+
+  // If night and sunset is in the future, it's tomorrow's sunset - estimate today's
+  let adjustedSunset = sunset;
+  if (isNight && sunset > now) {
+    adjustedSunset = new Date(now);
+    adjustedSunset.setHours(16, 30, 0, 0); // Estimate today's sunset (UK winter ~4:30pm)
+  }
+
+  // Ensure nextSunrise is after adjustedSunset (next day if needed)
+  let adjustedNextSunrise = nextSunrise;
+  if (adjustedNextSunrise <= adjustedSunset) {
+    adjustedNextSunrise = new Date(nextSunrise);
+    adjustedNextSunrise.setDate(adjustedNextSunrise.getDate() + 1);
+  }
+
+  // Debug: log solar times
+  console.log('Solar:', { isNight, adjustedSunset: adjustedSunset?.toLocaleTimeString(), adjustedNextSunrise: adjustedNextSunrise?.toLocaleTimeString() });
 
   if (isNight) {
-    // Night mode: show sunset (left) to sunrise (right)
-    if (sunriseEl) sunriseEl.textContent = formatTime(sunset);
-    if (sunsetEl) sunsetEl.textContent = formatTime(nextSunrise);
-    
-    // Swap icons for night
-    if (leftIcon) leftIcon.innerHTML = `🌙 <span id="sunrise-time">${formatTime(sunset)}</span>`;
-    if (rightIcon) rightIcon.innerHTML = `☀ <span id="sunset-time">${formatTime(nextSunrise)}</span>`;
+    // Night mode: sunset (left) → sunrise (right)
+    if (leftTime) leftTime.textContent = formatTime(adjustedSunset);
+    if (leftIcon) leftIcon.innerHTML = '<img src="/icons/weather/clear-night.svg" class="solar-svg" alt="moon">';
+    if (rightIcon) rightIcon.innerHTML = '<img src="/icons/weather/clear-day.svg" class="solar-svg" alt="sun">';
+    if (rightTime) rightTime.textContent = formatTime(adjustedNextSunrise);
     
     // Calculate night progress
-    const now = new Date();
-    const nightLength = nextSunrise - sunset;
-    const elapsed = now - sunset;
+    const nightLength = adjustedNextSunrise.getTime() - adjustedSunset.getTime();
+    const elapsed = now.getTime() - adjustedSunset.getTime();
     const progress = Math.min(100, Math.max(0, Math.round((elapsed / nightLength) * 100)));
+    
+    console.log('Night progress:', { elapsed: Math.round(elapsed/60000) + 'min', nightLength: Math.round(nightLength/60000) + 'min', progress: progress + '%' });
     
     if (solarProgress) solarProgress.style.width = `${progress}%`;
     if (solarMarker) solarMarker.style.left = `${progress}%`;
   } else {
-    // Day mode: show sunrise (left) to sunset (right)
-    if (leftIcon) leftIcon.innerHTML = `☀ <span id="sunrise-time">${formatTime(sunrise)}</span>`;
-    if (rightIcon) rightIcon.innerHTML = `🌙 <span id="sunset-time">${formatTime(sunset)}</span>`;
+    // Day mode: sunrise (left) → sunset (right)
+    if (leftTime) leftTime.textContent = formatTime(sunrise);
+    if (leftIcon) leftIcon.innerHTML = '<img src="/icons/weather/clear-day.svg" class="solar-svg" alt="sun">';
+    if (rightIcon) rightIcon.innerHTML = '<img src="/icons/weather/clear-night.svg" class="solar-svg" alt="moon">';
+    if (rightTime) rightTime.textContent = formatTime(sunset);
     
     const progress = calculateSolarProgress(sunrise, sunset);
+    console.log('Day progress:', progress + '%');
+    
     if (solarProgress) solarProgress.style.width = `${progress}%`;
     if (solarMarker) solarMarker.style.left = `${progress}%`;
   }
 
-  // Render Hourly Strip (12 hours, scrollable showing 5.5 at a time)
+  // Render Hourly Strip (12 hours, 5.5 visible)
   const hourlyStrip = document.getElementById('hourly-strip');
   if (hourlyStrip) {
     const stripHours = hourly.slice(0, 12);
-    let prevIconName = null;
     
     hourlyStrip.innerHTML = stripHours.map((hour, index) => {
-      const iconName = getWeatherIconName(hour.rain_probability, hour.cloud_percent, hour.is_day);
-      const isFaded = index > 0 && iconName === prevIconName;
-      prevIconName = iconName;
-      
       // Only show rain if > 25%
       const showRain = hour.rain_probability > 25;
       
       return `
-        <div class="hour-item${isFaded ? ' faded' : ''}">
+        <div class="hour-item${index > 0 ? ' future' : ''}">
           <div class="hour-time">${index === 0 ? 'Now' : formatHourShort(hour.timestamp)}</div>
           <div class="hour-icon">${getWeatherIcon(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
           <div class="hour-temp">${Math.round(hour.temp_c)}°</div>

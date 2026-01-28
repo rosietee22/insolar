@@ -66,7 +66,6 @@ async function init() {
   
   // Location options popup
   document.getElementById('refresh-location-btn').addEventListener('click', refreshGPSLocation);
-  document.getElementById('search-location-btn').addEventListener('click', showCitySearchFromOptions);
   document.getElementById('cancel-location-btn').addEventListener('click', hideLocationOptions);
 
   // Try to load cached forecast first

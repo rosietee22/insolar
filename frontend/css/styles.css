@@ -1,29 +1,36 @@
 /**
  * Insolar Styles
- * Poster-like Editorial Design: Ambient backgrounds, large typography, minimal chrome
- */
 
-/* CSS Custom Properties */
+/* CSS Custom Properties - 8pt Grid System */
 :root {
   /* Theme colors (set dynamically by JS) */
   --gradient-from: #FFE4B5;
   --gradient-to: #87CEEB;
   --text-primary: #1A1A2E;
-  --text-secondary: rgba(26, 26, 46, 0.6);
+  --text-secondary: rgba(26, 26, 46, 0.5);
 
   /* Subtle glass for rare use */
   --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.15);
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
-  /* Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
-  --spacing-xl: 3rem;
+  /* 8pt Spacing Grid */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+
+  /* Type Scale */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-hero: 170px;
 }
 
 /* Reset & Base */
@@ -49,8 +56,8 @@ body {
 #app {
   max-width: 420px;
   margin: 0 auto;
-  padding: var(--spacing-md);
-  padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+  padding: var(--space-3);
+  padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom));
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -58,9 +65,9 @@ body {
 }
 
 .content {
-  flex: 1;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 /* Utility Classes */
@@ -120,7 +127,7 @@ body {
   background: rgba(255, 193, 7, 0.2);
   border-radius: 8px;
   padding: 0.6rem 1rem;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--space-3);
   font-size: 0.8rem;
   color: var(--text-primary);
   text-align: center;
@@ -131,41 +138,30 @@ body {
 .hero {
   display: flex;
   flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: var(--spacing-md) 0 var(--spacing-sm);
-  position: relative;
-}
-
-/* Brighter hero overlay */
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -var(--spacing-md);
-  left: -var(--spacing-md);
-  right: -var(--spacing-md);
-  bottom: 0;
-  background: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.15) 0%, transparent 70%);
-  pointer-events: none;
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-5);
 }
 
 .hero-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: var(--spacing-xs);
+  width: 100%;
+  margin-bottom: var(--space-4);
 }
 
 .location-btn {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0.4rem 0;
+  padding: 0;
   font-family: var(--font-family);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 400;
   color: var(--text-secondary);
   transition: color 0.2s;
-  text-align: left;
   display: flex;
   align-items: center;
 }
@@ -175,111 +171,47 @@ body {
 }
 
 .current-time {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 400;
   color: var(--text-secondary);
 }
 
 .hero-headline {
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: 1.1;
+  font-size: var(--text-xl);
+  font-weight: 500;
+  line-height: 1.2;
   color: var(--text-primary);
-  margin-bottom: 0;
-  letter-spacing: -0.02em;
+  margin-bottom: var(--space-1);
+  letter-spacing: -0.01em;
 }
 
 .hero-temp {
-  font-size: 9rem;
+  font-size: var(--text-hero);
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 0.85;
-  letter-spacing: -0.05em;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
   margin: 0;
 }
 
 .hero-meta {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 400;
   color: var(--text-secondary);
-  margin-top: var(--spacing-xs);
-  text-align: center;
+  margin-top: var(--space-2);
 }
 
-/* ==================== SOLAR TIMELINE ==================== */
-.solar-arc {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin: var(--spacing-lg) 0 var(--spacing-md);
-  padding: var(--spacing-sm) 0;
-}
-
-.solar-time {
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  min-width: 50px;
-}
-
-.solar-time .solar-icon {
-  font-size: 1.2rem;
-}
-
-.solar-track {
-  flex: 1;
-  height: 8px;
-  background: linear-gradient(90deg, 
-    rgba(255,200,100,0.3) 0%, 
-    rgba(255,220,150,0.4) 30%, 
-    rgba(200,180,255,0.3) 70%, 
-    rgba(100,120,180,0.3) 100%);
-  border-radius: 4px;
-  position: relative;
-  overflow: visible;
-}
-
-.solar-progress {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    rgba(255,180,80,0.6) 0%, 
-    rgba(255,200,100,0.5) 100%);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.solar-marker {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 16px;
-  height: 16px;
-  background: var(--text-primary);
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  transition: left 0.3s ease;
-}
-
-/* ==================== HOURLY FORECAST (Scrollable Blocks) ==================== */
+/* ==================== HOURLY FORECAST (5.5 visible, scrollable) ==================== */
 .hourly-section {
-  margin: var(--spacing-md) calc(-1 * var(--spacing-md)) var(--spacing-lg);
-  padding: 0 var(--spacing-md);
-  overflow: hidden;
+  margin: 0 calc(-1 * var(--space-3));
+  padding: var(--space-2) var(--space-3) 0;
 }
 
 .hourly-strip {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--space-1);
   overflow-x: auto;
-  padding: var(--spacing-xs) 0;
+  padding: var(--space-1) 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -290,65 +222,123 @@ body {
 }
 
 .hour-item {
-  flex: 0 0 calc((100% - 4 * var(--spacing-sm)) / 5.5);
+  flex: 0 0 calc((100% - 4.5 * var(--space-1)) / 5.5);
+  min-width: calc((100% - 4.5 * var(--space-1)) / 5.5);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-sm) var(--spacing-xs);
-  border-radius: 12px;
-  transition: opacity 0.2s;
+  padding: var(--space-1) 0;
   scroll-snap-align: start;
+  transition: opacity 0.2s;
 }
 
-.hour-item.faded {
+/* Now = full opacity, future = faded */
+.hour-item.future {
   opacity: 0.5;
 }
 
-.hour-icon {
-  margin-bottom: 0.3rem;
-}
-
-/* Weather SVG icons */
-.weather-icon {
-  width: 1.8em;
-  height: 1.8em;
-  vertical-align: middle;
-  filter: var(--icon-filter, none);
-}
-
 .hour-time {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: var(--text-secondary);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-1);
+}
+
+.hour-icon {
+  margin-bottom: var(--space-1);
+}
+
+.weather-icon {
+  width: 24px;
+  height: 24px;
+  filter: var(--icon-filter, none);
 }
 
 .hour-temp {
-  font-size: 1.5rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .hour-rain {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 400;
   color: var(--text-secondary);
-  margin-top: 0.2rem;
+  margin-top: 4px;
+}
+
+/* ==================== SOLAR TIMELINE (below hourly) ==================== */
+.solar-arc {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding: 0;
+}
+
+.solar-label {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.solar-icon {
+  display: flex;
+  align-items: center;
+}
+
+.solar-svg {
+  width: 20px;
+  height: 20px;
+  filter: var(--icon-filter, none);
+}
+
+.solar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--glass-bg);
+  border-radius: 4px;
+  position: relative;
+  overflow: visible;
+}
+
+.solar-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--text-secondary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.solar-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: left 0.3s ease;
 }
 
 /* ==================== KEY MOMENTS ==================== */
 .moments {
-  padding: var(--spacing-lg) 0;
+  padding: var(--space-4) 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--space-2);
 }
 
 .moment {
-  padding-left: var(--spacing-xs);
+  padding-left: var(--space-1);
   border-left: 2px solid var(--glass-border);
 }
 
@@ -374,47 +364,47 @@ body {
   margin-top: 0.2rem;
 }
 
-/* ==================== TOMORROW (Minimal Row) ==================== */
+/* ==================== BOTTOM ANCHOR (Tomorrow + Freshness) ==================== */
 .tomorrow {
-  border-top: 1px solid var(--glass-border);
   margin-top: auto;
+  border-top: 1px solid var(--glass-border);
 }
 
 .tomorrow-header {
   display: flex;
   align-items: center;
-  padding: var(--spacing-sm) 0;
+  padding: var(--space-2) 0;
   cursor: pointer;
   user-select: none;
 }
 
 .tomorrow-label {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-secondary);
-  margin-right: var(--spacing-sm);
+  margin-right: var(--space-2);
 }
 
 .tomorrow-summary {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 400;
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-1);
 }
 
 .tomorrow-icon {
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .tomorrow-temps {
   color: var(--text-secondary);
   margin-left: auto;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 400;
 }
 
@@ -422,22 +412,25 @@ body {
   color: var(--text-secondary);
   opacity: 0.5;
   transition: transform 0.2s;
-  margin-left: 0.3rem;
-}
-
-.tomorrow.expanded .tomorrow-chevron {
+  margin-left: var(--space-1);
   transform: rotate(180deg);
 }
 
-/* Tomorrow hourly list (vertical) */
+.tomorrow.expanded .tomorrow-chevron {
+  transform: rotate(0deg);
+}
+
+/* Tomorrow hourly list (expands upward) */
 .tomorrow-hours {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-out;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .tomorrow.expanded .tomorrow-hours {
-  max-height: 600px;
+  max-height: 400px;
 }
 
 .tomorrow-hour {
@@ -480,9 +473,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: var(--spacing-sm) 0;
-  font-size: 0.75rem;
+  gap: var(--space-1);
+  padding: var(--space-2) 0 var(--space-3);
+  font-size: var(--text-xs);
   color: var(--text-secondary);
 }
 
@@ -569,7 +562,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: var(--spacing-md);
+  padding: var(--space-2);
 }
 
 .modal-content {
@@ -577,19 +570,19 @@ body {
   width: 100%;
   text-align: center;
   background: linear-gradient(180deg, var(--gradient-from), var(--gradient-to));
-  padding: var(--spacing-lg);
+  padding: var(--space-4);
   border-radius: 20px;
 }
 
 .modal-content h2 {
   color: var(--text-primary);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--space-2);
   font-size: 1.3rem;
   font-weight: 600;
 }
 
 .modal-content p {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--space-3);
   color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.5;
@@ -612,7 +605,7 @@ body {
   border: 1px solid var(--glass-border);
   font-family: var(--font-family);
   font-size: 1rem;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--space-2);
   background: rgba(255, 255, 255, 0.2);
   color: var(--text-primary);
 }
@@ -629,131 +622,45 @@ body {
 
 /* ==================== RESPONSIVE ==================== */
 
-/* Short phones (under 700px height) - compact everything to fit */
-@media (max-height: 700px) {
-  #app {
-    padding: var(--spacing-sm);
-    padding-bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom));
-  }
-
+/* Short phones (under 667px height) - compact layout */
+@media (max-height: 667px) {
   .hero {
-    padding: var(--spacing-xs) 0;
-  }
-
-  .hero-top {
-    padding-bottom: var(--spacing-xs);
-  }
-
-  .hero-headline {
-    font-size: 1.3rem;
-    margin-bottom: 0;
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
   }
 
   .hero-temp {
-    font-size: 5rem;
-    margin-bottom: 0;
-  }
-
-  .hero-meta {
-    margin-top: 0;
-    font-size: 0.8rem;
-  }
-
-  .hourly-section {
-    margin: var(--spacing-xs) calc(-1 * var(--spacing-sm));
-    padding: 0 var(--spacing-sm);
-  }
-
-  .hour-item {
-    padding: 0.4rem 0.35rem;
-    min-width: 44px;
-  }
-
-  .hour-time {
-    font-size: 0.6rem;
-    margin-bottom: 0.2rem;
-  }
-
-  .hour-icon {
-    font-size: 1rem;
-    margin-bottom: 0.15rem;
+    font-size: 72px;
   }
 
   .hour-temp {
-    font-size: 0.85rem;
-  }
-
-  .solar-arc {
-    margin-top: var(--spacing-xs);
-  }
-
-  .tomorrow-header {
-    padding: var(--spacing-sm) 0;
-  }
-
-  .moments {
-    padding: var(--spacing-sm) 0;
-    gap: var(--spacing-sm);
+    font-size: var(--text-base);
   }
 }
 
-/* Very short phones (under 600px height) - extra compact */
-@media (max-height: 600px) {
-  .hero-headline {
-    font-size: 1.1rem;
+/* Very short phones (under 568px height) */
+@media (max-height: 568px) {
+  .hero {
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
   }
 
   .hero-temp {
-    font-size: 4rem;
-  }
-
-  .hour-item {
-    padding: 0.3rem 0.3rem;
-    min-width: 40px;
+    font-size: 64px;
   }
 
   .solar-arc {
-    display: none;
+    margin-top: var(--space-1);
   }
 }
 
 /* Narrow phones */
 @media (max-width: 380px) {
   #app {
-    padding: var(--spacing-sm);
-  }
-
-  .hero-headline {
-    font-size: 1.5rem;
+    padding: var(--space-2);
   }
 
   .hero-temp {
-    font-size: 5.5rem;
-  }
-
-  .hour-item {
-    min-width: 46px;
-    padding: 0.5rem 0.4rem;
-  }
-
-  .moment-text {
-    font-size: 1rem;
-  }
-}
-
-/* Tall phones - more breathing room */
-@media (min-height: 800px) {
-  .hero {
-    padding: var(--spacing-md) 0;
-  }
-}
-
-@media (min-height: 900px) {
-  .hero {
-    padding: var(--spacing-lg) 0;
-  }
-  
-  .moments {
-    padding: var(--spacing-xl) 0;
+    font-size: 72px;
   }
 }

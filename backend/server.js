@@ -14,23 +14,25 @@ app.use(helmet({
   contentSecurityPolicy: false, // Allow inline scripts for PWA
 }));
 
-// Rate limiting - global: 100 requests per 15 minutes per IP
+// Rate limiting - global: 100 requests per 15 minutes per IP (skip in development)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: { error: 'Too many requests', message: 'Please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'development',
 });
 app.use(globalLimiter);
 
-// Stricter rate limit for API endpoints: 30 requests per 15 minutes
+// Stricter rate limit for API endpoints: 30 requests per 15 minutes (skip in development)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 30, // limit each IP to 30 API requests per windowMs
   message: { error: 'API rate limit exceeded', message: 'Too many forecast requests. Please wait before trying again.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'development',
 });
 
 // Compression middleware
