@@ -585,6 +585,24 @@ body {
   margin-bottom: 0;
 }
 
+/* Location hint text */
+.location-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  margin: -0.25rem 0 0.75rem 0;
+}
+
+/* Location warning */
+.location-warning {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: var(--space-2);
+}
+
 /* ==================== INPUT ==================== */
 .input {
   width: 100%;

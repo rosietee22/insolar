@@ -3,7 +3,16 @@
  */
 
 import { getForecast, searchCity } from './api.js';
-import { getGPSLocation, getCachedLocation, setCityLocation } from './location.js';
+import { 
+  getGPSLocation, 
+  getApproximateLocation,
+  getCachedLocation, 
+  setCityLocation,
+  detectInAppBrowser,
+  isSecureContext,
+  wasGPSDenied,
+  clearGPSDenied
+} from './location.js';
 import {
   showLoading,
   showError,
@@ -59,15 +68,27 @@ async function init() {
   document.getElementById('refresh-btn').addEventListener('click', refresh);
   document.getElementById('update-location-btn').addEventListener('click', showLocationOptions);
   document.getElementById('retry-btn').addEventListener('click', retry);
-  document.getElementById('allow-location-btn').addEventListener('click', requestGPS);
+  
+  // Location prompt buttons
+  document.getElementById('allow-location-btn').addEventListener('click', handleUseMyLocation);
+  document.getElementById('use-approximate-btn')?.addEventListener('click', handleUseApproximate);
   document.getElementById('use-city-btn').addEventListener('click', showCitySearch);
   document.getElementById('search-city-btn').addEventListener('click', handleCitySearch);
   document.getElementById('cancel-search-btn').addEventListener('click', hideCitySearch);
   
   // Location options popup
-  document.getElementById('refresh-location-btn').addEventListener('click', refreshGPSLocation);
+  document.getElementById('refresh-location-btn').addEventListener('click', handleUseMyLocation);
+  document.getElementById('use-approximate-btn-modal')?.addEventListener('click', handleUseApproximateFromOptions);
   document.getElementById('search-location-btn').addEventListener('click', showCitySearchFromOptions);
   document.getElementById('cancel-location-btn').addEventListener('click', hideLocationOptions);
+  
+  // Location fallback buttons
+  document.getElementById('fallback-approximate-btn')?.addEventListener('click', handleUseApproximate);
+  document.getElementById('fallback-search-btn')?.addEventListener('click', showCitySearch);
+  document.getElementById('fallback-retry-btn')?.addEventListener('click', handleUseMyLocation);
+  
+  // Check for context issues on startup
+  checkLocationContext();
 
   // Try to load cached forecast first
   const cachedForecast = getCachedForecast();
@@ -123,11 +144,38 @@ function hideLocationPrompt() {
 }
 
 /**
- * Request GPS location
+ * Check location context (HTTPS, in-app browser) and show warnings
  */
-async function requestGPS() {
+function checkLocationContext() {
+  const { isInApp, appName } = detectInAppBrowser();
+  const warningEl = document.getElementById('location-warning');
+  
+  if (!isSecureContext()) {
+    if (warningEl) {
+      warningEl.textContent = 'Location requires a secure connection.';
+      warningEl.classList.remove('hidden');
+    }
+    return;
+  }
+  
+  if (isInApp) {
+    if (warningEl) {
+      warningEl.textContent = `Location may be blocked in ${appName}. Open in Safari or Chrome.`;
+      warningEl.classList.remove('hidden');
+    }
+  }
+}
+
+/**
+ * Handle "Use my location" button - tries GPS first, falls back gracefully
+ */
+async function handleUseMyLocation() {
   hideLocationPrompt();
+  hideLocationOptions();
   showLoading();
+  
+  // Clear previous denial flag when user explicitly taps
+  clearGPSDenied();
 
   try {
     const location = await getGPSLocation();
@@ -136,21 +184,64 @@ async function requestGPS() {
   } catch (error) {
     console.error('GPS error:', error.message);
     
-    // Better error messages for common issues
-    let userMessage = error.message;
-    if (error.message.includes('denied') || error.message.includes('blocked')) {
-      // Check if likely iOS Chrome (no independent GPS)
-      const isIOSChrome = /CriOS/.test(navigator.userAgent);
-      if (isIOSChrome) {
-        userMessage = 'Chrome on iPhone uses Safari\'s location. Enable in Settings > Safari > Location.';
-      } else {
-        userMessage = 'Location blocked. Enable in browser settings or search location.';
-      }
-    }
-    
-    showError(userMessage);
-    setTimeout(showLocationPrompt, 2500);
+    // GPS failed - show fallback options instead of error
+    showLocationFallback(error.message);
   }
+}
+
+/**
+ * Show fallback options when GPS fails
+ */
+function showLocationFallback(errorMessage) {
+  const fallbackEl = document.getElementById('location-fallback');
+  const fallbackMsgEl = document.getElementById('fallback-message');
+  
+  if (fallbackEl) {
+    if (fallbackMsgEl) {
+      fallbackMsgEl.textContent = errorMessage.includes('denied') 
+        ? 'Location access was denied.' 
+        : 'Could not get your precise location.';
+    }
+    fallbackEl.classList.remove('hidden');
+  } else {
+    // Fallback if element doesn't exist - show prompt
+    showLocationPrompt();
+  }
+}
+
+/**
+ * Hide location fallback
+ */
+function hideLocationFallback() {
+  const fallbackEl = document.getElementById('location-fallback');
+  if (fallbackEl) fallbackEl.classList.add('hidden');
+}
+
+/**
+ * Handle "Use approximate location" button
+ */
+async function handleUseApproximate() {
+  hideLocationPrompt();
+  hideLocationFallback();
+  showLoading();
+
+  try {
+    const location = await getApproximateLocation();
+    console.log('Got approximate location:', location);
+    await loadForecast(location);
+  } catch (error) {
+    console.error('Approximate location error:', error.message);
+    showError('Could not determine location. Please search instead.');
+    setTimeout(showCitySearch, 2000);
+  }
+}
+
+/**
+ * Handle approximate location from options modal
+ */
+async function handleUseApproximateFromOptions() {
+  hideLocationOptions();
+  await handleUseApproximate();
 }
 
 /**
@@ -158,6 +249,7 @@ async function requestGPS() {
  */
 function showCitySearch() {
   hideLocationPrompt();
+  hideLocationFallback();
   document.getElementById('city-search-modal').classList.remove('hidden');
   document.getElementById('city-input').focus();
 }
@@ -266,32 +358,6 @@ function hideLocationOptions() {
   document.getElementById('location-options-modal').classList.add('hidden');
 }
 
-/**
- * Refresh GPS location from options popup
- */
-async function refreshGPSLocation() {
-  hideLocationOptions();
-  showLoading();
-
-  try {
-    const location = await getGPSLocation();
-    console.log('Updated location:', location);
-    await loadForecast(location);
-  } catch (error) {
-    console.error('Location update error:', error.message);
-    
-    // Check if iOS Chrome (has GPS limitations)
-    const isIOSChrome = /CriOS/.test(navigator.userAgent);
-    if (isIOSChrome && error.message.includes('denied')) {
-      showError('GPS unavailable in Chrome. Use "Search Location" instead.');
-    } else {
-      showError(error.message);
-    }
-    
-    // Re-show location options so user can search location
-    setTimeout(showLocationOptions, 2000);
-  }
-}
 
 /**
  * Show city search from location options

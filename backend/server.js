@@ -80,6 +80,7 @@ app.get('/health', (req, res) => {
 
 // API routes (with stricter rate limiting)
 app.use('/api/forecast', apiLimiter, require('./routes/forecast'));
+app.use('/api/location', require('./routes/location'));
 
 // Catch-all: serve index.html for SPA routing (Express 5 compatible)
 app.get('/:path(.*)', (req, res) => {

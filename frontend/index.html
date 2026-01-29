@@ -119,20 +119,35 @@
             <path d="M23 4v6h-6M1 20v-6h6"/>
             <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
           </svg>
-          Refresh My Location
+          Use My Location
         </button>
+        <button id="use-approximate-btn-modal" class="btn">Use Approximate Location</button>
         <button id="search-location-btn" class="btn">Search Location</button>
         <button id="cancel-location-btn" class="btn btn-secondary">Cancel</button>
       </div>
     </div>
 
-    <!-- Location permission prompt -->
+    <!-- Location permission prompt (first time) -->
     <div id="location-prompt" class="modal hidden">
       <div class="modal-content">
-        <h2>Location Access</h2>
-        <p>Insolar needs your location to show accurate weather forecasts.</p>
-        <button id="allow-location-btn" class="btn btn-primary">Allow Location</button>
-        <button id="use-city-btn" class="btn">Search Location</button>
+        <h2>Where are you?</h2>
+        <p id="location-warning" class="location-warning hidden"></p>
+        <button id="allow-location-btn" class="btn btn-primary">Use My Location</button>
+        <button id="use-approximate-btn" class="btn">Use Approximate Location</button>
+        <p class="location-hint">Uses your network to estimate your city</p>
+        <button id="use-city-btn" class="btn btn-secondary">Search Location</button>
+      </div>
+    </div>
+
+    <!-- Location fallback (when GPS fails) -->
+    <div id="location-fallback" class="modal hidden">
+      <div class="modal-content">
+        <h2>Location Unavailable</h2>
+        <p id="fallback-message">Could not get your precise location.</p>
+        <button id="fallback-approximate-btn" class="btn btn-primary">Use Approximate Location</button>
+        <p class="location-hint">Uses your network to estimate your city</p>
+        <button id="fallback-search-btn" class="btn">Search Location</button>
+        <button id="fallback-retry-btn" class="btn btn-secondary">Try Again</button>
       </div>
     </div>
 
