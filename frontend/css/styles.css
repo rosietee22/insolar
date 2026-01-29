@@ -230,6 +230,8 @@ body {
   align-items: center;
   gap: 4px;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .light-hour-time {
@@ -248,7 +250,10 @@ body {
 .light-hour-icon {
   width: 20px;
   height: 20px;
+  max-width: 20px;
+  max-height: 20px;
   filter: var(--icon-filter, none);
+  flex-shrink: 0;
 }
 
 .light-hour-icon[src*="rain"],
