@@ -18,7 +18,7 @@ class MockProvider extends WeatherProvider {
 
     const hourlyData = [];
 
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 72; i++) {
       const timestamp = new Date(currentHour.getTime() + i * 3600000);
 
       // Generate realistic varying weather

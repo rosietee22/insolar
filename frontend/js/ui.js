@@ -117,6 +117,21 @@ function getWindDescription(speedMs) {
 }
 
 /**
+ * Get weather icon source path
+ */
+function getWeatherIconSrc(rain_probability, cloud_percent, is_day) {
+  const iconName = getWeatherIconName(rain_probability, cloud_percent, is_day);
+  return `/icons/weather/${iconName}.svg`;
+}
+
+/**
+ * Get condition key for deduplication
+ */
+function getConditionKey(rain_probability, cloud_percent, is_day) {
+  return getWeatherIconName(rain_probability, cloud_percent, is_day);
+}
+
+/**
  * Get weather icon filename based on conditions and time of day
  * @param {number} rain_probability
  * @param {number} cloud_percent
@@ -308,6 +323,57 @@ function generateKeyMoments(hourly) {
 }
 
 /**
+ * Get multi-day forecast data
+ * @param {Array} hourly - Hourly forecast data
+ * @param {number} numDays - Number of days to get
+ * @returns {Array}
+ */
+function getMultiDayForecast(hourly, numDays = 3) {
+  const days = [];
+  const now = new Date();
+  const dayNames = ['Today', 'Tomorrow'];
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  for (let i = 1; i <= numDays; i++) {
+    const targetDate = new Date(now);
+    targetDate.setDate(targetDate.getDate() + i);
+    targetDate.setHours(0, 0, 0, 0);
+    const nextDate = new Date(targetDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    
+    const dayHours = hourly.filter(h => {
+      const d = new Date(h.timestamp);
+      return d >= targetDate && d < nextDate;
+    });
+    
+    if (dayHours.length === 0) continue;
+    
+    const temps = dayHours.map(h => h.temp_c);
+    const maxRain = Math.max(...dayHours.map(h => h.rain_probability));
+    const avgCloud = dayHours.reduce((sum, h) => sum + h.cloud_percent, 0) / dayHours.length;
+    
+    let condition = 'Clear';
+    if (maxRain > 50) condition = 'Rain likely';
+    else if (maxRain > 25) condition = 'Chance of rain';
+    else if (avgCloud > 70) condition = 'Cloudy';
+    else if (avgCloud > 30) condition = 'Partly cloudy';
+    
+    const name = i === 1 ? 'Tomorrow' : weekDays[targetDate.getDay()];
+    
+    days.push({
+      name,
+      low: Math.round(Math.min(...temps)),
+      high: Math.round(Math.max(...temps)),
+      condition,
+      maxRain,
+      avgCloud
+    });
+  }
+  
+  return days;
+}
+
+/**
  * Get tomorrow's forecast data
  * @param {Array} hourly - Hourly forecast data
  * @returns {Object|null}
@@ -361,7 +427,7 @@ export function renderApp(data) {
   // Apply weather theme
   const timePeriod = getTimePeriod(current.is_day, current.timestamp);
   const weatherType = getWeatherType(current.rain_probability, current.cloud_percent);
-  const gradient = selectGradient(weatherType, timePeriod);
+  const gradient = selectGradient(weatherType, timePeriod, current.temp_c);
   applyTheme(gradient);
 
   // Update mobile browser theme color
@@ -391,86 +457,96 @@ export function renderApp(data) {
     heroMeta.textContent = parts.join(' / ');
   }
 
-  // Render Solar Arc
+  // Render Light Window
   const { sunrise, sunset, nextSunrise, isNight } = estimateSunriseSunset(hourly);
-  const sunriseEl = document.getElementById('sunrise-time');
-  const sunsetEl = document.getElementById('sunset-time');
-  const solarProgress = document.getElementById('solar-progress');
-  const solarMarker = document.getElementById('solar-marker');
-
-  // Get elements for new structure
-  const leftTime = document.getElementById('left-time');
-  const leftIcon = document.getElementById('left-icon');
-  const rightIcon = document.getElementById('right-icon');
-  const rightTime = document.getElementById('right-time');
-
   const now = new Date();
 
-  // If night and sunset is in the future, it's tomorrow's sunset - estimate today's
+  // Adjust sunset/sunrise for edge cases
   let adjustedSunset = sunset;
   if (isNight && sunset > now) {
     adjustedSunset = new Date(now);
-    adjustedSunset.setHours(16, 30, 0, 0); // Estimate today's sunset (UK winter ~4:30pm)
+    adjustedSunset.setHours(16, 30, 0, 0);
   }
-
-  // Ensure nextSunrise is after adjustedSunset (next day if needed)
   let adjustedNextSunrise = nextSunrise;
   if (adjustedNextSunrise <= adjustedSunset) {
     adjustedNextSunrise = new Date(nextSunrise);
     adjustedNextSunrise.setDate(adjustedNextSunrise.getDate() + 1);
   }
 
-  // Debug: log solar times
-  console.log('Solar:', { isNight, adjustedSunset: adjustedSunset?.toLocaleTimeString(), adjustedNextSunrise: adjustedNextSunrise?.toLocaleTimeString() });
+  // Light Window elements
+  const lightWindowTitle = document.getElementById('light-window-title');
+  const lightHours = document.getElementById('light-hours');
+  const lightStrip = document.getElementById('light-strip');
+  const lightDot = document.getElementById('light-dot');
+  const lightLabelLeft = document.getElementById('light-label-left');
+  const lightLabelRight = document.getElementById('light-label-right');
+  const lightLegend = document.getElementById('light-legend');
 
-  if (isNight) {
-    // Night mode: sunset (left) → sunrise (right)
-    if (leftTime) leftTime.textContent = formatTime(adjustedSunset);
-    if (leftIcon) leftIcon.innerHTML = '<img src="/icons/weather/clear-night.svg" class="solar-svg" alt="moon">';
-    if (rightIcon) rightIcon.innerHTML = '<img src="/icons/weather/clear-day.svg" class="solar-svg" alt="sun">';
-    if (rightTime) rightTime.textContent = formatTime(adjustedNextSunrise);
+  // Get current UV index
+  const uvIndex = current.uv_index || 0;
+
+  // Render next 6 hours (no "NOW" - hero handles that)
+  if (lightHours) {
+    const nextHours = hourly.slice(1, 7);
     
+    // Check for repeating conditions to fade duplicate icons
+    let lastCondition = null;
+    
+    lightHours.innerHTML = nextHours.map((hour, index) => {
+      const showRain = hour.rain_probability > 25;
+      
+      return `
+        <div class="light-hour">
+          <span class="light-hour-time">${formatHourShort(hour.timestamp)}</span>
+          <span class="light-hour-temp">${Math.round(hour.temp_c)}°</span>
+          <img src="${getWeatherIconSrc(hour.rain_probability, hour.cloud_percent, hour.is_day)}" 
+               class="light-hour-icon" 
+               alt="">
+          ${showRain ? `<span class="light-hour-rain">${hour.rain_probability}%</span>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Light strip and dot
+  if (isNight) {
+    // Night mode
+    if (lightWindowTitle) lightWindowTitle.textContent = 'UNTIL SUNRISE';
+    if (lightStrip) lightStrip.classList.add('night');
+    if (lightDot) {
+      lightDot.classList.add('night');
+      lightDot.className = 'light-dot night';
+    }
+    if (lightLabelLeft) lightLabelLeft.textContent = formatTime(adjustedSunset);
+    if (lightLabelRight) lightLabelRight.textContent = formatTime(adjustedNextSunrise);
+    if (lightLegend) lightLegend.textContent = 'UV 0';
+
     // Calculate night progress
     const nightLength = adjustedNextSunrise.getTime() - adjustedSunset.getTime();
     const elapsed = now.getTime() - adjustedSunset.getTime();
     const progress = Math.min(100, Math.max(0, Math.round((elapsed / nightLength) * 100)));
-    
-    console.log('Night progress:', { elapsed: Math.round(elapsed/60000) + 'min', nightLength: Math.round(nightLength/60000) + 'min', progress: progress + '%' });
-    
-    if (solarProgress) solarProgress.style.width = `${progress}%`;
-    if (solarMarker) solarMarker.style.left = `${progress}%`;
+    if (lightDot) lightDot.style.left = `${progress}%`;
   } else {
-    // Day mode: sunrise (left) → sunset (right)
-    if (leftTime) leftTime.textContent = formatTime(sunrise);
-    if (leftIcon) leftIcon.innerHTML = '<img src="/icons/weather/clear-day.svg" class="solar-svg" alt="sun">';
-    if (rightIcon) rightIcon.innerHTML = '<img src="/icons/weather/clear-night.svg" class="solar-svg" alt="moon">';
-    if (rightTime) rightTime.textContent = formatTime(sunset);
-    
-    const progress = calculateSolarProgress(sunrise, sunset);
-    console.log('Day progress:', progress + '%');
-    
-    if (solarProgress) solarProgress.style.width = `${progress}%`;
-    if (solarMarker) solarMarker.style.left = `${progress}%`;
-  }
+    // Day mode
+    if (lightWindowTitle) lightWindowTitle.textContent = 'DAYLIGHT & UV';
+    if (lightStrip) lightStrip.classList.remove('night');
+    if (lightLabelLeft) lightLabelLeft.textContent = formatTime(sunrise);
+    if (lightLabelRight) lightLabelRight.textContent = formatTime(sunset);
+    if (lightLegend) lightLegend.textContent = uvIndex > 0 ? `UV ${uvIndex}` : 'UV Low';
 
-  // Render Hourly Strip (12 hours, 5.5 visible)
-  const hourlyStrip = document.getElementById('hourly-strip');
-  if (hourlyStrip) {
-    const stripHours = hourly.slice(0, 12);
-    
-    hourlyStrip.innerHTML = stripHours.map((hour, index) => {
-      // Only show rain if > 25%
-      const showRain = hour.rain_probability > 25;
-      
-      return `
-        <div class="hour-item${index > 0 ? ' future' : ''}">
-          <div class="hour-time">${index === 0 ? 'Now' : formatHourShort(hour.timestamp)}</div>
-          <div class="hour-icon">${getWeatherIcon(hour.rain_probability, hour.cloud_percent, hour.is_day)}</div>
-          <div class="hour-temp">${Math.round(hour.temp_c)}°</div>
-          ${showRain ? `<div class="hour-rain">${hour.rain_probability}%</div>` : ''}
-        </div>
-      `;
-    }).join('');
+    // UV glow class
+    if (lightDot) {
+      lightDot.classList.remove('night', 'uv-0', 'uv-low', 'uv-moderate', 'uv-high', 'uv-very-high');
+      if (uvIndex === 0) lightDot.classList.add('uv-0');
+      else if (uvIndex <= 2) lightDot.classList.add('uv-low');
+      else if (uvIndex <= 5) lightDot.classList.add('uv-moderate');
+      else if (uvIndex <= 7) lightDot.classList.add('uv-high');
+      else lightDot.classList.add('uv-very-high');
+    }
+
+    // Calculate day progress
+    const progress = calculateSolarProgress(sunrise, sunset);
+    if (lightDot) lightDot.style.left = `${progress}%`;
   }
 
   // Render Key Moments (only if unusual weather)
@@ -492,37 +568,18 @@ export function renderApp(data) {
     }
   }
 
-  // Render Tomorrow (expandable)
-  const tomorrowEl = document.getElementById('tomorrow');
-  if (tomorrowEl) {
-    const tomorrow = getTomorrowData(hourly);
-    if (tomorrow) {
-      tomorrowEl.innerHTML = `
-        <div class="tomorrow-header" onclick="toggleTomorrow()">
-          <span class="tomorrow-label">Tomorrow</span>
-          <div class="tomorrow-summary">
-            <span class="tomorrow-icon">${tomorrow.icon}</span>
-            <span>${tomorrow.condition}</span>
-            <span class="tomorrow-temps">${tomorrow.low}° / ${tomorrow.high}°</span>
-          </div>
-          <svg class="tomorrow-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </div>
-        <div class="tomorrow-hours">
-          ${tomorrow.hours.map(hour => `
-            <div class="tomorrow-hour">
-              <span class="tomorrow-hour-time">${formatHourShort(hour.timestamp)}</span>
-              <span class="tomorrow-hour-icon">${getWeatherIcon(hour.rain_probability, hour.cloud_percent, hour.is_day)}</span>
-              <span class="tomorrow-hour-temp">${Math.round(hour.temp_c)}°</span>
-              <span class="tomorrow-hour-rain">${hour.rain_probability > 0 ? `${hour.rain_probability}%` : ''}</span>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    } else {
-      tomorrowEl.innerHTML = '';
-    }
+  // Render 3-Day Forecast (use API daily data if available, fallback to hourly calculation)
+  const forecastDaysEl = document.getElementById('forecast-days');
+  if (forecastDaysEl) {
+    const days = data.daily && data.daily.length > 0 ? data.daily : getMultiDayForecast(hourly, 3);
+    forecastDaysEl.innerHTML = days.map(day => `
+      <div class="forecast-day">
+        <span class="forecast-day-name">${day.name}</span>
+        <img src="${getWeatherIconSrc(day.maxRain, day.avgCloud, true)}" class="forecast-day-icon" alt="">
+        <span class="forecast-day-condition">${day.condition}</span>
+        <span class="forecast-day-temps"><span class="low">${day.low}°</span> / ${day.high}°</span>
+      </div>
+    `).join('');
   }
 
   // Update freshness indicator

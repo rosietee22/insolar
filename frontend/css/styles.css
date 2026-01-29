@@ -201,161 +201,150 @@ body {
   margin-top: var(--space-2);
 }
 
-/* ==================== HOURLY FORECAST (5.5 visible, scrollable) ==================== */
-.hourly-section {
-  margin: 0 calc(-1 * var(--space-3));
-  padding: var(--space-2) var(--space-3) 0;
+/* ==================== LIGHT WINDOW (signature component) ==================== */
+.light-window {
+  margin-top: var(--space-4);
+  padding: var(--space-3) 0;
 }
 
-.hourly-strip {
+.light-window-title {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  margin-bottom: var(--space-2);
+}
+
+/* Next 5-6 hours row */
+.light-hours {
   display: flex;
-  gap: var(--space-1);
-  overflow-x: auto;
-  padding: var(--space-1) 0;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
 }
 
-.hourly-strip::-webkit-scrollbar {
-  display: none;
-}
-
-.hour-item {
-  flex: 0 0 calc((100% - 4.5 * var(--space-1)) / 5.5);
-  min-width: calc((100% - 4.5 * var(--space-1)) / 5.5);
+.light-hour {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--space-1) 0;
-  scroll-snap-align: start;
-  transition: opacity 0.2s;
+  gap: 4px;
+  flex: 1;
 }
 
-/* Now = full opacity, future = faded */
-.hour-item.future {
-  opacity: 0.5;
-}
-
-.hour-time {
+.light-hour-time {
   font-size: var(--text-xs);
   font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
   color: var(--text-secondary);
-  margin-bottom: var(--space-1);
 }
 
-.hour-icon {
-  margin-bottom: var(--space-1);
-}
-
-.weather-icon {
-  width: 24px;
-  height: 24px;
-  filter: var(--icon-filter, none);
-}
-
-.weather-icon[src*="rain"],
-.weather-icon[src*="drizzle"] {
-  width: 18px;
-  height: 18px;
-}
-
-.weather-icon[src*="clear-night"] {
-  width: 20px;
-  height: 20px;
-}
-
-.hour-temp {
+.light-hour-temp {
   font-size: var(--text-lg);
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1;
 }
 
-.hour-rain {
-  font-size: var(--text-xs);
-  font-weight: 400;
-  color: var(--text-secondary);
-  margin-top: 4px;
-}
-
-/* ==================== SOLAR TIMELINE (below hourly) ==================== */
-.solar-arc {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
-  margin-bottom: var(--space-3);
-  padding: 0;
-}
-
-.solar-label {
-  font-size: var(--text-xs);
-  font-weight: 400;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.solar-icon {
-  display: flex;
-  align-items: center;
-}
-
-.solar-svg {
+.light-hour-icon {
   width: 20px;
   height: 20px;
   filter: var(--icon-filter, none);
 }
 
-.solar-svg[src*="clear-night"] {
+.light-hour-icon[src*="rain"],
+.light-hour-icon[src*="drizzle"] {
   width: 16px;
   height: 16px;
 }
 
-.solar-track {
-  flex: 1;
-  height: 8px;
-  background: var(--glass-bg);
-  border-radius: 4px;
+.light-hour-rain {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* Progressive fade for hours */
+.light-hour:nth-child(1) { opacity: 1; }
+.light-hour:nth-child(2) { opacity: 0.9; }
+.light-hour:nth-child(3) { opacity: 0.75; }
+.light-hour:nth-child(4) { opacity: 0.6; }
+.light-hour:nth-child(5) { opacity: 0.5; }
+.light-hour:nth-child(6) { opacity: 0.4; }
+
+/* Light strip */
+.light-strip-container {
+  padding: var(--space-2) 0;
+}
+
+.light-strip {
   position: relative;
-  overflow: visible;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #FFE4B5 0%,
+    #FFFACD 20%,
+    #FFFFFF 50%,
+    #FFD700 80%,
+    #FF8C00 100%
+  );
 }
 
-.solar-progress {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  background: var(--text-secondary);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+.light-strip.night {
+  background: linear-gradient(
+    90deg,
+    #2C3E50 0%,
+    #1A1A2E 40%,
+    #34495E 70%,
+    #5D6D7E 100%
+  );
 }
 
-.solar-marker {
+/* Position dot with UV glow */
+.light-dot {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 14px;
   height: 14px;
-  background: var(--text-primary);
+  background: white;
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  transition: left 0.3s ease;
+  transition: left 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* ==================== KEY MOMENTS ==================== */
-.moments {
-  padding: var(--space-4) 0;
+/* UV glow levels */
+.light-dot.uv-0 { box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+.light-dot.uv-low { box-shadow: 0 0 8px 4px rgba(255,235,150,0.5), 0 1px 4px rgba(0,0,0,0.2); }
+.light-dot.uv-moderate { box-shadow: 0 0 12px 6px rgba(255,200,100,0.6), 0 1px 4px rgba(0,0,0,0.2); }
+.light-dot.uv-high { box-shadow: 0 0 16px 8px rgba(255,160,60,0.7), 0 1px 4px rgba(0,0,0,0.2); }
+.light-dot.uv-very-high { box-shadow: 0 0 20px 10px rgba(255,100,100,0.8), 0 1px 4px rgba(0,0,0,0.2); }
+
+.light-dot.night {
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Sunrise/Sunset labels */
+.light-labels {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  justify-content: space-between;
+  margin-top: 4px;
 }
 
-.moment {
-  padding-left: var(--space-1);
-  border-left: 2px solid var(--glass-border);
+.light-label-left,
+.light-label-right {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* UV legend (centered between times) */
+.light-legend {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .moment-time {
@@ -380,73 +369,50 @@ body {
   margin-top: 0.2rem;
 }
 
-/* ==================== BOTTOM ANCHOR (Tomorrow + Freshness) ==================== */
-.tomorrow {
-  margin-top: auto;
-  border-top: 1px solid var(--glass-border);
+/* ==================== 3-DAY FORECAST ==================== */
+.forecast-days {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
-.tomorrow-header {
+.forecast-day {
   display: flex;
   align-items: center;
-  padding: var(--space-2) 0;
-  cursor: pointer;
-  user-select: none;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
 }
 
-.tomorrow-label {
-  font-size: var(--text-xs);
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-  margin-right: var(--space-2);
+.forecast-day-name {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  width: 80px;
 }
 
-.tomorrow-summary {
+.forecast-day-icon {
+  width: 24px;
+  height: 24px;
+  filter: var(--icon-filter, none);
+}
+
+.forecast-day-condition {
   flex: 1;
   font-size: var(--text-sm);
   font-weight: 400;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.tomorrow-icon {
-  font-size: var(--text-base);
-}
-
-.tomorrow-temps {
   color: var(--text-secondary);
-  margin-left: auto;
+}
+
+.forecast-day-temps {
   font-size: var(--text-sm);
   font-weight: 400;
+  color: var(--text-primary);
+  text-align: right;
 }
 
-.tomorrow-chevron {
+.forecast-day-temps .low {
   color: var(--text-secondary);
-  opacity: 0.5;
-  transition: transform 0.2s;
-  margin-left: var(--space-1);
-  transform: rotate(180deg);
-}
-
-.tomorrow.expanded .tomorrow-chevron {
-  transform: rotate(0deg);
-}
-
-/* Tomorrow hourly list (expands upward) */
-.tomorrow-hours {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-  display: flex;
-  flex-direction: column-reverse;
-}
-
-.tomorrow.expanded .tomorrow-hours {
-  max-height: 400px;
 }
 
 .tomorrow-hour {

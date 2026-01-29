@@ -71,28 +71,30 @@
         <div class="hero-meta" id="hero-meta"></div>
       </section>
 
-      <!-- Hourly Strip (5.5 visible, scrollable) -->
-      <section class="hourly-section">
-        <div class="hourly-strip" id="hourly-strip"></div>
+      <!-- Light Window (signature component) -->
+      <section class="light-window" id="light-window">
+        <div class="light-window-title" id="light-window-title">DAYLIGHT & UV</div>
+        
+        <!-- Next 5-6 hours -->
+        <div class="light-hours" id="light-hours"></div>
+        
+        <!-- Light strip with position dot -->
+        <div class="light-strip-container">
+          <div class="light-strip" id="light-strip">
+            <div class="light-dot" id="light-dot"></div>
+          </div>
+        </div>
+        
+        <!-- Sunrise/Sunset labels with UV in center -->
+        <div class="light-labels">
+          <span class="light-label-left" id="light-label-left">--:--</span>
+          <span class="light-legend" id="light-legend">UV: --</span>
+          <span class="light-label-right" id="light-label-right">--:--</span>
+        </div>
       </section>
 
-      <!-- Solar Timeline (below hourly) -->
-      <div class="solar-arc" id="solar-arc">
-        <span class="solar-label" id="left-time">--:--</span>
-        <span class="solar-icon" id="left-icon">🌙</span>
-        <div class="solar-track">
-          <div class="solar-progress" id="solar-progress"></div>
-          <div class="solar-marker" id="solar-marker"></div>
-        </div>
-        <span class="solar-icon" id="right-icon">☀</span>
-        <span class="solar-label" id="right-time">--:--</span>
-      </div>
-
-      <!-- Key Moments -->
-      <section class="moments" id="moments"></section>
-
-      <!-- Tomorrow Glance -->
-      <div class="tomorrow" id="tomorrow"></div>
+      <!-- 3-Day Forecast -->
+      <section class="forecast-days" id="forecast-days"></section>
 
       <!-- Freshness -->
       <footer class="freshness" id="freshness">

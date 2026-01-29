@@ -73,9 +73,9 @@ function validateForecast(data) {
   validateHourlyData(data.current);
   validateHourlyData(data.next_hour);
 
-  // Validate hourly array
-  if (!Array.isArray(data.hourly) || data.hourly.length !== 24) {
-    throw new Error('hourly must be an array with 24 items');
+  // Validate hourly array (24-72 hours)
+  if (!Array.isArray(data.hourly) || data.hourly.length < 24) {
+    throw new Error('hourly must be an array with at least 24 items');
   }
 
   data.hourly.forEach((hourly, index) => {

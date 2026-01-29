@@ -24,9 +24,10 @@ class GoogleWeatherProvider extends WeatherProvider {
     const roundedLat = Math.round(lat * 1000) / 1000;
     const roundedLon = Math.round(lon * 1000) / 1000;
 
-    // Fetch weather and location name in parallel
-    const [weatherData, locationName] = await Promise.all([
+    // Fetch weather, daily forecast, and location name in parallel
+    const [weatherData, dailyData, locationName] = await Promise.all([
       this.fetchWeather(roundedLat, roundedLon),
+      this.fetchDailyForecast(roundedLat, roundedLon),
       this.reverseGeocode(roundedLat, roundedLon)
     ]);
 
@@ -36,6 +37,9 @@ class GoogleWeatherProvider extends WeatherProvider {
 
     // Transform Google's format to our schema
     const hourlyData = weatherData.forecastHours.map(hour => this.transformHour(hour));
+    
+    // Transform daily forecast (next 3 days, skip today)
+    const dailyForecast = dailyData?.forecastDays?.slice(1, 4).map(day => this.transformDay(day)) || [];
 
     // Get timezone from the first hour's UTC offset
     const utcOffsetSeconds = parseInt(weatherData.forecastHours[0].displayDateTime?.utcOffset?.replace('s', '') || '0');
@@ -54,7 +58,8 @@ class GoogleWeatherProvider extends WeatherProvider {
       timezone: timezone,
       current: hourlyData[0],
       next_hour: hourlyData[1],
-      hourly: hourlyData
+      hourly: hourlyData,
+      daily: dailyForecast
     };
   }
 
@@ -74,6 +79,50 @@ class GoogleWeatherProvider extends WeatherProvider {
     }
 
     return response.json();
+  }
+
+  async fetchDailyForecast(lat, lon) {
+    try {
+      const url = `${this.baseUrl}/forecast/days:lookup?` + new URLSearchParams({
+        key: this.apiKey,
+        'location.latitude': lat,
+        'location.longitude': lon,
+        days: 5
+      });
+
+      const response = await fetch(url);
+      if (!response.ok) return null;
+      return response.json();
+    } catch (err) {
+      console.warn('Daily forecast fetch failed:', err.message);
+      return null;
+    }
+  }
+
+  transformDay(day) {
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const date = new Date(day.interval?.startTime || new Date());
+    const dayName = date.toDateString() === new Date(Date.now() + 86400000).toDateString() 
+      ? 'Tomorrow' 
+      : weekDays[date.getDay()];
+
+    const maxRain = day.daytimeForecast?.precipitation?.probability?.percent || 0;
+    const avgCloud = this.estimateCloudCover(day.daytimeForecast?.weatherCondition?.type);
+
+    let condition = 'Clear';
+    if (maxRain > 50) condition = 'Rain likely';
+    else if (maxRain > 25) condition = 'Chance of rain';
+    else if (avgCloud > 70) condition = 'Cloudy';
+    else if (avgCloud > 30) condition = 'Partly cloudy';
+
+    return {
+      name: dayName,
+      low: Math.round(day.minTemperature?.degrees || 0),
+      high: Math.round(day.maxTemperature?.degrees || 0),
+      condition,
+      maxRain,
+      avgCloud
+    };
   }
 
   async reverseGeocode(lat, lon) {

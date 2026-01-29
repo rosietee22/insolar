@@ -3,16 +3,17 @@
  * Dynamic gradients and colors based on weather conditions and time of day
  */
 
-// Gradient definitions
+// Semantic gradient definitions - bold, distinct colours
 const GRADIENTS = {
-  clearDay: { from: '#FFE4B5', to: '#87CEEB', textColor: '#1A1A2E', isDark: false },
-  goldenHour: { from: '#FFB347', to: '#FFCC33', textColor: '#1A1A2E', isDark: false },
-  cloudy: { from: '#B8C6D9', to: '#DFE6ED', textColor: '#1A1A2E', isDark: false },
-  rainyLight: { from: '#89ABD9', to: '#B8CDE6', textColor: '#1A1A2E', isDark: false },
-  rainyHeavy: { from: '#5B7BA3', to: '#8FABC7', textColor: '#FFFFFF', isDark: true },
-  nightClear: { from: '#1A1A2E', to: '#16213E', textColor: '#FFFFFF', isDark: true },
-  nightCloudy: { from: '#2D3436', to: '#4A5568', textColor: '#FFFFFF', isDark: true },
-  stormy: { from: '#4A5568', to: '#6B7B8C', textColor: '#FFFFFF', isDark: true }
+  clearDay: { from: '#87CEEB', to: '#E0F4FF', textColor: '#1A1A2E', isDark: false },      // Sky blue
+  goldenHour: { from: '#FF9966', to: '#FF5E62', textColor: '#FFFFFF', isDark: true },     // Coral sunset
+  cloudy: { from: '#6B7B8C', to: '#8899A6', textColor: '#FFFFFF', isDark: true },         // Cool slate
+  rainyLight: { from: '#4A6670', to: '#5A7A85', textColor: '#FFFFFF', isDark: true },     // Teal-slate
+  rainyHeavy: { from: '#3A5A64', to: '#4A6A74', textColor: '#FFFFFF', isDark: true },     // Deep teal
+  nightClear: { from: '#1A1A2E', to: '#2C3E50', textColor: '#FFFFFF', isDark: true },     // Deep indigo
+  nightCloudy: { from: '#2C3E50', to: '#34495E', textColor: '#FFFFFF', isDark: true },
+  stormy: { from: '#4A5568', to: '#2D3748', textColor: '#FFFFFF', isDark: true },         // Storm grey
+  frost: { from: '#A8D8EA', to: '#CAE9F5', textColor: '#1A1A2E', isDark: false }           // Ice blue
 };
 
 // Time period constants
@@ -59,12 +60,17 @@ export function getWeatherType(rainProbability, cloudPercent) {
 }
 
 /**
- * Select gradient based on weather + time
+ * Select gradient based on weather + time + temperature
  * @param {string} weatherType
  * @param {string} timePeriod
+ * @param {number} temp_c - Optional temperature for frost detection
  * @returns {Object} gradient definition
  */
-export function selectGradient(weatherType, timePeriod) {
+export function selectGradient(weatherType, timePeriod, temp_c = null) {
+  // Frost gradient for very cold clear days
+  if (temp_c !== null && temp_c < 3 && weatherType === 'clear' && timePeriod !== TIME_PERIODS.NIGHT) {
+    return GRADIENTS.frost;
+  }
   // Night variations
   if (timePeriod === TIME_PERIODS.NIGHT) {
     if (weatherType === 'cloudy' || weatherType === 'partlyCloudy') {
@@ -154,35 +160,55 @@ export function generateHeroSentence(current, hourly) {
   const isEvening = hour >= 17 || hour < 5;
   const isMorning = hour >= 5 && hour < 12;
 
-  // Priority-based weather-specific headlines
+  // Priority-based editorial headlines
   if (rain_probability > 70) {
-    return 'Heavy rain expected.';
+    if (isMorning) return 'Wet start to the day.';
+    if (isEvening) return 'A rainy evening ahead.';
+    return 'Grab an umbrella.';
   }
   if (rainComing) {
-    return 'Rain arriving soon.';
+    return 'Dry for now, rain on the way.';
   }
   if (rainStopping) {
-    return 'Rain clearing shortly.';
+    return 'Rain easing off soon.';
   }
   if (rain_probability > 40) {
-    return 'Showers likely.';
+    return 'Keep an eye on the sky.';
   }
   if (wind_speed_ms > 10) {
-    return 'Strong winds.';
+    if (temp_c < 8) return 'Biting wind out there.';
+    return 'Hold onto your hat.';
   }
-  if (cooling) {
-    return `Dropping to ${Math.round(avgFutureTemp)}° later.`;
+  if (cloud_percent > 80 && warming) {
+    return 'Grey skies, warming later.';
   }
-  if (warming) {
-    return `Rising to ${Math.round(avgFutureTemp)}°.`;
+  if (cloud_percent > 80 && temp_c < 10) {
+    if (isMorning) return 'Cold morning under thick cloud.';
+    return 'Low cloud hanging around.';
   }
   if (cloud_percent > 70) {
-    return 'Overcast.';
+    if (rain_probability < 20) return 'Dry, but dull.';
+    return 'Overcast and grey.';
+  }
+  if (cooling && cloud_percent > 40) {
+    return 'Clouds building, cooling off.';
+  }
+  if (cooling) {
+    return `Turning cooler later.`;
+  }
+  if (warming) {
+    if (isMorning) return 'Chilly now, milder later.';
+    return `Warming up nicely.`;
   }
   if (cloud_percent > 30) {
-    return 'Partly cloudy.';
+    if (is_day) return 'Patches of sun.';
+    return 'Partly cloudy tonight.';
   }
-  return 'Clear skies.';
+  if (is_day) {
+    if (temp_c > 20) return 'Beautiful day ahead.';
+    return 'Clear and bright.';
+  }
+  return 'A clear night.';
 }
 
 // Export gradients for default theme
