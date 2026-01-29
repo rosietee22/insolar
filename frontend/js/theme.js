@@ -77,17 +77,39 @@ export function getSeason(date = new Date()) {
 }
 
 /**
- * Determine time period from API is_day flag and timestamp
+ * Determine time period from timestamp and sunrise/sunset times
+ * Uses actual sunrise/sunset for accurate solar positioning
  * @param {boolean} is_day - From API
  * @param {string|Date} timestamp
+ * @param {string|Date} sunrise - Optional sunrise time
+ * @param {string|Date} sunset - Optional sunset time
  * @returns {string} TIME_PERIODS value
  */
-export function getTimePeriod(is_day, timestamp) {
+export function getTimePeriod(is_day, timestamp, sunrise = null, sunset = null) {
   if (!is_day) return TIME_PERIODS.NIGHT;
 
-  const date = new Date(timestamp);
-  const hour = date.getHours();
-
+  const now = new Date(timestamp);
+  
+  // If we have sunrise/sunset, use them for accurate dawn/dusk detection
+  if (sunrise && sunset) {
+    const sunriseTime = new Date(sunrise);
+    const sunsetTime = new Date(sunset);
+    
+    // Dawn: 30 min before to 90 min after sunrise
+    const dawnStart = new Date(sunriseTime.getTime() - 30 * 60 * 1000);
+    const dawnEnd = new Date(sunriseTime.getTime() + 90 * 60 * 1000);
+    
+    // Dusk: 90 min before to 30 min after sunset
+    const duskStart = new Date(sunsetTime.getTime() - 90 * 60 * 1000);
+    const duskEnd = new Date(sunsetTime.getTime() + 30 * 60 * 1000);
+    
+    if (now >= dawnStart && now <= dawnEnd) return TIME_PERIODS.DAWN;
+    if (now >= duskStart && now <= duskEnd) return TIME_PERIODS.DUSK;
+    return TIME_PERIODS.DAY;
+  }
+  
+  // Fallback to fixed hours if no sunrise/sunset available
+  const hour = now.getHours();
   if (hour >= 5 && hour < 8) return TIME_PERIODS.DAWN;
   if (hour >= 16 && hour < 19) return TIME_PERIODS.DUSK;
   return TIME_PERIODS.DAY;
@@ -137,10 +159,10 @@ export function getConditionOverlay(condition) {
  * @param {Object} params
  * @returns {Object} Complete theme object
  */
-export function buildTheme({ is_day, timestamp, rain_probability, cloud_percent, temp_c }) {
+export function buildTheme({ is_day, timestamp, rain_probability, cloud_percent, temp_c, sunrise, sunset }) {
   const season = getSeason(new Date(timestamp));
   const seasonPalette = SEASONS[season];
-  const timePeriod = getTimePeriod(is_day, timestamp);
+  const timePeriod = getTimePeriod(is_day, timestamp, sunrise, sunset);
   const condition = getCondition(rain_probability, cloud_percent, temp_c);
   const conditionOverlay = getConditionOverlay(condition);
   const solar = getSolarGlow(timePeriod);
@@ -304,5 +326,5 @@ export function generateHeroSentence(current, hourly) {
   return 'A clear night.';
 }
 
-// Export gradients for default theme
-export { GRADIENTS };
+// Export palettes for external use
+export { SEASONS, CONDITIONS, SOLAR };

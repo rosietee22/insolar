@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insolar Colour Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gradient-from: #1E3A5F;
+      --gradient-to: #4A7C9B;
+      --overlay-color1: #1E40AF;
+      --overlay-color2: #3B82F6;
+      --overlay-opacity: 0.3;
+      --solar-color: #FEF3C7;
+      --solar-glow: rgba(254,243,199,0.5);
+      --text-primary: #E8E4DF;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(180deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      transition: background 0.5s ease;
+      position: relative;
+    }
+
+    /* Grain texture */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    .lab-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Controls Panel */
+    .controls {
+      width: 280px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(20px);
+      padding: 24px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .controls h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .controls .subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 24px;
+    }
+
+    .control-group {
+      margin-bottom: 24px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 8px;
+    }
+
+    .toggle-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .toggle-btn {
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7);
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .toggle-btn.active {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.4);
+      color: #fff;
+    }
+
+    .colour-swatch {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .swatch-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .current-values {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 11px;
+      font-family: monospace;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+    }
+
+    /* Preview Panel */
+    .preview {
+      flex: 1;
+      margin-left: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .preview-card {
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    /* Hero Temperature */
+    .hero-location {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .hero-temp {
+      font-size: 160px;
+      font-weight: 700;
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .hero-temp::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--solar-glow) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero-sentence {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .hero-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+
+    /* Light Window */
+    .light-window {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+
+    .light-window-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .light-strip-container {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .light-strip {
+      height: 8px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, 
+        #FDBA74 0%, 
+        #FEF3C7 30%, 
+        #FEF3C7 70%, 
+        #F97316 100%
+      );
+    }
+
+    .light-strip.night {
+      background: linear-gradient(90deg, 
+        #1E1B4B 0%, 
+        #312E81 50%, 
+        #1E1B4B 100%
+      );
+    }
+
+    .light-dot {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--solar-color);
+      border: 3px solid #fff;
+      box-shadow: 0 0 20px var(--solar-glow);
+      left: 50%;
+    }
+
+    .light-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .light-legend {
+      font-size: 12px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Hourly preview */
+    .hourly-preview {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .hour-block {
+      text-align: center;
+    }
+
+    .hour-time {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .hour-temp {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Back link */
+    .back-link {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 100;
+    }
+
+    .back-link:hover {
+      background: rgba(0,0,0,0.5);
+    }
+
+    @media (max-width: 768px) {
+      .controls {
+        position: relative;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      .preview {
+        margin-left: 0;
+      }
+      .lab-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">← Back to App</a>
+  
+  <div class="lab-container">
+    <div class="controls">
+      <h1>Colour Lab</h1>
+      <p class="subtitle">Preview the three-layer colour system</p>
+
+      <div class="control-group">
+        <label>Season</label>
+        <div class="toggle-group" id="season-toggles">
+          <button class="toggle-btn active" data-value="winter">Winter</button>
+          <button class="toggle-btn" data-value="spring">Spring</button>
+          <button class="toggle-btn" data-value="summer">Summer</button>
+          <button class="toggle-btn" data-value="autumn">Autumn</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Condition</label>
+        <div class="toggle-group" id="condition-toggles">
+          <button class="toggle-btn active" data-value="clear">Clear</button>
+          <button class="toggle-btn" data-value="overcast">Overcast</button>
+          <button class="toggle-btn" data-value="rain">Rain</button>
+          <button class="toggle-btn" data-value="fog">Fog</button>
+          <button class="toggle-btn" data-value="storm">Storm</button>
+          <button class="toggle-btn" data-value="snow">Snow</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Time of Day</label>
+        <div class="toggle-group" id="time-toggles">
+          <button class="toggle-btn" data-value="dawn">Dawn</button>
+          <button class="toggle-btn active" data-value="day">Day</button>
+          <button class="toggle-btn" data-value="dusk">Dusk</button>
+          <button class="toggle-btn" data-value="night">Night</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Current Palette</label>
+        <div class="colour-swatch" id="swatches">
+          <div>
+            <div class="swatch" id="swatch-primary"></div>
+            <div class="swatch-label">Base</div>
+          </div>
+          <div>
+            <div class="swatch" id="swatch-secondary"></div>
+            <div class="swatch-label">Secondary</div>
+          </div>
+          <div>
+            <div class="swatch" id="swatch-solar"></div>
+            <div class="swatch-label">Solar</div>
+          </div>
+          <div>
+            <div class="swatch" id="swatch-text"></div>
+            <div class="swatch-label">Text</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Values</label>
+        <div class="current-values" id="current-values"></div>
+      </div>
+    </div>
+
+    <div class="preview">
+      <div class="preview-card">
+        <div class="hero-location">Hackney, London</div>
+        <div class="hero-temp" id="hero-temp">14°</div>
+        <div class="hero-sentence" id="hero-sentence">Clear and bright.</div>
+        <div class="hero-meta">Feels like 12° · High 16°</div>
+
+        <div class="light-window">
+          <div class="light-window-title" id="light-title">DAYLIGHT & UV</div>
+          <div class="light-labels">
+            <span id="light-left">06:45</span>
+            <span id="light-right">17:30</span>
+          </div>
+          <div class="light-strip-container">
+            <div class="light-strip" id="light-strip"></div>
+            <div class="light-dot" id="light-dot"></div>
+          </div>
+          <div class="light-legend" id="light-legend">UV 4 · Wear sunscreen</div>
+
+          <div class="hourly-preview">
+            <div class="hour-block">
+              <div class="hour-time">Now</div>
+              <div class="hour-temp">14°</div>
+            </div>
+            <div class="hour-block">
+              <div class="hour-time">2pm</div>
+              <div class="hour-temp">15°</div>
+            </div>
+            <div class="hour-block">
+              <div class="hour-time">3pm</div>
+              <div class="hour-temp">16°</div>
+            </div>
+            <div class="hour-block">
+              <div class="hour-time">4pm</div>
+              <div class="hour-temp">15°</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Colour system definitions
+    const SEASONS = {
+      winter: {
+        primary: '#1E3A5F',
+        secondary: '#4A7C9B',
+        highlight: '#E8E4DF',
+        nightPrimary: '#1E1B4B',
+        nightSecondary: '#312E81'
+      },
+      spring: {
+        primary: '#0891B2',
+        secondary: '#4ADE80',
+        highlight: '#FEF7E8',
+        nightPrimary: '#0D4A4A',
+        nightSecondary: '#134E4A'
+      },
+      summer: {
+        primary: '#1D4ED8',
+        secondary: '#FBBF24',
+        highlight: '#FAF5F0',
+        nightPrimary: '#312E81',
+        nightSecondary: '#1E1B4B'
+      },
+      autumn: {
+        primary: '#1E3A4C',
+        secondary: '#C2410C',
+        highlight: '#9CA3AF',
+        nightPrimary: '#2D1F3D',
+        nightSecondary: '#1E1B4B'
+      }
+    };
+
+    const CONDITIONS = {
+      clear: { color1: '#1E40AF', color2: '#3B82F6', opacity: 0.3 },
+      overcast: { color1: '#6B7280', color2: '#9CA3AF', opacity: 0.5 },
+      rain: { color1: '#134E4A', color2: '#0F172A', opacity: 0.6 },
+      fog: { color1: '#D4C4B5', color2: '#E7E0D8', opacity: 0.4 },
+      storm: { color1: '#581C87', color2: '#1E1B4B', opacity: 0.7 },
+      snow: { color1: '#E0F2FE', color2: '#BAE6FD', opacity: 0.35 }
+    };
+
+    const SOLAR = {
+      dawn: { color: '#FDBA74', glow: 'rgba(253,186,116,0.4)' },
+      day: { color: '#FEF3C7', glow: 'rgba(254,243,199,0.5)' },
+      dusk: { color: '#F97316', glow: 'rgba(249,115,22,0.4)' },
+      night: { color: '#7C3AED', glow: 'rgba(124,58,237,0.3)' }
+    };
+
+    const SENTENCES = {
+      clear: { day: 'Clear and bright.', night: 'A clear night.' },
+      overcast: { day: 'Overcast and grey.', night: 'Cloudy tonight.' },
+      rain: { day: 'Grab an umbrella.', night: 'Wet night ahead.' },
+      fog: { day: 'Foggy start.', night: 'Misty and still.' },
+      storm: { day: 'Stormy weather.', night: 'Thundery night.' },
+      snow: { day: 'Snow is falling.', night: 'Snowy night.' }
+    };
+
+    let state = {
+      season: 'winter',
+      condition: 'clear',
+      time: 'day'
+    };
+
+    function updatePreview() {
+      const root = document.documentElement;
+      const seasonPalette = SEASONS[state.season];
+      const conditionOverlay = CONDITIONS[state.condition];
+      const solar = SOLAR[state.time];
+      const isNight = state.time === 'night';
+
+      // Base gradient
+      const baseFrom = isNight ? seasonPalette.nightPrimary : seasonPalette.primary;
+      const baseTo = isNight ? seasonPalette.nightSecondary : seasonPalette.secondary;
+
+      root.style.setProperty('--gradient-from', baseFrom);
+      root.style.setProperty('--gradient-to', baseTo);
+      root.style.setProperty('--overlay-opacity', conditionOverlay.opacity);
+      root.style.setProperty('--solar-color', solar.color);
+      root.style.setProperty('--solar-glow', solar.glow);
+      root.style.setProperty('--text-primary', seasonPalette.highlight);
+      root.style.setProperty('--text-secondary', isNight ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.7)');
+
+      // Update swatches
+      document.getElementById('swatch-primary').style.background = baseFrom;
+      document.getElementById('swatch-secondary').style.background = baseTo;
+      document.getElementById('swatch-solar').style.background = solar.color;
+      document.getElementById('swatch-text').style.background = seasonPalette.highlight;
+
+      // Update light window
+      const lightStrip = document.getElementById('light-strip');
+      const lightTitle = document.getElementById('light-title');
+      const lightLegend = document.getElementById('light-legend');
+      
+      if (isNight) {
+        lightStrip.classList.add('night');
+        lightTitle.textContent = 'UNTIL SUNRISE';
+        lightLegend.textContent = 'UV 0';
+        lightLegend.style.color = 'var(--text-secondary)';
+      } else {
+        lightStrip.classList.remove('night');
+        lightTitle.textContent = 'DAYLIGHT & UV';
+        lightLegend.textContent = 'UV 4 · Wear sunscreen';
+        lightLegend.style.color = '#F1C40F';
+      }
+
+      // Update sentence
+      const sentenceEl = document.getElementById('hero-sentence');
+      const sentences = SENTENCES[state.condition];
+      sentenceEl.textContent = isNight ? sentences.night : sentences.day;
+
+      // Update values display
+      document.getElementById('current-values').innerHTML = `
+season: ${state.season}
+condition: ${state.condition}
+time: ${state.time}
+---
+base: ${baseFrom} → ${baseTo}
+overlay: ${conditionOverlay.opacity * 100}%
+solar: ${solar.color}
+text: ${seasonPalette.highlight}
+      `.trim();
+    }
+
+    // Toggle handlers
+    function setupToggles(containerId, stateKey) {
+      const container = document.getElementById(containerId);
+      container.addEventListener('click', (e) => {
+        if (e.target.classList.contains('toggle-btn')) {
+          container.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+          e.target.classList.add('active');
+          state[stateKey] = e.target.dataset.value;
+          updatePreview();
+        }
+      });
+    }
+
+    setupToggles('season-toggles', 'season');
+    setupToggles('condition-toggles', 'condition');
+    setupToggles('time-toggles', 'time');
+
+    // Initial render
+    updatePreview();
+  </script>
+</body>
+</html>

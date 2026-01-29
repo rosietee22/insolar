@@ -428,7 +428,9 @@ export function renderApp(data) {
     timestamp: current.timestamp,
     rain_probability: current.rain_probability,
     cloud_percent: current.cloud_percent,
-    temp_c: current.temp_c
+    temp_c: current.temp_c,
+    sunrise: data.daily?.[0]?.sunrise,
+    sunset: data.daily?.[0]?.sunset
   });
   applyTheme(theme);
 
