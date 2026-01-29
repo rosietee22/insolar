@@ -59,9 +59,9 @@ router.get('/', authMiddleware, async (req, res, next) => {
       });
     }
 
-    // Round coordinates to 2 decimals for privacy and cache key
-    const roundedLat = Math.round(latNum * 100) / 100;
-    const roundedLon = Math.round(lonNum * 100) / 100;
+    // Round coordinates to 3 decimals for better accuracy (~100m)
+    const roundedLat = Math.round(latNum * 1000) / 1000;
+    const roundedLon = Math.round(lonNum * 1000) / 1000;
 
     // Check cache
     const cacheKey = cache.makeKey(roundedLat, roundedLon);

@@ -134,8 +134,21 @@ async function requestGPS() {
     await loadForecast(location);
   } catch (error) {
     console.error('GPS error:', error.message);
-    showError(`${error.message}. Try searching by city instead.`);
-    setTimeout(showLocationPrompt, 2000);
+    
+    // Better error messages for common issues
+    let userMessage = error.message;
+    if (error.message.includes('denied') || error.message.includes('blocked')) {
+      // Check if likely iOS Chrome (no independent GPS)
+      const isIOSChrome = /CriOS/.test(navigator.userAgent);
+      if (isIOSChrome) {
+        userMessage = 'Chrome on iPhone uses Safari\'s location. Enable in Settings > Safari > Location.';
+      } else {
+        userMessage = 'Location blocked. Enable in browser settings or search by city.';
+      }
+    }
+    
+    showError(userMessage);
+    setTimeout(showLocationPrompt, 2500);
   }
 }
 

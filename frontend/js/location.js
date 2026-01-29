@@ -7,10 +7,10 @@ const LOCATION_KEY = 'weather_location';
 /**
  * Round coordinates to N decimals for privacy
  * @param {number} coord - Coordinate value
- * @param {number} decimals - Number of decimal places (default 2)
+ * @param {number} decimals - Number of decimal places (default 3, ~100m accuracy)
  * @returns {number}
  */
-function roundCoord(coord, decimals = 2) {
+function roundCoord(coord, decimals = 3) {
   const multiplier = Math.pow(10, decimals);
   return Math.round(coord * multiplier) / multiplier;
 }

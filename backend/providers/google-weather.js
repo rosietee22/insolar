@@ -20,9 +20,9 @@ class GoogleWeatherProvider extends WeatherProvider {
       throw new Error('GOOGLE_WEATHER_API_KEY not configured. Get one at: https://developers.google.com/maps/documentation/weather/get-api-key');
     }
 
-    // Round coordinates to 2 decimals for privacy
-    const roundedLat = Math.round(lat * 100) / 100;
-    const roundedLon = Math.round(lon * 100) / 100;
+    // Round coordinates to 3 decimals for better accuracy (~100m)
+    const roundedLat = Math.round(lat * 1000) / 1000;
+    const roundedLon = Math.round(lon * 1000) / 1000;
 
     // Fetch weather and location name in parallel
     const [weatherData, locationName] = await Promise.all([
@@ -83,7 +83,7 @@ class GoogleWeatherProvider extends WeatherProvider {
         lat: lat,
         lon: lon,
         format: 'json',
-        zoom: 14  // Borough/suburb level
+        zoom: 16  // Neighbourhood level
       });
 
       const response = await fetch(url, {
