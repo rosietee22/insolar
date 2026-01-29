@@ -519,7 +519,10 @@ export function renderApp(data) {
     }
     if (lightLabelLeft) lightLabelLeft.textContent = formatTime(adjustedSunset);
     if (lightLabelRight) lightLabelRight.textContent = formatTime(adjustedNextSunrise);
-    if (lightLegend) lightLegend.textContent = 'UV 0';
+    if (lightLegend) {
+      lightLegend.textContent = 'UV 0';
+      lightLegend.style.color = 'var(--text-secondary)';
+    }
 
     // Calculate night progress
     const nightLength = adjustedNextSunrise.getTime() - adjustedSunset.getTime();
@@ -532,7 +535,31 @@ export function renderApp(data) {
     if (lightStrip) lightStrip.classList.remove('night');
     if (lightLabelLeft) lightLabelLeft.textContent = formatTime(sunrise);
     if (lightLabelRight) lightLabelRight.textContent = formatTime(sunset);
-    if (lightLegend) lightLegend.textContent = uvIndex > 0 ? `UV ${uvIndex}` : 'UV Low';
+    // UV legend text and color
+    if (lightLegend) {
+      let uvText, uvColor;
+      if (uvIndex >= 11) {
+        uvText = 'UV ' + uvIndex + ' · Extreme';
+        uvColor = '#9B59B6'; // purple
+      } else if (uvIndex >= 8) {
+        uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
+        uvColor = '#E74C3C'; // red
+      } else if (uvIndex >= 6) {
+        uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
+        uvColor = '#E67E22'; // orange
+      } else if (uvIndex >= 3) {
+        uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
+        uvColor = '#F1C40F'; // yellow
+      } else if (uvIndex > 0) {
+        uvText = 'UV ' + uvIndex + ' · Low';
+        uvColor = '#27AE60'; // green
+      } else {
+        uvText = 'UV Low';
+        uvColor = 'var(--text-secondary)';
+      }
+      lightLegend.textContent = uvText;
+      lightLegend.style.color = uvColor;
+    }
 
     // UV glow class
     if (lightDot) {
