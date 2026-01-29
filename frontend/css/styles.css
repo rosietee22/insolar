@@ -1,17 +1,30 @@
 /**
  * Insolar Styles
+ * Museum-poster inspired palette with seasonal bases, condition overlays, and solar glow
+ */
 
 /* CSS Custom Properties - 8pt Grid System */
 :root {
-  /* Theme colors (set dynamically by JS) */
-  --gradient-from: #FFE4B5;
-  --gradient-to: #87CEEB;
-  --text-primary: #1A1A2E;
-  --text-secondary: rgba(26, 26, 46, 0.5);
+  /* Base gradient (seasonal) */
+  --gradient-from: #1E3A5F;
+  --gradient-to: #4A7C9B;
+  
+  /* Condition overlay */
+  --overlay-color1: #1E40AF;
+  --overlay-color2: #3B82F6;
+  --overlay-opacity: 0.3;
+  
+  /* Solar glow */
+  --solar-color: #FEF3C7;
+  --solar-glow: rgba(254,243,199,0.5);
+  
+  /* Text */
+  --text-primary: #E8E4DF;
+  --text-secondary: rgba(255, 255, 255, 0.7);
 
-  /* Subtle glass for rare use */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.15);
+  /* Subtle glass */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -51,6 +64,35 @@ body {
   transition: background 0.8s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+/* Condition overlay layer */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    180deg, 
+    rgba(var(--overlay-color1), var(--overlay-opacity)) 0%, 
+    rgba(var(--overlay-color2), var(--overlay-opacity)) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: multiply;
+  opacity: var(--overlay-opacity);
+  transition: opacity 0.8s ease;
+}
+
+/* Grain/noise texture overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
 #app {
@@ -61,6 +103,8 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
+  position: relative;
+  z-index: 1;
   flex-direction: column;
 }
 
@@ -192,6 +236,22 @@ body {
   line-height: 0.9;
   letter-spacing: -0.04em;
   margin: 0;
+  position: relative;
+}
+
+/* Radial solar glow behind hero temperature */
+.hero-temp::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--solar-glow) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .hero-meta {

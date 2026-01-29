@@ -1,137 +1,230 @@
 /**
  * Weather Theme System
- * Dynamic gradients and colors based on weather conditions and time of day
+ * Museum-poster inspired palette with seasonal bases, condition overlays, and solar glow
+ * Three-layer approach: Season + Condition + Solar time
+ * Limited to 2-3 pigments per screen
  */
 
-// Semantic gradient definitions - bold, distinct colours
-const GRADIENTS = {
-  clearDay: { from: '#87CEEB', to: '#E0F4FF', textColor: '#1A1A2E', isDark: false },      // Sky blue
-  goldenHour: { from: '#FF9966', to: '#FF5E62', textColor: '#FFFFFF', isDark: true },     // Coral sunset
-  cloudy: { from: '#6B7B8C', to: '#8899A6', textColor: '#FFFFFF', isDark: true },         // Cool slate
-  rainyLight: { from: '#4A6670', to: '#5A7A85', textColor: '#FFFFFF', isDark: true },     // Teal-slate
-  rainyHeavy: { from: '#3A5A64', to: '#4A6A74', textColor: '#FFFFFF', isDark: true },     // Deep teal
-  nightClear: { from: '#1A1A2E', to: '#2C3E50', textColor: '#FFFFFF', isDark: true },     // Deep indigo
-  nightCloudy: { from: '#2C3E50', to: '#34495E', textColor: '#FFFFFF', isDark: true },
-  stormy: { from: '#4A5568', to: '#2D3748', textColor: '#FFFFFF', isDark: true },         // Storm grey
-  frost: { from: '#A8D8EA', to: '#CAE9F5', textColor: '#1A1A2E', isDark: false }           // Ice blue
+// ==================== SEASONAL PALETTES ====================
+const SEASONS = {
+  winter: {
+    primary: '#1E3A5F',     // Arctic Cobalt
+    secondary: '#4A7C9B',   // Glacier Blue
+    highlight: '#E8E4DF',   // Pearl
+    nightPrimary: '#1E1B4B', // Midnight Indigo
+    nightSecondary: '#312E81'
+  },
+  spring: {
+    primary: '#0891B2',     // Cyan
+    secondary: '#4ADE80',   // Chlorophyll
+    highlight: '#FEF7E8',   // Warm Cream
+    nightPrimary: '#0D4A4A', // Deep Teal
+    nightSecondary: '#134E4A'
+  },
+  summer: {
+    primary: '#1D4ED8',     // Ultramarine
+    secondary: '#FBBF24',   // Sun Gold
+    highlight: '#FAF5F0',   // Linen
+    nightPrimary: '#312E81', // Navy Violet
+    nightSecondary: '#1E1B4B'
+  },
+  autumn: {
+    primary: '#1E3A4C',     // Petrol Blue
+    secondary: '#C2410C',   // Rust
+    highlight: '#9CA3AF',   // Smoke
+    nightPrimary: '#2D1F3D', // Charcoal Plum
+    nightSecondary: '#1E1B4B'
+  }
+};
+
+// ==================== CONDITION OVERLAYS ====================
+const CONDITIONS = {
+  clear: { color1: '#1E40AF', color2: '#3B82F6', opacity: 0.3 },       // Cobalt Veil
+  overcast: { color1: '#6B7280', color2: '#9CA3AF', opacity: 0.5 },    // Stone Grey
+  rain: { color1: '#134E4A', color2: '#0F172A', opacity: 0.6 },        // Teal Black
+  fog: { color1: '#D4C4B5', color2: '#E7E0D8', opacity: 0.4 },         // Milky Taupe
+  storm: { color1: '#581C87', color2: '#1E1B4B', opacity: 0.7 },       // Bruised Purple
+  snow: { color1: '#E0F2FE', color2: '#BAE6FD', opacity: 0.35 }        // Electric Ice
+};
+
+// ==================== SOLAR GLOW ====================
+const SOLAR = {
+  dawn: { color: '#FDBA74', glow: 'rgba(253,186,116,0.4)' },           // Dawn Peach
+  noon: { color: '#FEF3C7', glow: 'rgba(254,243,199,0.5)' },           // Noon White-Gold
+  dusk: { color: '#F97316', glow: 'rgba(249,115,22,0.4)' },            // Dusk Amber
+  night: { color: '#7C3AED', glow: 'rgba(124,58,237,0.3)' }            // Night Ultraviolet
 };
 
 // Time period constants
 const TIME_PERIODS = {
   NIGHT: 'night',
-  GOLDEN_MORNING: 'goldenMorning',
+  DAWN: 'dawn',
   DAY: 'day',
-  GOLDEN_EVENING: 'goldenEvening'
+  DUSK: 'dusk'
 };
 
 /**
+ * Get current season based on date (Northern Hemisphere)
+ * @param {Date} date
+ * @returns {string} season key
+ */
+export function getSeason(date = new Date()) {
+  const month = date.getMonth(); // 0-11
+  if (month >= 2 && month <= 4) return 'spring';   // Mar-May
+  if (month >= 5 && month <= 7) return 'summer';   // Jun-Aug
+  if (month >= 8 && month <= 10) return 'autumn';  // Sep-Nov
+  return 'winter';                                  // Dec-Feb
+}
+
+/**
  * Determine time period from API is_day flag and timestamp
- * Uses is_day from Google Weather API (based on actual sunrise/sunset)
  * @param {boolean} is_day - From API
- * @param {string|Date} timestamp - For golden hour detection
+ * @param {string|Date} timestamp
  * @returns {string} TIME_PERIODS value
  */
 export function getTimePeriod(is_day, timestamp) {
-  // Night determined by actual sunrise/sunset from API
   if (!is_day) return TIME_PERIODS.NIGHT;
 
-  // Golden hour is still time-based for gradient aesthetics
   const date = new Date(timestamp);
   const hour = date.getHours();
 
-  if (hour >= 6 && hour < 8) return TIME_PERIODS.GOLDEN_MORNING;
-  if (hour >= 18 && hour < 20) return TIME_PERIODS.GOLDEN_EVENING;
+  if (hour >= 5 && hour < 8) return TIME_PERIODS.DAWN;
+  if (hour >= 16 && hour < 19) return TIME_PERIODS.DUSK;
   return TIME_PERIODS.DAY;
 }
 
 /**
- * Determine weather type from conditions
+ * Get solar glow based on time period
+ * @param {string} timePeriod
+ * @returns {Object} solar definition
+ */
+export function getSolarGlow(timePeriod) {
+  switch (timePeriod) {
+    case TIME_PERIODS.DAWN: return SOLAR.dawn;
+    case TIME_PERIODS.DUSK: return SOLAR.dusk;
+    case TIME_PERIODS.NIGHT: return SOLAR.night;
+    default: return SOLAR.noon;
+  }
+}
+
+/**
+ * Determine weather condition for overlay
  * @param {number} rainProbability
  * @param {number} cloudPercent
- * @returns {string} weather type key
+ * @param {number} temp_c
+ * @returns {string} condition key
  */
-export function getWeatherType(rainProbability, cloudPercent) {
-  if (rainProbability > 70) return 'heavyRain';
-  if (rainProbability > 60) return 'storm';
-  if (rainProbability > 30) return 'lightRain';
-  if (cloudPercent > 70) return 'cloudy';
-  if (cloudPercent > 30) return 'partlyCloudy';
+export function getCondition(rainProbability, cloudPercent, temp_c = 10) {
+  if (temp_c < 2 && rainProbability > 30) return 'snow';
+  if (rainProbability > 70) return 'storm';
+  if (rainProbability > 30) return 'rain';
+  if (cloudPercent > 85) return 'fog';
+  if (cloudPercent > 50) return 'overcast';
   return 'clear';
 }
 
 /**
- * Select gradient based on weather + time + temperature
- * @param {string} weatherType
- * @param {string} timePeriod
- * @param {number} temp_c - Optional temperature for frost detection
- * @returns {Object} gradient definition
+ * Get condition overlay
+ * @param {string} condition
+ * @returns {Object} condition overlay definition
  */
-export function selectGradient(weatherType, timePeriod, temp_c = null) {
-  // Frost gradient for very cold clear days
-  if (temp_c !== null && temp_c < 3 && weatherType === 'clear' && timePeriod !== TIME_PERIODS.NIGHT) {
-    return GRADIENTS.frost;
-  }
-  // Night variations
-  if (timePeriod === TIME_PERIODS.NIGHT) {
-    if (weatherType === 'cloudy' || weatherType === 'partlyCloudy') {
-      return GRADIENTS.nightCloudy;
-    }
-    if (weatherType === 'heavyRain' || weatherType === 'storm' || weatherType === 'lightRain') {
-      return GRADIENTS.nightCloudy;
-    }
-    return GRADIENTS.nightClear;
-  }
-
-  // Golden hour
-  if (timePeriod === TIME_PERIODS.GOLDEN_MORNING || timePeriod === TIME_PERIODS.GOLDEN_EVENING) {
-    if (weatherType === 'heavyRain' || weatherType === 'storm') {
-      return GRADIENTS.rainyHeavy;
-    }
-    if (weatherType === 'lightRain') {
-      return GRADIENTS.rainyLight;
-    }
-    return GRADIENTS.goldenHour;
-  }
-
-  // Day variations
-  switch (weatherType) {
-    case 'heavyRain':
-      return GRADIENTS.rainyHeavy;
-    case 'storm':
-      return GRADIENTS.stormy;
-    case 'lightRain':
-      return GRADIENTS.rainyLight;
-    case 'cloudy':
-      return GRADIENTS.cloudy;
-    case 'partlyCloudy':
-      return GRADIENTS.cloudy;
-    default:
-      return GRADIENTS.clearDay;
-  }
+export function getConditionOverlay(condition) {
+  return CONDITIONS[condition] || CONDITIONS.clear;
 }
 
 /**
- * Apply theme to document
- * @param {Object} gradient
+ * Build complete theme from three layers: Season + Condition + Solar
+ * @param {Object} params
+ * @returns {Object} Complete theme object
  */
-export function applyTheme(gradient) {
-  const root = document.documentElement;
-  root.style.setProperty('--gradient-from', gradient.from);
-  root.style.setProperty('--gradient-to', gradient.to);
-  root.style.setProperty('--text-primary', gradient.textColor);
-  root.style.setProperty('--text-secondary',
-    gradient.isDark ? 'rgba(255,255,255,0.7)' : 'rgba(26,26,46,0.6)');
+export function buildTheme({ is_day, timestamp, rain_probability, cloud_percent, temp_c }) {
+  const season = getSeason(new Date(timestamp));
+  const seasonPalette = SEASONS[season];
+  const timePeriod = getTimePeriod(is_day, timestamp);
+  const condition = getCondition(rain_probability, cloud_percent, temp_c);
+  const conditionOverlay = getConditionOverlay(condition);
+  const solar = getSolarGlow(timePeriod);
+  
+  const isNight = timePeriod === TIME_PERIODS.NIGHT;
+  
+  // Select base colours (night uses hue-shifted variants)
+  const baseFrom = isNight ? seasonPalette.nightPrimary : seasonPalette.primary;
+  const baseTo = isNight ? seasonPalette.nightSecondary : seasonPalette.secondary;
+  const textColor = seasonPalette.highlight;
+  
+  return {
+    season,
+    condition,
+    timePeriod,
+    isNight,
+    // Base gradient
+    baseFrom,
+    baseTo,
+    // Condition overlay
+    overlayColor1: conditionOverlay.color1,
+    overlayColor2: conditionOverlay.color2,
+    overlayOpacity: conditionOverlay.opacity,
+    // Solar glow
+    solarColor: solar.color,
+    solarGlow: solar.glow,
+    // Text
+    textColor,
+    textSecondary: isNight ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.75)'
+  };
+}
 
-  // Update glass styles based on theme darkness
-  if (gradient.isDark) {
-    root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');
-    root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.15)');
-    root.style.setProperty('--icon-filter', 'invert(1)');
-  } else {
-    root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.1)');
-    root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.2)');
-    root.style.setProperty('--icon-filter', 'none');
-  }
+/**
+ * Apply theme to document (three-layer system)
+ * @param {Object} theme - From buildTheme()
+ */
+export function applyTheme(theme) {
+  const root = document.documentElement;
+  
+  // Base gradient
+  root.style.setProperty('--gradient-from', theme.baseFrom);
+  root.style.setProperty('--gradient-to', theme.baseTo);
+  
+  // Condition overlay
+  root.style.setProperty('--overlay-color1', theme.overlayColor1);
+  root.style.setProperty('--overlay-color2', theme.overlayColor2);
+  root.style.setProperty('--overlay-opacity', theme.overlayOpacity);
+  
+  // Solar glow
+  root.style.setProperty('--solar-color', theme.solarColor);
+  root.style.setProperty('--solar-glow', theme.solarGlow);
+  
+  // Text
+  root.style.setProperty('--text-primary', theme.textColor);
+  root.style.setProperty('--text-secondary', theme.textSecondary);
+
+  // Glass and icon styles (always dark theme for museum-poster look)
+  root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');
+  root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.12)');
+  root.style.setProperty('--icon-filter', 'invert(1)');
+  
+  // Add data attributes for CSS hooks
+  root.dataset.season = theme.season;
+  root.dataset.condition = theme.condition;
+  root.dataset.period = theme.timePeriod;
+}
+
+// Keep old functions for backwards compatibility
+export function getWeatherType(rainProbability, cloudPercent) {
+  return getCondition(rainProbability, cloudPercent);
+}
+
+export function selectGradient(weatherType, timePeriod, temp_c = null) {
+  // Legacy wrapper - returns basic gradient object
+  const season = getSeason();
+  const seasonPalette = SEASONS[season];
+  const isNight = timePeriod === TIME_PERIODS.NIGHT;
+  
+  return {
+    from: isNight ? seasonPalette.nightPrimary : seasonPalette.primary,
+    to: isNight ? seasonPalette.nightSecondary : seasonPalette.secondary,
+    textColor: seasonPalette.highlight,
+    isDark: true
+  };
 }
 
 /**

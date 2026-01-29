@@ -3,9 +3,7 @@
  */
 
 import {
-  getTimePeriod,
-  getWeatherType,
-  selectGradient,
+  buildTheme,
   applyTheme,
   generateHeroSentence
 } from './theme.js';
@@ -424,14 +422,18 @@ export function renderApp(data) {
   const current = data.current;
   const hourly = data.hourly;
 
-  // Apply weather theme
-  const timePeriod = getTimePeriod(current.is_day, current.timestamp);
-  const weatherType = getWeatherType(current.rain_probability, current.cloud_percent);
-  const gradient = selectGradient(weatherType, timePeriod, current.temp_c);
-  applyTheme(gradient);
+  // Apply weather theme (three-layer system: season + condition + solar)
+  const theme = buildTheme({
+    is_day: current.is_day,
+    timestamp: current.timestamp,
+    rain_probability: current.rain_probability,
+    cloud_percent: current.cloud_percent,
+    temp_c: current.temp_c
+  });
+  applyTheme(theme);
 
   // Update mobile browser theme color
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', gradient.from);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme.baseFrom);
 
   // Update location display
   updateLocationDisplay(data.location);
