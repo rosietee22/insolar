@@ -3,7 +3,7 @@
  * Handles offline caching and network-first strategy for API calls
  */
 
-const CACHE_NAME = 'insolar-v14';
+const CACHE_NAME = 'insolar-v15';
 
 // Static assets to precache
 const STATIC_ASSETS = [
