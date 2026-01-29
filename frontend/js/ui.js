@@ -770,6 +770,50 @@ function formatHourLabel(hour) {
 }
 
 /**
+ * Generate conversational bird headline (mirrors generateHeroSentence style)
+ */
+function generateBirdHeadline(activity) {
+  if (!activity?.current) return 'Bird activity.';
+  const { level, hour } = activity.current;
+  const dawnHour = activity.dawn_peak?.hour ?? 6;
+  const duskHour = activity.dusk_peak?.hour ?? 17;
+
+  // High activity right now
+  if (level === 'high') {
+    if (hour >= 5 && hour <= 8) return 'Peak bird hour.';
+    if (hour >= 16 && hour <= 19) return 'Peak bird hour.';
+    return 'Lots of birds about.';
+  }
+
+  // Moderate activity
+  if (level === 'moderate') {
+    if (hour < dawnHour) return `Bird hour at ${formatHourLabel(dawnHour)}.`;
+    if (hour >= 12 && hour <= 15) return `Birds back at ${formatHourLabel(duskHour)}.`;
+    return 'Some birds about.';
+  }
+
+  // Low activity
+  if (hour >= 20 || hour <= 3) return 'Not many birds at night.';
+  if (hour < dawnHour) return `Bird hour at ${formatHourLabel(dawnHour)}.`;
+  if (hour > duskHour) return 'Birds done for today.';
+  return 'Quiet for birds right now.';
+}
+
+/**
+ * Generate bird meta line (mirrors hero-meta style)
+ */
+function generateBirdMeta(activity, speciesCount) {
+  const parts = [];
+  if (activity?.current?.level) {
+    parts.push(`${activity.current.level} activity`);
+  }
+  if (speciesCount > 0) {
+    parts.push(`${speciesCount} species nearby`);
+  }
+  return parts.join(' / ');
+}
+
+/**
  * Show bird toggle button
  */
 export function showBirdToggle() {
@@ -791,13 +835,12 @@ export function renderBirdView(birdData, activity) {
   // Hero section
   const headlineEl = document.getElementById('bird-hero-headline');
   const metaEl = document.getElementById('bird-hero-meta');
-  if (headlineEl && activity?.current) {
-    headlineEl.textContent = activity.current.label || 'Bird activity';
+  if (headlineEl && activity) {
+    headlineEl.textContent = generateBirdHeadline(activity);
   }
   if (metaEl) {
-    const level = activity?.current?.level ? activity.current.level.toUpperCase() : '';
     const speciesCount = birdData.total_species_count || birdData.all_species?.length || 0;
-    metaEl.textContent = `${level} · ${speciesCount} species nearby`;
+    metaEl.textContent = generateBirdMeta(activity, speciesCount);
   }
 
   // Notable species
