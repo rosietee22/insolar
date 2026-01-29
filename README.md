@@ -1,59 +1,67 @@
-# Weather PWA
+# Insolar
 
-A GPS-based weather Progressive Web App (PWA) that shows the forecast for the next 24 hours. Built with vanilla JavaScript and Express, featuring a beautiful "Liquid Glass" design.
+A GPS-based weather Progressive Web App with a bold editorial design focused on sunlight and UV awareness. Built with vanilla JavaScript and Express, powered by Google Weather API.
+
+**Live:** https://insolar.cloud
 
 ## Features
 
-- 📍 GPS-based location detection with privacy (coordinates rounded to 2 decimals)
-- 🌦️ 24-hour hourly weather forecast
-- 📊 Temperature and rain probability charts
+- ☀️ **Light Window** — Signature component showing daylight progression, UV index, and next 6 hours
+- 📍 GPS-based location with neighbourhood-level accuracy
+- 🌡️ Large typographic temperature display (170px hero)
+- 📅 3-day forecast with daily highs/lows
+- � Semantic background gradients (sky blue, coral sunset, teal rain, ice frost)
+- ✍️ Editorial weather headlines ("Grey skies, warming later")
 - 💾 Offline support with service worker caching
-- 📱 Installable as a PWA on mobile devices
-- 🔄 Manual refresh with "last updated" timestamp
+- 📱 Installable as a PWA
 - 🏙️ City search fallback if GPS is denied
-- 🎨 Minimalist "Liquid Glass" design (translucent cards, generous spacing)
 
 ## Tech Stack
 
 **Frontend:**
 - Vanilla JavaScript (ES6 modules)
-- Chart.js for data visualization
+- Custom SVG weather icons
 - Service Worker for offline functionality
 - PWA manifest for installability
+- 8pt spacing grid, restrained typography
 
 **Backend:**
 - Express.js (Node.js)
-- Mock weather provider (Phase 1)
-- Swappable provider architecture (ready for Phase 2: NVIDIA Earth-2)
+- Google Weather API (WeatherNext AI)
+- OpenStreetMap Nominatim for reverse geocoding
 - In-memory caching (30 min TTL)
 - Bearer token authentication
 
 ## Project Structure
 
 ```
-weather-pwa/
-├── frontend/           # PWA client
+insolar/
+├── frontend/              # PWA client
 │   ├── index.html
 │   ├── manifest.json
 │   ├── service-worker.js
 │   ├── css/styles.css
 │   ├── js/
-│   │   ├── main.js
-│   │   ├── api.js
-│   │   ├── location.js
-│   │   ├── ui.js
-│   │   └── charts.js
-│   └── icons/
-├── backend/            # Express API
+│   │   ├── main.js        # App initialization
+│   │   ├── api.js         # API client
+│   │   ├── location.js    # GPS & geocoding
+│   │   ├── ui.js          # UI rendering
+│   │   └── theme.js       # Gradients & headlines
+│   └── icons/             # SVG weather icons
+├── backend/               # Express API
 │   ├── server.js
 │   ├── routes/forecast.js
 │   ├── providers/
-│   │   ├── base.js
-│   │   ├── mock.js
-│   │   └── earth2.js (Phase 2)
+│   │   ├── base.js        # Provider interface
+│   │   ├── google-weather.js  # Google Weather API
+│   │   └── mock.js        # Dev/testing fallback
 │   ├── cache.js
 │   ├── auth.js
 │   └── schema.js
+├── docs/
+│   └── LIGHT-WINDOW-UX.md # UX specification
+├── fly.toml               # Fly.io config
+├── Dockerfile
 ├── package.json
 └── .env
 ```
@@ -69,11 +77,11 @@ weather-pwa/
    ```bash
    cp .env.example .env
    ```
-   Then generate a random API secret:
-   ```bash
-   openssl rand -hex 32
+   Required environment variables:
    ```
-   Add it to `.env` as `API_SECRET=<your_token>`
+   API_SECRET=<generate with: openssl rand -hex 32>
+   GOOGLE_WEATHER_API_KEY=<your Google Weather API key>
+   ```
 
 3. **Run development server:**
    ```bash
@@ -92,37 +100,32 @@ For local development, the API token is hardcoded in [frontend/js/api.js](fronte
 
 Update this with your own `.env` `API_SECRET` value, or store it in localStorage with key `weather_api_token`.
 
-## Deployment (Render)
+## Deployment (Fly.io)
 
-1. **Push to GitHub:**
+The app deploys automatically to Fly.io on push to `main` via GitHub Actions.
+
+**Manual deploy:**
+```bash
+flyctl deploy --remote-only
+```
+
+**Setup (first time):**
+1. Install Fly CLI: `brew install flyctl`
+2. Login: `flyctl auth login`
+3. Set secrets:
    ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/yourusername/weather-pwa.git
-   git push -u origin main
+   flyctl secrets set API_SECRET=<your_secret>
+   flyctl secrets set GOOGLE_WEATHER_API_KEY=<your_key>
    ```
 
-2. **Create Render Web Service:**
-   - Go to [Render Dashboard](https://dashboard.render.com/)
-   - New → Web Service
-   - Connect your GitHub repo
-   - Settings:
-     - **Build Command:** `npm install`
-     - **Start Command:** `npm start`
-     - **Environment Variables:**
-       - `API_SECRET`: (generate with `openssl rand -hex 32`)
-       - `NODE_ENV`: `production`
-
-3. **Deploy:**
-   - Render will auto-deploy on push to `main`
-   - Your app will be at: `https://your-app.onrender.com`
+**GitHub Actions:**
+Add `FLY_API_TOKEN` as a repository secret (generate with `flyctl tokens create deploy -x 999999h`)
 
 ## API Endpoints
 
 ### `GET /api/forecast?lat=X&lon=Y`
 
-Returns 24-hour weather forecast.
+Returns weather forecast with hourly and daily data.
 
 **Headers:**
 ```
@@ -138,28 +141,24 @@ Authorization: Bearer <your_api_secret>
 {
   "schema_version": 1,
   "location": {
-    "lat": 51.51,
-    "lon": -0.13,
+    "name": "Clapton",
+    "lat": 51.55,
+    "lon": -0.05,
     "rounded_to": 2,
     "source": "gps"
   },
-  "generated_at": "2026-01-27T12:00:00Z",
+  "generated_at": "2026-01-29T09:00:00Z",
   "timezone": "Europe/London",
   "current": { ... },
   "next_hour": { ... },
-  "hourly": [ ... ]
+  "hourly": [ ... ],
+  "daily": [
+    { "name": "Tomorrow", "low": 4, "high": 10, "condition": "Partly cloudy", ... },
+    { "name": "Sat", "low": 3, "high": 9, "condition": "Rain likely", ... },
+    { "name": "Sun", "low": 5, "high": 11, "condition": "Clear", ... }
+  ]
 }
 ```
-
-## Phase 2: NVIDIA Earth-2 Integration
-
-To swap the mock provider for NVIDIA Earth-2:
-
-1. Create `backend/providers/earth2.js` implementing the `WeatherProvider` interface
-2. Update `backend/routes/forecast.js` to use `Earth2Provider` instead of `MockProvider`
-3. Add `EARTH2_API_KEY` to `.env`
-
-The frontend requires **zero changes** thanks to the provider abstraction.
 
 ## Testing
 
@@ -180,10 +179,18 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 2. DevTools → Network → Offline
 3. Reload → should show cached forecast + warning banner
 
+## Design Philosophy
+
+Insolar follows a bold editorial aesthetic focused on sunlight awareness:
+
+- **Single-screen fit** — No scrolling required for core information
+- **Semantic backgrounds** — Colors reflect weather conditions (sky blue, coral sunset, teal rain)
+- **Light Window** — Signature component combining hourly forecast, daylight strip, and UV index
+- **Editorial headlines** — Weather described in narrative style, not just labels
+- **Typography-first** — Large temperature display, restrained type scale
+
+See [docs/LIGHT-WINDOW-UX.md](docs/LIGHT-WINDOW-UX.md) for the full UX specification.
+
 ## License
 
 ISC
-
-## Author
-
-Built with ☁️ by [Your Name]
