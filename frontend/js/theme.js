@@ -141,7 +141,7 @@ export function applyTheme(gradient) {
  * @returns {string}
  */
 export function generateHeroSentence(current, hourly) {
-  const { rain_probability, cloud_percent, temp_c, wind_speed_ms } = current;
+  const { rain_probability, cloud_percent, temp_c, wind_speed_ms, is_day } = current;
 
   // Check for incoming rain in next 2 hours
   const next2Hours = hourly.slice(1, 3);

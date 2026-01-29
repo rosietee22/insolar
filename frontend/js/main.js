@@ -144,7 +144,7 @@ async function requestGPS() {
       if (isIOSChrome) {
         userMessage = 'Chrome on iPhone uses Safari\'s location. Enable in Settings > Safari > Location.';
       } else {
-        userMessage = 'Location blocked. Enable in browser settings or search by city.';
+        userMessage = 'Location blocked. Enable in browser settings or search location.';
       }
     }
     
@@ -283,12 +283,12 @@ async function refreshGPSLocation() {
     // Check if iOS Chrome (has GPS limitations)
     const isIOSChrome = /CriOS/.test(navigator.userAgent);
     if (isIOSChrome && error.message.includes('denied')) {
-      showError('GPS unavailable in Chrome. Use "Search by City" instead.');
+      showError('GPS unavailable in Chrome. Use "Search Location" instead.');
     } else {
       showError(error.message);
     }
     
-    // Re-show location options so user can search by city
+    // Re-show location options so user can search location
     setTimeout(showLocationOptions, 2000);
   }
 }
