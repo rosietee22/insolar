@@ -437,11 +437,15 @@ body::after {
   margin-left: auto;
   display: flex;
   align-items: center;
+  color: var(--text-primary);
 }
 
 .bird-toggle-btn .bird-icon {
-  /* Turn black SVG to cobalt blue (#0410F1) */
-  filter: invert(11%) sepia(98%) saturate(7483%) hue-rotate(243deg) brightness(92%) contrast(109%);
+  filter: var(--icon-filter);
+}
+
+.bird-toggle-btn .weather-icon-toggle {
+  color: var(--text-primary);
 }
 
 .bird-toggle-btn:hover {
@@ -476,7 +480,6 @@ body::after {
   width: 120px;
   height: 120px;
   filter: var(--icon-filter);
-  margin-bottom: var(--space-1);
 }
 
 .bird-hero-headline {
