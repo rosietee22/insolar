@@ -100,7 +100,7 @@ class GoogleWeatherProvider extends WeatherProvider {
   }
 
   transformDay(day) {
-    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const date = new Date(day.interval?.startTime || new Date());
     const dayName = date.toDateString() === new Date(Date.now() + 86400000).toDateString() 
       ? 'Tomorrow' 
