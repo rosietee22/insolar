@@ -25,13 +25,13 @@ const GLOW = {
 
 // ==================== WEATHER THEMES ====================
 export const WEATHER_THEMES = {
-  clearDay:   { from: PALETTE.cobalt,  to: PALETTE.ink,    text: PALETTE.pearl, secondary: 'rgba(194,249,112,0.7)', glow: GLOW.bright },
-  clearNight: { from: PALETTE.ink,     to: '#0A0D3A',      text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.5)', glow: GLOW.none },
-  overcast:   { from: '#9E9B98',        to: '#3A3540',       text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.faint },
-  rain:       { from: PALETTE.ink,     to: PALETTE.cobalt,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.diffuse },
-  storm:      { from: PALETTE.sienna,  to: PALETTE.ink,     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.6)', glow: GLOW.sharp },
-  snow:       { from: PALETTE.pearl,   to: PALETTE.stone,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.6)', glow: GLOW.bright },
-  fog:        { from: PALETTE.stone,   to: PALETTE.pearl,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.5)', glow: GLOW.diffuse },
+  clearDay:   { from: PALETTE.cobalt,  to: PALETTE.ink,    text: PALETTE.pearl, secondary: 'rgba(194,249,112,0.7)', glow: GLOW.bright, rain: '#A8B4FF' },
+  clearNight: { from: '#1A1E30',       to: '#0A0D3A',      text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.5)', glow: GLOW.none, rain: '#C8CDFF' },
+  overcast:   { from: '#9E9B98',        to: '#3A3540',       text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.faint, rain: '#A8B4FF' },
+  rain:       { from: PALETTE.ink,     to: PALETTE.cobalt,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.diffuse, rain: '#A8B4FF' },
+  storm:      { from: PALETTE.sienna,  to: PALETTE.ink,     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.6)', glow: GLOW.sharp, rain: '#FFD4C8' },
+  snow:       { from: PALETTE.pearl,   to: PALETTE.stone,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.6)', glow: GLOW.bright, rain: '#2F5AB8' },
+  fog:        { from: PALETTE.stone,   to: PALETTE.pearl,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.5)', glow: GLOW.diffuse, rain: '#2F5AB8' },
 };
 
 /**
@@ -81,6 +81,8 @@ export function buildTheme({ is_day, timestamp, rain_probability, cloud_percent,
     // Text
     textColor: theme.text,
     textSecondary: theme.secondary,
+    // Rain accent
+    rainColor: theme.rain,
     // For icon filter and glass
     isDarkText,
   };
@@ -103,6 +105,9 @@ export function applyTheme(theme) {
   // Text
   root.style.setProperty('--text-primary', theme.textColor);
   root.style.setProperty('--text-secondary', theme.textSecondary);
+
+  // Rain accent
+  root.style.setProperty('--rain-color', theme.rainColor);
 
   // Glass and icon styles
   if (theme.isDarkText) {

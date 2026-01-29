@@ -17,6 +17,9 @@
   --text-primary: #F0EDEA;
   --text-secondary: rgba(194,249,112,0.7);
 
+  /* Rain accent */
+  --rain-color: #A8B4FF;
+
   /* Glass */
   --glass-bg: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.12);
@@ -428,43 +431,72 @@ body::after {
 .bird-toggle-btn {
   background: none;
   border: none;
-  color: var(--text-secondary);
   cursor: pointer;
   padding: 4px;
-  opacity: 0.6;
   transition: opacity 0.2s;
   margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 .bird-toggle-btn .bird-icon {
-  filter: var(--icon-filter);
-}
-
-.bird-toggle-btn .weather-icon-toggle {
-  filter: var(--icon-filter);
+  /* Turn black SVG to cobalt blue (#0410F1) */
+  filter: invert(11%) sepia(98%) saturate(7483%) hue-rotate(243deg) brightness(92%) contrast(109%);
 }
 
 .bird-toggle-btn:hover {
-  opacity: 1;
+  opacity: 0.7;
 }
 
-.bird-toggle-btn.active {
-  opacity: 1;
-  color: var(--text-primary);
-}
-
-/* Bird view (full page) */
+/* Bird view (full page - mirrors weather layout) */
 .bird-view {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-3) 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+.bird-middle-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.bird-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: var(--space-2);
+}
+
+.bird-hero-icon {
+  width: 120px;
+  height: 120px;
+  filter: var(--icon-filter);
+  margin-bottom: var(--space-1);
+}
+
+.bird-hero-headline {
+  font-size: var(--text-xl);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+  letter-spacing: -0.01em;
+}
+
+.bird-hero-meta {
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--text-secondary);
 }
 
 .bird-view-strip-section {
-  padding: var(--space-1) 0 var(--space-3);
+  padding: var(--space-1) 0;
+  flex-shrink: 0;
 }
 
 .bird-notable {
@@ -487,9 +519,24 @@ body::after {
   font-weight: 500;
 }
 
+.bird-bottom-group {
+  flex-shrink: 0;
+}
+
 .bird-species-list {
-  flex: 1;
-  padding: var(--space-2) 0;
+  max-height: 160px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-1) 0;
+}
+
+.bird-species-list::-webkit-scrollbar {
+  width: 2px;
+}
+
+.bird-species-list::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 1px;
 }
 
 .bird-species-header {
@@ -499,7 +546,7 @@ body::after {
   letter-spacing: 0.1em;
   color: var(--text-secondary);
   opacity: 0.6;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
   padding-bottom: var(--space-1);
   border-bottom: 1px solid var(--glass-border);
 }
@@ -508,7 +555,7 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-1) 0;
+  padding: 5px 0;
   font-size: var(--text-sm);
   color: var(--text-primary);
 }
@@ -595,8 +642,9 @@ body::after {
 }
 
 .hourly-rain {
-  font-size: 10px;
-  color: #A8B4FF;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rain-color);
   min-height: 14px;
 }
 
@@ -1020,6 +1068,11 @@ body::after {
     width: 200px;
     height: 200px;
   }
+
+  .bird-hero-icon {
+    width: 88px;
+    height: 88px;
+  }
 }
 
 /* Very short phones (under 568px height) */
@@ -1036,6 +1089,11 @@ body::after {
   .hero-temp::before {
     width: 160px;
     height: 160px;
+  }
+
+  .bird-hero-icon {
+    width: 64px;
+    height: 64px;
   }
 }
 

@@ -13,46 +13,46 @@
  */
 function scoreHour(hour, weather, month) {
   let score = 50;
-  let label = 'Quiet';
+  let label = 'Not much about';
 
   // TIME OF DAY (biggest factor)
   if (hour >= 5 && hour <= 7) {
     score += 30;
-    label = 'Dawn chorus';
+    label = 'Best time to spot birds';
   } else if (hour === 8) {
     score += 20;
-    label = 'Morning foraging';
+    label = 'Great for spotting';
   } else if (hour >= 9 && hour <= 11) {
     score += 10;
-    label = 'Morning foraging';
+    label = 'Good chance of sightings';
   } else if (hour >= 12 && hour <= 14) {
     score -= 5;
-    label = 'Afternoon lull';
+    label = 'Fewer birds around';
   } else if (hour >= 15 && hour <= 16) {
     score += 10;
-    label = 'Afternoon activity';
+    label = 'Birds picking up again';
   } else if (hour >= 17 && hour <= 18) {
     score += 20;
-    label = 'Dusk activity';
+    label = 'Lots of activity';
   } else if (hour === 19) {
     score += 5;
-    label = 'Dusk settling';
+    label = 'Last chance today';
   } else {
     score -= 20;
-    label = 'Roosting';
+    label = 'Not much about';
   }
 
   // WEATHER PENALTIES
   if (weather.rain_probability > 60) {
     score -= 20;
-    if (score < 40) label = 'Sheltering';
+    if (score < 40) label = 'Rain keeping birds hidden';
   } else if (weather.rain_probability > 30) {
     score -= 10;
   }
 
   if (weather.wind_speed_ms > 10) {
     score -= 15;
-    if (score < 40) label = 'Too windy';
+    if (score < 40) label = 'Too windy for most birds';
   } else if (weather.wind_speed_ms > 6) {
     score -= 5;
   }

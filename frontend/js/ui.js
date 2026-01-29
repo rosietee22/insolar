@@ -467,14 +467,22 @@ export function renderApp(data) {
   }
 
   // Render Light Window
-  const { sunrise, sunset, nextSunrise, isNight } = estimateSunriseSunset(hourly);
+  // Use API-provided sun times if available, fall back to hourly estimation
+  const estimated = estimateSunriseSunset(hourly);
+  const sunrise = data.sun?.sunrise ? new Date(data.sun.sunrise) : estimated.sunrise;
+  const sunset = data.sun?.sunset ? new Date(data.sun.sunset) : estimated.sunset;
+  const nextSunrise = data.sun?.tomorrow_sunrise ? new Date(data.sun.tomorrow_sunrise) : estimated.nextSunrise;
+  const isNight = estimated.isNight;
   const now = new Date();
 
   // Adjust sunset/sunrise for edge cases
   let adjustedSunset = sunset;
   if (isNight && sunset > now) {
-    adjustedSunset = new Date(now);
-    adjustedSunset.setHours(16, 30, 0, 0);
+    // Sunset already passed - use today's sunset time
+    adjustedSunset = new Date(sunset);
+    if (adjustedSunset > now) {
+      adjustedSunset.setDate(adjustedSunset.getDate() - 1);
+    }
   }
   let adjustedNextSunrise = nextSunrise;
   if (adjustedNextSunrise <= adjustedSunset) {
@@ -526,8 +534,7 @@ export function renderApp(data) {
     if (lightLabelLeft) lightLabelLeft.textContent = formatTime(adjustedSunset);
     if (lightLabelRight) lightLabelRight.textContent = formatTime(adjustedNextSunrise);
     if (lightLegend) {
-      lightLegend.textContent = 'UV 0';
-      lightLegend.style.color = 'var(--text-secondary)';
+      lightLegend.textContent = '';
     }
 
     // Calculate night progress
@@ -781,12 +788,24 @@ export function renderBirdView(birdData, activity) {
   // Render activity strip
   renderBirdStrip(activity);
 
+  // Hero section
+  const headlineEl = document.getElementById('bird-hero-headline');
+  const metaEl = document.getElementById('bird-hero-meta');
+  if (headlineEl && activity?.current) {
+    headlineEl.textContent = activity.current.label || 'Bird activity';
+  }
+  if (metaEl) {
+    const level = activity?.current?.level ? activity.current.level.toUpperCase() : '';
+    const speciesCount = birdData.total_species_count || birdData.all_species?.length || 0;
+    metaEl.textContent = `${level} · ${speciesCount} species nearby`;
+  }
+
   // Notable species
   const notableEl = document.getElementById('bird-notable');
   if (notableEl && birdData.notable_species && birdData.notable_species.length > 0) {
     const names = birdData.notable_species.map(s => s.common_name).join(', ');
     notableEl.innerHTML = `
-      <div class="bird-notable-title">What to look for right now</div>
+      <div class="bird-notable-title">What to look for</div>
       <div class="bird-notable-list">${names}</div>
     `;
   }
@@ -802,7 +821,7 @@ export function renderBirdView(birdData, activity) {
     }
     const unique = Array.from(seen.values());
 
-    const rows = unique.slice(0, 20).map(s => {
+    const rows = unique.map(s => {
       const time = new Date(s.observed_at);
       const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
       return `
