@@ -117,6 +117,19 @@ function getWindDescription(speedMs) {
 /**
  * Get weather icon source path
  */
+/**
+ * Map forecast condition text to the correct icon
+ */
+function getForecastIcon(condition) {
+  const c = condition.toLowerCase();
+  if (c.includes('rain likely') || c.includes('rain expected')) return 'rain';
+  if (c.includes('chance of rain')) return 'drizzle';
+  if (c.includes('cloudy') && !c.includes('partly')) return 'cloudy';
+  if (c.includes('partly cloudy')) return 'partly-cloudy-day';
+  if (c.includes('overcast')) return 'cloudy';
+  return 'clear-day';
+}
+
 function getWeatherIconSrc(rain_probability, cloud_percent, is_day) {
   const iconName = getWeatherIconName(rain_probability, cloud_percent, is_day);
   return `/icons/weather/${iconName}.svg`;
@@ -595,7 +608,7 @@ export function renderApp(data) {
     forecastDaysEl.innerHTML = days.map(day => `
       <div class="forecast-day">
         <span class="forecast-day-name">${day.name}</span>
-        <img src="${getWeatherIconSrc(day.maxRain, day.avgCloud, true)}" class="forecast-day-icon" alt="">
+        <img src="/icons/weather/${getForecastIcon(day.condition)}.svg" class="forecast-day-icon" alt="">
         <span class="forecast-day-condition">${day.condition}</span>
         <span class="forecast-day-temps"><span class="low">${day.low}°</span> / ${day.high}°</span>
       </div>
