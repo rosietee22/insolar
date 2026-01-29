@@ -27,7 +27,7 @@ const GLOW = {
 export const WEATHER_THEMES = {
   clearDay:   { from: PALETTE.cobalt,  to: PALETTE.ink,    text: PALETTE.pearl, secondary: 'rgba(194,249,112,0.7)', glow: GLOW.bright },
   clearNight: { from: PALETTE.ink,     to: '#0A0D3A',      text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.5)', glow: GLOW.none },
-  overcast:   { from: PALETTE.stone,   to: PALETTE.ink,     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.faint },
+  overcast:   { from: '#9E9B98',        to: '#3A3540',       text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.faint },
   rain:       { from: PALETTE.ink,     to: PALETTE.cobalt,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.diffuse },
   storm:      { from: PALETTE.sienna,  to: PALETTE.ink,     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.6)', glow: GLOW.sharp },
   snow:       { from: PALETTE.pearl,   to: PALETTE.stone,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.6)', glow: GLOW.bright },

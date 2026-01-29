@@ -692,6 +692,173 @@ export function updateLocationDisplay(location) {
 }
 
 /**
+ * Render bird activity strip
+ * @param {Object} activity - { curve, current, dawn_peak, dusk_peak }
+ */
+export function renderBirdStrip(activity) {
+  if (!activity) return;
+
+  const strip = document.getElementById('bird-strip');
+  const dot = document.getElementById('bird-dot');
+  const labelLeft = document.getElementById('bird-label-left');
+  const labelRight = document.getElementById('bird-label-right');
+  const legend = document.getElementById('bird-legend');
+
+  if (!strip || !dot) return;
+
+  // Build gradient from activity curve
+  const stops = activity.curve.map(point => {
+    const pct = Math.round((point.hour / 23) * 100);
+    const intensity = point.score / 100;
+    if (intensity > 0.6) {
+      return `rgba(168,180,255,${intensity}) ${pct}%`;
+    } else if (intensity > 0.3) {
+      return `rgba(4,16,241,${intensity * 0.8}) ${pct}%`;
+    } else {
+      return `rgba(20,17,21,${1 - intensity * 0.5}) ${pct}%`;
+    }
+  });
+  strip.style.background = `linear-gradient(90deg, ${stops.join(', ')})`;
+
+  // Position dot at current hour
+  const now = new Date();
+  const currentHour = now.getHours() + now.getMinutes() / 60;
+  const dotPosition = (currentHour / 24) * 100;
+  dot.style.left = `${dotPosition}%`;
+
+  // Dot glow based on activity level
+  dot.className = 'bird-dot';
+  if (activity.current.level === 'high') {
+    dot.classList.add('activity-high');
+  } else if (activity.current.level === 'moderate') {
+    dot.classList.add('activity-moderate');
+  } else {
+    dot.classList.add('activity-low');
+  }
+
+  // Labels
+  if (labelLeft) {
+    labelLeft.textContent = `dawn ${formatHourLabel(activity.dawn_peak.hour)}`;
+  }
+  if (labelRight) {
+    labelRight.textContent = `dusk ${formatHourLabel(activity.dusk_peak.hour)}`;
+  }
+  if (legend) {
+    legend.textContent = activity.current.level.toUpperCase();
+    if (activity.current.level === 'high') {
+      legend.style.color = '#A8B4FF';
+    } else {
+      legend.style.color = 'var(--text-secondary)';
+    }
+  }
+}
+
+/**
+ * Format hour as label (e.g. "6am", "5pm")
+ */
+function formatHourLabel(hour) {
+  if (hour === 0) return '12am';
+  if (hour === 12) return '12pm';
+  return hour > 12 ? `${hour - 12}pm` : `${hour}am`;
+}
+
+/**
+ * Show bird toggle button
+ */
+export function showBirdToggle() {
+  const btn = document.getElementById('bird-toggle-btn');
+  if (btn) btn.classList.remove('hidden');
+}
+
+/**
+ * Render the full bird view content
+ * @param {Object} birdData - Full bird data from API
+ * @param {Object} activity - Activity curve data
+ */
+export function renderBirdView(birdData, activity) {
+  if (!birdData) return;
+
+  // Render activity strip
+  renderBirdStrip(activity);
+
+  // Notable species
+  const notableEl = document.getElementById('bird-notable');
+  if (notableEl && birdData.notable_species && birdData.notable_species.length > 0) {
+    const names = birdData.notable_species.map(s => s.common_name).join(', ');
+    notableEl.innerHTML = `
+      <div class="bird-notable-title">What to look for right now</div>
+      <div class="bird-notable-list">${names}</div>
+    `;
+  }
+
+  // Species list
+  const listEl = document.getElementById('bird-species-list');
+  if (listEl && birdData.all_species && birdData.all_species.length > 0) {
+    const seen = new Map();
+    for (const s of birdData.all_species) {
+      if (!seen.has(s.species_code)) {
+        seen.set(s.species_code, s);
+      }
+    }
+    const unique = Array.from(seen.values());
+
+    const rows = unique.slice(0, 20).map(s => {
+      const time = new Date(s.observed_at);
+      const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+      return `
+        <div class="bird-species-row">
+          <span class="bird-species-name">${s.common_name}</span>
+          <span class="bird-species-count">${s.how_many}</span>
+          <span class="bird-species-time">${timeStr}</span>
+        </div>
+      `;
+    }).join('');
+
+    listEl.innerHTML = `
+      <div class="bird-species-header">Recent sightings (${birdData.observation_radius_km || 25}km)</div>
+      ${rows}
+    `;
+  }
+
+  // Freshness
+  const freshnessText = document.getElementById('bird-freshness-text');
+  if (freshnessText && birdData.generated_at) {
+    freshnessText.textContent = `Bird data · ${formatRelativeTime(birdData.generated_at)}`;
+  }
+}
+
+/**
+ * Toggle between weather and bird views
+ * @param {string} view - 'weather' or 'birds'
+ */
+export function setView(view) {
+  const middleGroup = document.querySelector('.middle-group');
+  const bottomGroup = document.querySelector('.bottom-group');
+  const birdView = document.getElementById('bird-view');
+  const toggleBtn = document.getElementById('bird-toggle-btn');
+  const birdIcon = toggleBtn?.querySelector('.bird-icon');
+  const weatherIcon = toggleBtn?.querySelector('.weather-icon-toggle');
+
+  if (view === 'birds') {
+    if (middleGroup) middleGroup.classList.add('hidden');
+    if (bottomGroup) bottomGroup.classList.add('hidden');
+    if (birdView) birdView.classList.remove('hidden');
+    // Swap icon: show sun (back to weather), hide bird
+    if (birdIcon) birdIcon.classList.add('hidden');
+    if (weatherIcon) weatherIcon.classList.remove('hidden');
+    if (toggleBtn) toggleBtn.title = 'Back to weather';
+  } else {
+    if (middleGroup) middleGroup.classList.remove('hidden');
+    if (bottomGroup) bottomGroup.classList.remove('hidden');
+    if (birdView) birdView.classList.add('hidden');
+    // Swap icon: show bird, hide sun
+    if (birdIcon) birdIcon.classList.remove('hidden');
+    if (weatherIcon) weatherIcon.classList.add('hidden');
+    if (toggleBtn) toggleBtn.title = 'Bird activity';
+  }
+}
+
+/**
  * Initialize freshness from cache
  */
 export function initLastUpdated() {

@@ -20,9 +20,14 @@ import {
   hideOfflineWarning,
   renderApp,
   updateFreshness,
-  initLastUpdated
+  initLastUpdated,
+  renderBirdStrip,
+  showBirdToggle,
+  renderBirdView,
+  setView
 } from './ui.js';
 import { initColourPicker, setWeatherData, applySavedOverrides } from './colour-picker.js';
+import { loadBirdData, toggleView, getCurrentView, calculateActivityCurve, isBirdFeatureAvailable } from './birds.js';
 
 // Cache keys
 const FORECAST_CACHE_KEY = 'weather_forecast';
@@ -87,6 +92,9 @@ async function init() {
   document.getElementById('fallback-search-btn')?.addEventListener('click', showCitySearch);
   document.getElementById('fallback-retry-btn')?.addEventListener('click', handleUseMyLocation);
   
+  // Bird toggle
+  document.getElementById('bird-toggle-btn').addEventListener('click', handleBirdToggle);
+
   // Initialize colour picker
   initColourPicker();
 
@@ -325,6 +333,10 @@ async function loadForecast(location) {
   }
 }
 
+// Store current weather for bird activity calculations
+let currentWeatherData = null;
+let currentBirdData = null;
+
 /**
  * Display forecast data
  * @param {Object} forecast - Forecast data
@@ -335,7 +347,53 @@ function displayForecast(forecast) {
   if (forecast.current) {
     setWeatherData(forecast.current);
     applySavedOverrides();
+    currentWeatherData = forecast.current;
+    // Load bird data in background
+    loadBirdsInBackground(forecast);
   }
+}
+
+/**
+ * Load bird data in the background (non-blocking)
+ */
+async function loadBirdsInBackground(forecast) {
+  const location = getCachedLocation();
+  if (!location) return;
+
+  const weather = {
+    temp_c: forecast.current.temp_c,
+    rain_probability: forecast.current.rain_probability,
+    wind_speed_ms: forecast.current.wind_speed_ms,
+    cloud_percent: forecast.current.cloud_percent,
+  };
+
+  try {
+    const birdData = await loadBirdData(location.lat, location.lon, weather);
+
+    if (isBirdFeatureAvailable() === false) {
+      // No API key configured — hide bird UI
+      return;
+    }
+
+    if (birdData) {
+      currentBirdData = birdData;
+      const activity = birdData.activity || calculateActivityCurve(weather);
+
+      // Show bird toggle and pre-render bird view
+      showBirdToggle();
+      renderBirdView(birdData, activity);
+    }
+  } catch (error) {
+    console.error('Background bird load failed:', error);
+  }
+}
+
+/**
+ * Handle bird toggle button
+ */
+function handleBirdToggle() {
+  const newView = toggleView();
+  setView(newView);
 }
 
 /**

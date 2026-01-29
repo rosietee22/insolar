@@ -55,6 +55,49 @@ export async function getForecast(lat, lon) {
 }
 
 /**
+ * Fetch bird observation data for given coordinates
+ * @param {number} lat
+ * @param {number} lon
+ * @param {Object} weather - { temp_c, rain_probability, wind_speed_ms, cloud_percent }
+ * @returns {Promise<Object>} Bird data
+ */
+export async function getBirdData(lat, lon, weather = {}) {
+  const params = new URLSearchParams({ lat, lon });
+  if (weather.temp_c !== undefined) params.set('temp_c', weather.temp_c);
+  if (weather.rain_probability !== undefined) params.set('rain', weather.rain_probability);
+  if (weather.wind_speed_ms !== undefined) params.set('wind', weather.wind_speed_ms);
+  if (weather.cloud_percent !== undefined) params.set('cloud', weather.cloud_percent);
+
+  const url = `${API_BASE}/api/birds?${params}`;
+  const token = getToken();
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 503) {
+        throw new Error('Bird data unavailable');
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to reach server');
+    }
+    throw error;
+  }
+}
+
+/**
  * Search for a city by name
  * @param {string} query - City name
  * @returns {Promise<Object>} Location data {lat, lon, name}

@@ -91,8 +91,19 @@ body::after {
   display: flex;
   flex-direction: column;
   flex: 1;
-  justify-content: space-between;
   min-height: 0;
+}
+
+.middle-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.bottom-group {
+  flex-shrink: 0;
 }
 
 /* Utility Classes */
@@ -165,17 +176,16 @@ body::after {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding-top: 0;
-  padding-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
   flex-shrink: 0;
 }
 
 .hero-top {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: var(--space-4);
+  flex-shrink: 0;
 }
 
 .location-btn {
@@ -334,10 +344,197 @@ body::after {
   letter-spacing: 0.05em;
 }
 
+/* ==================== BIRD ACTIVITY ==================== */
+.bird-strip-title {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  margin-bottom: var(--space-1);
+}
+
+.bird-strip-container {
+  padding: var(--space-1) 0;
+}
+
+.bird-strip {
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #141115 0%,
+    #141115 18%,
+    #0410F1 28%,
+    #A8B4FF 35%,
+    #141115 48%,
+    #141115 58%,
+    #A8B4FF 68%,
+    #0410F1 75%,
+    #141115 85%,
+    #141115 100%
+  );
+}
+
+.bird-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: left 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bird-dot.activity-high {
+  box-shadow: 0 0 12px 6px rgba(168,180,255,0.5), 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.bird-dot.activity-moderate {
+  box-shadow: 0 0 8px 4px rgba(168,180,255,0.3), 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.bird-dot.activity-low {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.bird-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.bird-label-left,
+.bird-label-right {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.bird-legend {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Bird toggle button */
+.bird-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
+
+.bird-toggle-btn .bird-icon {
+  filter: var(--icon-filter);
+}
+
+.bird-toggle-btn .weather-icon-toggle {
+  filter: var(--icon-filter);
+}
+
+.bird-toggle-btn:hover {
+  opacity: 1;
+}
+
+.bird-toggle-btn.active {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+/* Bird view (full page) */
+.bird-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3) 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bird-view-strip-section {
+  padding: var(--space-1) 0 var(--space-3);
+}
+
+.bird-notable {
+  padding: var(--space-2) 0;
+}
+
+.bird-notable-title {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  margin-bottom: var(--space-1);
+}
+
+.bird-notable-list {
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.bird-species-list {
+  flex: 1;
+  padding: var(--space-2) 0;
+}
+
+.bird-species-header {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.bird-species-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1) 0;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.bird-species-name {
+  flex: 1;
+  font-weight: 400;
+}
+
+.bird-species-count {
+  width: 30px;
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+.bird-species-time {
+  width: 50px;
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
 /* ==================== SCROLLABLE 12-HOUR STRIP ==================== */
 .hourly-section {
   margin-top: var(--space-2);
-  margin-left: calc(-1 * var(--space-3));
   margin-right: calc(-1 * var(--space-3));
   flex-shrink: 0;
 }
@@ -348,7 +545,7 @@ body::after {
   overflow-x: auto;
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
-  padding: 0 var(--space-3);
+  padding: 0 var(--space-3) 0 0;
   scrollbar-width: none;
 }
 
@@ -399,7 +596,7 @@ body::after {
 
 .hourly-rain {
   font-size: 10px;
-  color: #C2F970;
+  color: #A8B4FF;
   min-height: 14px;
 }
 
@@ -445,11 +642,10 @@ body::after {
 
 /* ==================== 3-DAY FORECAST ==================== */
 .forecast-days {
-  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  flex-shrink: 0;
+  padding-bottom: var(--space-2);
 }
 
 .forecast-day {
@@ -532,11 +728,9 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  padding: var(--space-2) 0;
+  padding: var(--space-1) 0;
   font-size: var(--text-xs);
   color: var(--text-secondary);
-  flex-shrink: 0;
-  margin-top: auto;
 }
 
 .freshness-dot {

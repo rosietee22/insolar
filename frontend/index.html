@@ -48,57 +48,83 @@
     <!-- Main content -->
     <main id="content" class="content hidden">
 
-      <!-- Hero Zone -->
-      <section class="hero">
-        <!-- Top bar: location + time -->
-        <div class="hero-top">
-          <button id="update-location-btn" class="location-btn" title="Update location">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.35rem; opacity: 0.7;">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-            <span id="location-display">--</span>
-          </button>
-        </div>
+      <!-- Top: Location -->
+      <div class="hero-top">
+        <button id="update-location-btn" class="location-btn" title="Update location">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.35rem; opacity: 0.7;">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+          <span id="location-display">--</span>
+        </button>
+        <button id="bird-toggle-btn" class="bird-toggle-btn hidden" title="Bird activity">
+          <img class="bird-icon" src="/icons/bird.svg" width="18" height="18" alt="Birds">
+          <svg class="weather-icon-toggle hidden" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+          </svg>
+        </button>
+      </div>
 
-        <!-- Main headline -->
-        <h1 class="hero-headline" id="hero-headline">--</h1>
+      <!-- Middle: vertically centered group -->
+      <div class="middle-group">
 
-        <!-- Temperature -->
-        <div class="hero-temp" id="hero-temp">--°</div>
+        <!-- Hero Zone -->
+        <section class="hero">
+          <h1 class="hero-headline" id="hero-headline">--</h1>
+          <div class="hero-temp" id="hero-temp">--°</div>
+          <div class="hero-meta" id="hero-meta"></div>
+        </section>
 
-        <!-- Metadata -->
-        <div class="hero-meta" id="hero-meta"></div>
-      </section>
+        <!-- Scrollable 12-hour hourly strip -->
+        <section class="hourly-section">
+          <div class="hourly-strip" id="hourly-strip"></div>
+        </section>
 
-      <!-- Light Window (signature component) -->
-      <section class="light-window" id="light-window">
-        <div class="light-window-title" id="light-window-title">DAYLIGHT & UV</div>
+        <!-- Light Window (signature component) -->
+        <section class="light-window" id="light-window">
+          <div class="light-window-title" id="light-window-title">DAYLIGHT & UV</div>
+          <div class="light-strip-container">
+            <div class="light-strip" id="light-strip">
+              <div class="light-dot" id="light-dot"></div>
+            </div>
+          </div>
+          <div class="light-labels">
+            <span class="light-label-left" id="light-label-left">--:--</span>
+            <span class="light-legend" id="light-legend">UV: --</span>
+            <span class="light-label-right" id="light-label-right">--:--</span>
+          </div>
+        </section>
 
-        <!-- Light strip with position dot -->
-        <div class="light-strip-container">
-          <div class="light-strip" id="light-strip">
-            <div class="light-dot" id="light-dot"></div>
+        <!-- Key Moments (only shown when unusual weather) -->
+        <section class="moments" id="moments"></section>
+
+      </div>
+
+      <!-- Bird View (toggled, replaces weather content) -->
+      <div id="bird-view" class="bird-view hidden">
+        <div class="bird-view-strip-section">
+          <div class="bird-strip-title" id="bird-strip-title">BIRD ACTIVITY</div>
+          <div class="bird-strip-container">
+            <div class="bird-strip" id="bird-strip">
+              <div class="bird-dot" id="bird-dot"></div>
+            </div>
+          </div>
+          <div class="bird-labels">
+            <span class="bird-label-left" id="bird-label-left">--</span>
+            <span class="bird-legend" id="bird-legend">--</span>
+            <span class="bird-label-right" id="bird-label-right">--</span>
           </div>
         </div>
+        <div class="bird-notable" id="bird-notable"></div>
+        <div class="bird-species-list" id="bird-species-list"></div>
+        <footer class="freshness" id="bird-freshness">
+          <span class="freshness-dot"></span>
+          <span id="bird-freshness-text">Bird data</span>
+        </footer>
+      </div>
 
-        <!-- Sunrise/Sunset labels with UV in center -->
-        <div class="light-labels">
-          <span class="light-label-left" id="light-label-left">--:--</span>
-          <span class="light-legend" id="light-legend">UV: --</span>
-          <span class="light-label-right" id="light-label-right">--:--</span>
-        </div>
-      </section>
-
-      <!-- Scrollable 12-hour hourly strip -->
-      <section class="hourly-section">
-        <div class="hourly-strip" id="hourly-strip"></div>
-      </section>
-
-      <!-- Key Moments (only shown when unusual weather) -->
-      <section class="moments" id="moments"></section>
-
-      <!-- 3-Day Forecast -->
-      <section class="forecast-days" id="forecast-days"></section>
+      <!-- Bottom: pinned forecast + footer -->
+      <div class="bottom-group">
+        <section class="forecast-days" id="forecast-days"></section>
 
       <!-- Freshness -->
       <footer class="freshness" id="freshness">
@@ -116,6 +142,7 @@
           </svg>
         </button>
       </footer>
+      </div>
 
     </main>
 

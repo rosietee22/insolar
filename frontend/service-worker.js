@@ -3,7 +3,7 @@
  * Handles offline caching and network-first strategy for API calls
  */
 
-const CACHE_NAME = 'insolar-v16';
+const CACHE_NAME = 'insolar-v18';
 
 // Static assets to precache
 const STATIC_ASSETS = [
@@ -17,6 +17,7 @@ const STATIC_ASSETS = [
   '/js/ui.js',
   '/js/theme.js',
   '/js/colour-picker.js',
+  '/js/birds.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png'
 ];
