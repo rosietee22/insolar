@@ -58,7 +58,6 @@
             </svg>
             <span id="location-display">--</span>
           </button>
-          <span class="current-time" id="current-time"></span>
         </div>
 
         <!-- Main headline -->
@@ -74,17 +73,14 @@
       <!-- Light Window (signature component) -->
       <section class="light-window" id="light-window">
         <div class="light-window-title" id="light-window-title">DAYLIGHT & UV</div>
-        
-        <!-- Next 5-6 hours -->
-        <div class="light-hours" id="light-hours"></div>
-        
+
         <!-- Light strip with position dot -->
         <div class="light-strip-container">
           <div class="light-strip" id="light-strip">
             <div class="light-dot" id="light-dot"></div>
           </div>
         </div>
-        
+
         <!-- Sunrise/Sunset labels with UV in center -->
         <div class="light-labels">
           <span class="light-label-left" id="light-label-left">--:--</span>
@@ -92,6 +88,14 @@
           <span class="light-label-right" id="light-label-right">--:--</span>
         </div>
       </section>
+
+      <!-- Scrollable 12-hour hourly strip -->
+      <section class="hourly-section">
+        <div class="hourly-strip" id="hourly-strip"></div>
+      </section>
+
+      <!-- Key Moments (only shown when unusual weather) -->
+      <section class="moments" id="moments"></section>
 
       <!-- 3-Day Forecast -->
       <section class="forecast-days" id="forecast-days"></section>
@@ -106,9 +110,24 @@
             <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
           </svg>
         </button>
+        <button id="palette-btn" class="refresh-btn" title="Edit colours">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10a2 2 0 001.85-2.77c-.2-.44-.05-.94.31-1.23a2 2 0 00.49-2.5 2 2 0 011.77-3h2.08A4.5 4.5 0 0022 8.5C22 4.92 17.51 2 12 2zM6.5 13a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm3-4a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm3 4a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>
+          </svg>
+        </button>
       </footer>
 
     </main>
+
+    <!-- Colour Picker Panel -->
+    <div id="colour-picker" class="colour-picker hidden">
+      <div class="colour-picker-header">
+        <span class="colour-picker-title">PALETTE</span>
+        <button id="colour-picker-reset" class="colour-picker-reset">Reset</button>
+        <button id="colour-picker-close" class="colour-picker-close">&times;</button>
+      </div>
+      <div class="colour-picker-swatches" id="colour-swatches"></div>
+    </div>
 
     <!-- Location options popup -->
     <div id="location-options-modal" class="modal hidden">

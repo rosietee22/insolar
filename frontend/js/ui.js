@@ -422,15 +422,13 @@ export function renderApp(data) {
   const current = data.current;
   const hourly = data.hourly;
 
-  // Apply weather theme (three-layer system: season + condition + solar)
+  // Apply weather theme
   const theme = buildTheme({
     is_day: current.is_day,
     timestamp: current.timestamp,
     rain_probability: current.rain_probability,
     cloud_percent: current.cloud_percent,
     temp_c: current.temp_c,
-    sunrise: data.daily?.[0]?.sunrise,
-    sunset: data.daily?.[0]?.sunset
   });
   applyTheme(theme);
 
@@ -439,12 +437,6 @@ export function renderApp(data) {
 
   // Update location display
   updateLocationDisplay(data.location);
-
-  // Update current time
-  const timeEl = document.getElementById('current-time');
-  if (timeEl) {
-    timeEl.textContent = formatTime(new Date());
-  }
 
   // Render Hero Section
   document.getElementById('hero-headline').textContent = generateHeroSentence(current, hourly);
@@ -479,7 +471,6 @@ export function renderApp(data) {
 
   // Light Window elements
   const lightWindowTitle = document.getElementById('light-window-title');
-  const lightHours = document.getElementById('light-hours');
   const lightStrip = document.getElementById('light-strip');
   const lightDot = document.getElementById('light-dot');
   const lightLabelLeft = document.getElementById('light-label-left');
@@ -489,24 +480,22 @@ export function renderApp(data) {
   // Get current UV index
   const uvIndex = current.uv_index || 0;
 
-  // Render next 6 hours (no "NOW" - hero handles that)
-  if (lightHours) {
-    const nextHours = hourly.slice(1, 7);
-    
-    // Check for repeating conditions to fade duplicate icons
-    let lastCondition = null;
-    
-    lightHours.innerHTML = nextHours.map((hour, index) => {
-      const showRain = hour.rain_probability > 25;
-      
+  // Render scrollable 12-hour strip
+  const hourlyStripEl = document.getElementById('hourly-strip');
+  if (hourlyStripEl) {
+    const next12 = hourly.slice(0, 12);
+
+    hourlyStripEl.innerHTML = next12.map((hour, index) => {
+      const showRain = hour.rain_probability > 15;
+      const isNow = index === 0;
+
       return `
-        <div class="light-hour">
-          <span class="light-hour-time">${formatHourShort(hour.timestamp)}</span>
-          <span class="light-hour-temp">${Math.round(hour.temp_c)}°</span>
-          <img src="${getWeatherIconSrc(hour.rain_probability, hour.cloud_percent, hour.is_day)}" 
-               class="light-hour-icon" 
-               alt="">
-          ${showRain ? `<span class="light-hour-rain">${hour.rain_probability}%</span>` : ''}
+        <div class="hourly-item${isNow ? ' now' : ''}">
+          <span class="hourly-time">${isNow ? 'Now' : formatHourShort(hour.timestamp)}</span>
+          <img src="${getWeatherIconSrc(hour.rain_probability, hour.cloud_percent, hour.is_day)}"
+               class="hourly-icon" alt="">
+          <span class="hourly-temp">${Math.round(hour.temp_c)}°</span>
+          <span class="hourly-rain">${showRain ? `${hour.rain_probability}%` : ''}</span>
         </div>
       `;
     }).join('');
@@ -544,19 +533,19 @@ export function renderApp(data) {
       let uvText, uvColor;
       if (uvIndex >= 11) {
         uvText = 'UV ' + uvIndex + ' · Extreme';
-        uvColor = '#9B59B6'; // purple
+        uvColor = '#0410F1'; // cobalt
       } else if (uvIndex >= 8) {
         uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
-        uvColor = '#E74C3C'; // red
+        uvColor = '#A33B20'; // sienna
       } else if (uvIndex >= 6) {
         uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
-        uvColor = '#E67E22'; // orange
+        uvColor = '#A33B20'; // sienna
       } else if (uvIndex >= 3) {
         uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
-        uvColor = '#F1C40F'; // yellow
+        uvColor = '#F0EDEA'; // pearl
       } else if (uvIndex > 0) {
         uvText = 'UV ' + uvIndex + ' · Low';
-        uvColor = '#27AE60'; // green
+        uvColor = '#C2F970'; // chartreuse
       } else {
         uvText = 'UV Low';
         uvColor = 'var(--text-secondary)';
@@ -640,10 +629,7 @@ function startTimeUpdater() {
   if (timeUpdateInterval) clearInterval(timeUpdateInterval);
 
   timeUpdateInterval = setInterval(() => {
-    const timeEl = document.getElementById('current-time');
-    if (timeEl) {
-      timeEl.textContent = formatTime(new Date());
-    }
+    // Time display removed
   }, 60000);
 }
 

@@ -9,15 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gradient-from: #1E3A5F;
-      --gradient-to: #4A7C9B;
-      --overlay-color1: #1E40AF;
-      --overlay-color2: #3B82F6;
-      --overlay-opacity: 0.3;
-      --solar-color: #FEF3C7;
-      --solar-glow: rgba(254,243,199,0.5);
-      --text-primary: #E8E4DF;
-      --text-secondary: rgba(255, 255, 255, 0.7);
+      --gradient-from: #0410F1;
+      --gradient-to: #141115;
+      --solar-color: #F0EDEA;
+      --solar-glow: rgba(240,237,234,0.5);
+      --text-primary: #F0EDEA;
+      --text-secondary: rgba(194,249,112,0.7);
       --glass-bg: rgba(255, 255, 255, 0.08);
       --glass-border: rgba(255, 255, 255, 0.12);
       --font-family: 'Inter', system-ui, sans-serif;
@@ -148,6 +145,7 @@
       font-family: monospace;
       color: rgba(255,255,255,0.6);
       line-height: 1.6;
+      white-space: pre;
     }
 
     /* Preview Panel */
@@ -169,7 +167,6 @@
       text-align: center;
     }
 
-    /* Hero Temperature */
     .hero-location {
       font-size: 14px;
       font-weight: 500;
@@ -240,19 +237,18 @@
     .light-strip {
       height: 8px;
       border-radius: 4px;
-      background: linear-gradient(90deg, 
-        #FDBA74 0%, 
-        #FEF3C7 30%, 
-        #FEF3C7 70%, 
-        #F97316 100%
+      background: linear-gradient(90deg,
+        #0410F1 0%,
+        #F0EDEA 50%,
+        #0410F1 100%
       );
     }
 
     .light-strip.night {
-      background: linear-gradient(90deg, 
-        #1E1B4B 0%, 
-        #312E81 50%, 
-        #1E1B4B 100%
+      background: linear-gradient(90deg,
+        #141115 0%,
+        #7D7C7A 50%,
+        #141115 100%
       );
     }
 
@@ -308,6 +304,13 @@
       color: var(--text-primary);
     }
 
+    .hour-rain {
+      font-size: 10px;
+      color: #C2F970;
+      margin-top: 2px;
+      min-height: 14px;
+    }
+
     /* Back link */
     .back-link {
       position: fixed;
@@ -343,63 +346,74 @@
   </style>
 </head>
 <body>
-  <a href="/" class="back-link">← Back to App</a>
-  
+  <a href="/" class="back-link">&larr; Back to App</a>
+
   <div class="lab-container">
     <div class="controls">
       <h1>Colour Lab</h1>
-      <p class="subtitle">Preview the three-layer colour system</p>
-
-      <div class="control-group">
-        <label>Season</label>
-        <div class="toggle-group" id="season-toggles">
-          <button class="toggle-btn active" data-value="winter">Winter</button>
-          <button class="toggle-btn" data-value="spring">Spring</button>
-          <button class="toggle-btn" data-value="summer">Summer</button>
-          <button class="toggle-btn" data-value="autumn">Autumn</button>
-        </div>
-      </div>
+      <p class="subtitle">Preview the 5-pigment + white glow system</p>
 
       <div class="control-group">
         <label>Condition</label>
         <div class="toggle-group" id="condition-toggles">
-          <button class="toggle-btn active" data-value="clear">Clear</button>
+          <button class="toggle-btn active" data-value="clearDay">Clear Day</button>
+          <button class="toggle-btn" data-value="clearNight">Clear Night</button>
           <button class="toggle-btn" data-value="overcast">Overcast</button>
           <button class="toggle-btn" data-value="rain">Rain</button>
-          <button class="toggle-btn" data-value="fog">Fog</button>
           <button class="toggle-btn" data-value="storm">Storm</button>
           <button class="toggle-btn" data-value="snow">Snow</button>
+          <button class="toggle-btn" data-value="fog">Fog</button>
         </div>
       </div>
 
       <div class="control-group">
-        <label>Time of Day</label>
-        <div class="toggle-group" id="time-toggles">
-          <button class="toggle-btn" data-value="dawn">Dawn</button>
-          <button class="toggle-btn active" data-value="day">Day</button>
-          <button class="toggle-btn" data-value="dusk">Dusk</button>
-          <button class="toggle-btn" data-value="night">Night</button>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label>Current Palette</label>
+        <label>Palette</label>
         <div class="colour-swatch" id="swatches">
           <div>
-            <div class="swatch" id="swatch-primary"></div>
-            <div class="swatch-label">Base</div>
+            <div class="swatch" id="swatch-from"></div>
+            <div class="swatch-label">From</div>
           </div>
           <div>
-            <div class="swatch" id="swatch-secondary"></div>
-            <div class="swatch-label">Secondary</div>
+            <div class="swatch" id="swatch-to"></div>
+            <div class="swatch-label">To</div>
           </div>
           <div>
-            <div class="swatch" id="swatch-solar"></div>
-            <div class="swatch-label">Solar</div>
+            <div class="swatch" id="swatch-glow"></div>
+            <div class="swatch-label">Glow</div>
           </div>
           <div>
             <div class="swatch" id="swatch-text"></div>
             <div class="swatch-label">Text</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Pigments</label>
+        <div class="colour-swatch">
+          <div>
+            <div class="swatch" style="background: #0410F1"></div>
+            <div class="swatch-label">Cobalt</div>
+          </div>
+          <div>
+            <div class="swatch" style="background: #C2F970"></div>
+            <div class="swatch-label">Chartreuse</div>
+          </div>
+          <div>
+            <div class="swatch" style="background: #141115"></div>
+            <div class="swatch-label">Ink</div>
+          </div>
+          <div>
+            <div class="swatch" style="background: #7D7C7A"></div>
+            <div class="swatch-label">Stone</div>
+          </div>
+          <div>
+            <div class="swatch" style="background: #A33B20"></div>
+            <div class="swatch-label">Sienna</div>
+          </div>
+          <div>
+            <div class="swatch" style="background: #F0EDEA"></div>
+            <div class="swatch-label">Pearl</div>
           </div>
         </div>
       </div>
@@ -413,12 +427,12 @@
     <div class="preview">
       <div class="preview-card">
         <div class="hero-location">Hackney, London</div>
-        <div class="hero-temp" id="hero-temp">14°</div>
+        <div class="hero-temp" id="hero-temp">14&deg;</div>
         <div class="hero-sentence" id="hero-sentence">Clear and bright.</div>
-        <div class="hero-meta">Feels like 12° · High 16°</div>
+        <div class="hero-meta">Feels like 12&deg; &middot; High 16&deg;</div>
 
         <div class="light-window">
-          <div class="light-window-title" id="light-title">DAYLIGHT & UV</div>
+          <div class="light-window-title" id="light-title">DAYLIGHT &amp; UV</div>
           <div class="light-labels">
             <span id="light-left">06:45</span>
             <span id="light-right">17:30</span>
@@ -427,24 +441,28 @@
             <div class="light-strip" id="light-strip"></div>
             <div class="light-dot" id="light-dot"></div>
           </div>
-          <div class="light-legend" id="light-legend">UV 4 · Wear sunscreen</div>
+          <div class="light-legend" id="light-legend">UV 4 &middot; Wear sunscreen</div>
 
           <div class="hourly-preview">
             <div class="hour-block">
               <div class="hour-time">Now</div>
-              <div class="hour-temp">14°</div>
+              <div class="hour-temp">14&deg;</div>
+              <div class="hour-rain"></div>
             </div>
             <div class="hour-block">
               <div class="hour-time">2pm</div>
-              <div class="hour-temp">15°</div>
+              <div class="hour-temp">15&deg;</div>
+              <div class="hour-rain" id="rain-2">35%</div>
             </div>
             <div class="hour-block">
               <div class="hour-time">3pm</div>
-              <div class="hour-temp">16°</div>
+              <div class="hour-temp">16&deg;</div>
+              <div class="hour-rain" id="rain-3"></div>
             </div>
             <div class="hour-block">
               <div class="hour-time">4pm</div>
-              <div class="hour-temp">15°</div>
+              <div class="hour-temp">15&deg;</div>
+              <div class="hour-rain" id="rain-4"></div>
             </div>
           </div>
         </div>
@@ -453,145 +471,125 @@
   </div>
 
   <script type="module">
-    // Colour system definitions
-    const SEASONS = {
-      winter: {
-        primary: '#1E3A5F',
-        secondary: '#4A7C9B',
-        highlight: '#E8E4DF',
-        nightPrimary: '#1E1B4B',
-        nightSecondary: '#312E81'
-      },
-      spring: {
-        primary: '#0891B2',
-        secondary: '#4ADE80',
-        highlight: '#FEF7E8',
-        nightPrimary: '#0D4A4A',
-        nightSecondary: '#134E4A'
-      },
-      summer: {
-        primary: '#1D4ED8',
-        secondary: '#FBBF24',
-        highlight: '#FAF5F0',
-        nightPrimary: '#312E81',
-        nightSecondary: '#1E1B4B'
-      },
-      autumn: {
-        primary: '#1E3A4C',
-        secondary: '#C2410C',
-        highlight: '#9CA3AF',
-        nightPrimary: '#2D1F3D',
-        nightSecondary: '#1E1B4B'
-      }
+    // New bold palette
+    const PALETTE = {
+      cobalt: '#0410F1',
+      chartreuse: '#C2F970',
+      ink: '#141115',
+      stone: '#7D7C7A',
+      sienna: '#A33B20',
+      pearl: '#F0EDEA',
     };
 
-    const CONDITIONS = {
-      clear: { color1: '#1E40AF', color2: '#3B82F6', opacity: 0.3 },
-      overcast: { color1: '#6B7280', color2: '#9CA3AF', opacity: 0.5 },
-      rain: { color1: '#134E4A', color2: '#0F172A', opacity: 0.6 },
-      fog: { color1: '#D4C4B5', color2: '#E7E0D8', opacity: 0.4 },
-      storm: { color1: '#581C87', color2: '#1E1B4B', opacity: 0.7 },
-      snow: { color1: '#E0F2FE', color2: '#BAE6FD', opacity: 0.35 }
+    const GLOW = {
+      bright:  { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.5)' },
+      faint:   { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.2)' },
+      diffuse: { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.3)' },
+      sharp:   { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.6)' },
+      none:    { color: PALETTE.pearl, glow: 'rgba(240,237,234,0)' },
     };
 
-    const SOLAR = {
-      dawn: { color: '#FDBA74', glow: 'rgba(253,186,116,0.4)' },
-      day: { color: '#FEF3C7', glow: 'rgba(254,243,199,0.5)' },
-      dusk: { color: '#F97316', glow: 'rgba(249,115,22,0.4)' },
-      night: { color: '#7C3AED', glow: 'rgba(124,58,237,0.3)' }
+    const WEATHER_THEMES = {
+      clearDay:   { from: PALETTE.cobalt,  to: PALETTE.ink,    text: PALETTE.pearl, secondary: 'rgba(194,249,112,0.7)', glow: GLOW.bright, isNight: false },
+      clearNight: { from: PALETTE.ink,     to: '#0A0D3A',      text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.5)', glow: GLOW.none, isNight: true },
+      overcast:   { from: PALETTE.stone,   to: PALETTE.ink,     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.faint, isNight: false },
+      rain:       { from: PALETTE.ink,     to: PALETTE.cobalt,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.diffuse, isNight: false },
+      storm:      { from: PALETTE.sienna,  to: PALETTE.ink,     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.6)', glow: GLOW.sharp, isNight: false },
+      snow:       { from: PALETTE.pearl,   to: PALETTE.stone,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.6)', glow: GLOW.bright, isNight: false },
+      fog:        { from: PALETTE.stone,   to: PALETTE.pearl,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.5)', glow: GLOW.diffuse, isNight: false },
     };
 
     const SENTENCES = {
-      clear: { day: 'Clear and bright.', night: 'A clear night.' },
-      overcast: { day: 'Overcast and grey.', night: 'Cloudy tonight.' },
-      rain: { day: 'Grab an umbrella.', night: 'Wet night ahead.' },
-      fog: { day: 'Foggy start.', night: 'Misty and still.' },
-      storm: { day: 'Stormy weather.', night: 'Thundery night.' },
-      snow: { day: 'Snow is falling.', night: 'Snowy night.' }
+      clearDay: 'Clear and bright.',
+      clearNight: 'A clear night.',
+      overcast: 'Overcast and grey.',
+      rain: 'Grab an umbrella.',
+      storm: 'Stormy weather.',
+      snow: 'Snow is falling.',
+      fog: 'Foggy start.',
     };
 
-    let state = {
-      season: 'winter',
-      condition: 'clear',
-      time: 'day'
-    };
+    let state = { theme: 'clearDay' };
 
     function updatePreview() {
       const root = document.documentElement;
-      const seasonPalette = SEASONS[state.season];
-      const conditionOverlay = CONDITIONS[state.condition];
-      const solar = SOLAR[state.time];
-      const isNight = state.time === 'night';
+      const theme = WEATHER_THEMES[state.theme];
+      const isDarkText = theme.text === PALETTE.ink;
 
       // Base gradient
-      const baseFrom = isNight ? seasonPalette.nightPrimary : seasonPalette.primary;
-      const baseTo = isNight ? seasonPalette.nightSecondary : seasonPalette.secondary;
+      root.style.setProperty('--gradient-from', theme.from);
+      root.style.setProperty('--gradient-to', theme.to);
 
-      root.style.setProperty('--gradient-from', baseFrom);
-      root.style.setProperty('--gradient-to', baseTo);
-      root.style.setProperty('--overlay-opacity', conditionOverlay.opacity);
-      root.style.setProperty('--solar-color', solar.color);
-      root.style.setProperty('--solar-glow', solar.glow);
-      root.style.setProperty('--text-primary', seasonPalette.highlight);
-      root.style.setProperty('--text-secondary', isNight ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.7)');
+      // Glow
+      root.style.setProperty('--solar-color', theme.glow.color);
+      root.style.setProperty('--solar-glow', theme.glow.glow);
+
+      // Text
+      root.style.setProperty('--text-primary', theme.text);
+      root.style.setProperty('--text-secondary', theme.secondary);
+
+      // Glass
+      if (isDarkText) {
+        root.style.setProperty('--glass-bg', 'rgba(0,0,0,0.06)');
+        root.style.setProperty('--glass-border', 'rgba(0,0,0,0.1)');
+      } else {
+        root.style.setProperty('--glass-bg', 'rgba(255,255,255,0.08)');
+        root.style.setProperty('--glass-border', 'rgba(255,255,255,0.12)');
+      }
 
       // Update swatches
-      document.getElementById('swatch-primary').style.background = baseFrom;
-      document.getElementById('swatch-secondary').style.background = baseTo;
-      document.getElementById('swatch-solar').style.background = solar.color;
-      document.getElementById('swatch-text').style.background = seasonPalette.highlight;
+      document.getElementById('swatch-from').style.background = theme.from;
+      document.getElementById('swatch-to').style.background = theme.to;
+      document.getElementById('swatch-glow').style.background = theme.glow.color;
+      document.getElementById('swatch-text').style.background = theme.text;
 
-      // Update light window
+      // Light window
       const lightStrip = document.getElementById('light-strip');
       const lightTitle = document.getElementById('light-title');
       const lightLegend = document.getElementById('light-legend');
-      
-      if (isNight) {
+
+      if (theme.isNight) {
         lightStrip.classList.add('night');
         lightTitle.textContent = 'UNTIL SUNRISE';
         lightLegend.textContent = 'UV 0';
-        lightLegend.style.color = 'var(--text-secondary)';
+        lightLegend.style.color = theme.secondary;
       } else {
         lightStrip.classList.remove('night');
         lightTitle.textContent = 'DAYLIGHT & UV';
-        lightLegend.textContent = 'UV 4 · Wear sunscreen';
-        lightLegend.style.color = '#F1C40F';
+        lightLegend.textContent = 'UV 4 \u00B7 Wear sunscreen';
+        lightLegend.style.color = PALETTE.pearl;
       }
 
-      // Update sentence
-      const sentenceEl = document.getElementById('hero-sentence');
-      const sentences = SENTENCES[state.condition];
-      sentenceEl.textContent = isNight ? sentences.night : sentences.day;
+      // Rain percentages — show for rain/storm
+      const showRain = ['rain', 'storm'].includes(state.theme);
+      document.getElementById('rain-2').textContent = showRain ? '65%' : '';
+      document.getElementById('rain-3').textContent = showRain ? '40%' : '';
+      document.getElementById('rain-4').textContent = showRain ? '20%' : '';
 
-      // Update values display
-      document.getElementById('current-values').innerHTML = `
-season: ${state.season}
-condition: ${state.condition}
-time: ${state.time}
+      // Sentence
+      document.getElementById('hero-sentence').textContent = SENTENCES[state.theme];
+
+      // Values
+      document.getElementById('current-values').textContent =
+`theme: ${state.theme}
 ---
-base: ${baseFrom} → ${baseTo}
-overlay: ${conditionOverlay.opacity * 100}%
-solar: ${solar.color}
-text: ${seasonPalette.highlight}
-      `.trim();
+from: ${theme.from}
+to:   ${theme.to}
+text: ${theme.text}
+glow: ${theme.glow.glow}
+secondary: ${theme.secondary}`;
     }
 
     // Toggle handlers
-    function setupToggles(containerId, stateKey) {
-      const container = document.getElementById(containerId);
-      container.addEventListener('click', (e) => {
-        if (e.target.classList.contains('toggle-btn')) {
-          container.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
-          e.target.classList.add('active');
-          state[stateKey] = e.target.dataset.value;
-          updatePreview();
-        }
-      });
-    }
-
-    setupToggles('season-toggles', 'season');
-    setupToggles('condition-toggles', 'condition');
-    setupToggles('time-toggles', 'time');
+    const container = document.getElementById('condition-toggles');
+    container.addEventListener('click', (e) => {
+      if (e.target.classList.contains('toggle-btn')) {
+        container.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        state.theme = e.target.dataset.value;
+        updatePreview();
+      }
+    });
 
     // Initial render
     updatePreview();

@@ -22,7 +22,7 @@ import {
   updateFreshness,
   initLastUpdated
 } from './ui.js';
-// Charts removed in Option A layout redesign
+import { initColourPicker, setWeatherData, applySavedOverrides } from './colour-picker.js';
 
 // Cache keys
 const FORECAST_CACHE_KEY = 'weather_forecast';
@@ -87,6 +87,9 @@ async function init() {
   document.getElementById('fallback-search-btn')?.addEventListener('click', showCitySearch);
   document.getElementById('fallback-retry-btn')?.addEventListener('click', handleUseMyLocation);
   
+  // Initialize colour picker
+  initColourPicker();
+
   // Check for context issues on startup
   checkLocationContext();
 
@@ -328,6 +331,11 @@ async function loadForecast(location) {
  */
 function displayForecast(forecast) {
   renderApp(forecast);
+  // Store weather data for colour picker live re-theming
+  if (forecast.current) {
+    setWeatherData(forecast.current);
+    applySavedOverrides();
+  }
 }
 
 /**
