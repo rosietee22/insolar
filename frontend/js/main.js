@@ -279,7 +279,17 @@ async function refreshGPSLocation() {
     await loadForecast(location);
   } catch (error) {
     console.error('Location update error:', error.message);
-    showError(error.message);
+    
+    // Check if iOS Chrome (has GPS limitations)
+    const isIOSChrome = /CriOS/.test(navigator.userAgent);
+    if (isIOSChrome && error.message.includes('denied')) {
+      showError('GPS unavailable in Chrome. Use "Search by City" instead.');
+    } else {
+      showError(error.message);
+    }
+    
+    // Re-show location options so user can search by city
+    setTimeout(showLocationOptions, 2000);
   }
 }
 
