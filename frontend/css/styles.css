@@ -256,6 +256,17 @@ body {
   filter: var(--icon-filter, none);
 }
 
+.weather-icon[src*="rain"],
+.weather-icon[src*="drizzle"] {
+  width: 18px;
+  height: 18px;
+}
+
+.weather-icon[src*="clear-night"] {
+  width: 20px;
+  height: 20px;
+}
+
 .hour-temp {
   font-size: var(--text-lg);
   font-weight: 600;
@@ -296,6 +307,11 @@ body {
   width: 20px;
   height: 20px;
   filter: var(--icon-filter, none);
+}
+
+.solar-svg[src*="clear-night"] {
+  width: 16px;
+  height: 16px;
 }
 
 .solar-track {
