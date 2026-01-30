@@ -5,24 +5,24 @@
 
 /* CSS Custom Properties - 8pt Grid System */
 :root {
-  /* Base gradient */
-  --gradient-from: #0410F1;
-  --gradient-to: #141115;
+  /* Base gradient (Clear Day default) */
+  --gradient-from: #F6FAFF;
+  --gradient-to: #DCEBFA;
 
-  /* Glow (always white-based) */
-  --solar-color: #F0EDEA;
-  --solar-glow: rgba(240,237,234,0.5);
+  /* Glow (sunlight diffusion) */
+  --solar-color: #FFFDF7;
+  --solar-glow: rgba(255,253,247,0.60);
 
   /* Text */
-  --text-primary: #F0EDEA;
-  --text-secondary: rgba(194,249,112,0.7);
+  --text-primary: #1A2A3A;
+  --text-secondary: rgba(26,42,58,0.50);
 
   /* Rain accent */
-  --rain-color: #A8B4FF;
+  --rain-color: #7BA3D4;
 
   /* Glass */
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(0, 0, 0, 0.06);
+  --glass-border: rgba(0, 0, 0, 0.1);
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -70,7 +70,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  opacity: 0.035;
+  opacity: 0.025;
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
@@ -278,18 +278,18 @@ body::after {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    #0410F1 0%,
-    #F0EDEA 50%,
-    #0410F1 100%
+    #BFD9F6 0%,
+    #FFFDF7 50%,
+    #BFD9F6 100%
   );
 }
 
 .light-strip.night {
   background: linear-gradient(
     90deg,
-    #141115 0%,
-    #7D7C7A 50%,
-    #141115 100%
+    #2A2D52 0%,
+    #5D5A7A 50%,
+    #2A2D52 100%
   );
 }
 
@@ -306,12 +306,12 @@ body::after {
   transition: left 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* UV glow levels (white-based) */
-.light-dot.uv-0 { box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
-.light-dot.uv-low { box-shadow: 0 0 8px 4px rgba(194,249,112,0.4), 0 1px 4px rgba(0,0,0,0.2); }
-.light-dot.uv-moderate { box-shadow: 0 0 12px 6px rgba(240,237,234,0.5), 0 1px 4px rgba(0,0,0,0.2); }
-.light-dot.uv-high { box-shadow: 0 0 16px 8px rgba(163,59,32,0.6), 0 1px 4px rgba(0,0,0,0.2); }
-.light-dot.uv-very-high { box-shadow: 0 0 20px 10px rgba(163,59,32,0.8), 0 1px 4px rgba(0,0,0,0.2); }
+/* UV glow levels (sunlight diffusion) */
+.light-dot.uv-0 { box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.light-dot.uv-low { box-shadow: 0 0 8px 4px rgba(191,217,246,0.4), 0 1px 4px rgba(0,0,0,0.15); }
+.light-dot.uv-moderate { box-shadow: 0 0 12px 6px rgba(255,253,247,0.5), 0 1px 4px rgba(0,0,0,0.15); }
+.light-dot.uv-high { box-shadow: 0 0 16px 8px rgba(196,101,77,0.5), 0 1px 4px rgba(0,0,0,0.15); }
+.light-dot.uv-very-high { box-shadow: 0 0 20px 10px rgba(196,101,77,0.7), 0 1px 4px rgba(0,0,0,0.15); }
 
 .light-dot.night {
   box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.2);
@@ -362,16 +362,16 @@ body::after {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    #141115 0%,
-    #141115 18%,
-    #0410F1 28%,
-    #A8B4FF 35%,
-    #141115 48%,
-    #141115 58%,
-    #A8B4FF 68%,
-    #0410F1 75%,
-    #141115 85%,
-    #141115 100%
+    #1E2145 0%,
+    #1E2145 18%,
+    #5B7DB8 28%,
+    #BFD9F6 35%,
+    #2A2D52 48%,
+    #2A2D52 58%,
+    #BFD9F6 68%,
+    #5B7DB8 75%,
+    #1E2145 85%,
+    #1E2145 100%
   );
 }
 
@@ -388,7 +388,7 @@ body::after {
 }
 
 .bird-dot.activity-high {
-  box-shadow: 0 0 12px 6px rgba(168,180,255,0.5), 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 0 12px 6px rgba(160,170,212,0.5), 0 1px 4px rgba(0,0,0,0.15);
 }
 
 .bird-dot.activity-moderate {
@@ -748,15 +748,15 @@ body::after {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #C2F970;
+  background: #6DB88A;
 }
 
 .freshness.stale .freshness-dot {
-  background: #7D7C7A;
+  background: #B8B6B3;
 }
 
 .freshness.old .freshness-dot {
-  background: #A33B20;
+  background: #C4654D;
 }
 
 .refresh-btn {
@@ -872,8 +872,8 @@ body::after {
 
 /* Location warning */
 .location-warning {
-  background: rgba(163, 59, 32, 0.2);
-  color: #A33B20;
+  background: rgba(196, 101, 77, 0.15);
+  color: #C4654D;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
   font-size: 0.85rem;

@@ -9,16 +9,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gradient-from: #0410F1;
-      --gradient-to: #141115;
-      --solar-color: #F0EDEA;
-      --solar-glow: rgba(240,237,234,0.5);
-      --text-primary: #F0EDEA;
-      --text-secondary: rgba(194,249,112,0.7);
-      --rain-color: #A8B4FF;
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --icon-filter: invert(1);
+      --gradient-from: #F6FAFF;
+      --gradient-to: #DCEBFA;
+      --solar-color: #FFFDF7;
+      --solar-glow: rgba(255,253,247,0.60);
+      --text-primary: #1A2A3A;
+      --text-secondary: rgba(26,42,58,0.50);
+      --rain-color: #7BA3D4;
+      --glass-bg: rgba(0, 0, 0, 0.06);
+      --glass-border: rgba(0, 0, 0, 0.1);
+      --icon-filter: none;
       --font-family: 'Inter', system-ui, sans-serif;
       --space-1: 8px;
       --space-2: 16px;
@@ -48,7 +48,7 @@
       content: '';
       position: fixed;
       inset: 0;
-      opacity: 0.035;
+      opacity: 0.025;
       pointer-events: none;
       z-index: 9999;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
@@ -206,7 +206,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      padding: 4px;
+      padding: 6px;
       display: flex;
       align-items: center;
     }
@@ -264,8 +264,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 260px;
-      height: 260px;
+      width: 280px;
+      height: 280px;
       border-radius: 50%;
       background: radial-gradient(circle, var(--solar-glow) 0%, transparent 70%);
       pointer-events: none;
@@ -376,11 +376,11 @@
       position: relative;
       height: 12px;
       border-radius: 6px;
-      background: linear-gradient(90deg, #0410F1 0%, #F0EDEA 50%, #0410F1 100%);
+      background: linear-gradient(90deg, #BFD9F6 0%, #FFFDF7 50%, #BFD9F6 100%);
     }
 
     .light-strip.night {
-      background: linear-gradient(90deg, #141115 0%, #7D7C7A 50%, #141115 100%);
+      background: linear-gradient(90deg, #2A2D52 0%, #5D5A7A 50%, #2A2D52 100%);
     }
 
     .light-dot {
@@ -391,16 +391,16 @@
       height: 14px;
       background: white;
       border-radius: 50%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
       left: 55%;
     }
 
     .light-dot.night {
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.15);
     }
 
     .light-dot.uv-moderate {
-      box-shadow: 0 0 12px 6px rgba(240,237,234,0.5), 0 1px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 0 12px 6px rgba(255,253,247,0.5), 0 1px 4px rgba(0,0,0,0.15);
     }
 
     .light-labels {
@@ -447,9 +447,9 @@
       height: 12px;
       border-radius: 6px;
       background: linear-gradient(90deg,
-        #141115 0%, #141115 18%, #0410F1 28%, #A8B4FF 35%,
-        #141115 48%, #141115 58%, #A8B4FF 68%, #0410F1 75%,
-        #141115 85%, #141115 100%);
+        #1E2145 0%, #1E2145 18%, #5B7DB8 28%, #BFD9F6 35%,
+        #2A2D52 48%, #2A2D52 58%, #BFD9F6 68%, #5B7DB8 75%,
+        #1E2145 85%, #1E2145 100%);
     }
 
     .bird-dot {
@@ -460,7 +460,7 @@
       height: 14px;
       background: white;
       border-radius: 50%;
-      box-shadow: 0 0 8px 4px rgba(168,180,255,0.3), 0 1px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 0 8px 4px rgba(160,170,212,0.3), 0 1px 4px rgba(0,0,0,0.15);
       left: 55%;
     }
 
@@ -538,7 +538,7 @@
       width: 5px;
       height: 5px;
       border-radius: 50%;
-      background: #C2F970;
+      background: #6DB88A;
     }
 
     /* View toggle */
@@ -634,28 +634,32 @@
         <label>Pigments</label>
         <div class="colour-swatch">
           <div>
-            <div class="swatch" style="background: #0410F1"></div>
-            <div class="swatch-label">Cobalt</div>
+            <div class="swatch" style="background: #F6FAFF"></div>
+            <div class="swatch-label">Sky</div>
           </div>
           <div>
-            <div class="swatch" style="background: #C2F970"></div>
-            <div class="swatch-label">Chartreuse</div>
+            <div class="swatch" style="background: #DCEBFA"></div>
+            <div class="swatch-label">Ice</div>
           </div>
           <div>
-            <div class="swatch" style="background: #141115"></div>
-            <div class="swatch-label">Ink</div>
+            <div class="swatch" style="background: #2A2D52"></div>
+            <div class="swatch-label">Dusk</div>
           </div>
           <div>
-            <div class="swatch" style="background: #7D7C7A"></div>
+            <div class="swatch" style="background: #B8B6B3"></div>
             <div class="swatch-label">Stone</div>
           </div>
           <div>
-            <div class="swatch" style="background: #A33B20"></div>
-            <div class="swatch-label">Sienna</div>
+            <div class="swatch" style="background: #C4654D"></div>
+            <div class="swatch-label">Clay</div>
           </div>
           <div>
             <div class="swatch" style="background: #F0EDEA"></div>
             <div class="swatch-label">Pearl</div>
+          </div>
+          <div>
+            <div class="swatch" style="background: #1A2A3A"></div>
+            <div class="swatch-label">Ink</div>
           </div>
         </div>
       </div>
@@ -678,8 +682,8 @@
             Hackney, London
           </div>
           <button class="app-toggle" id="preview-toggle" title="Toggle view">
-            <img class="toggle-bird-icon" src="/icons/bird.svg" width="52" height="52" alt="Birds">
-            <svg class="toggle-weather-icon hidden" width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+            <img class="toggle-bird-icon" src="/icons/bird.svg" width="28" height="28" alt="Birds">
+            <svg class="toggle-weather-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
             </svg>
           </button>
@@ -689,7 +693,7 @@
         <div class="app-middle" id="weather-view">
           <section class="hero">
             <h1 class="hero-headline" id="hero-headline">Clear and bright.</h1>
-            <div class="hero-temp" id="hero-temp">6&deg;</div>
+            <div class="hero-temp" id="hero-temp">14&deg;</div>
             <div class="hero-meta" id="hero-meta">10% chance of rain / Light breeze</div>
           </section>
 
@@ -704,7 +708,7 @@
             </div>
             <div class="light-labels">
               <span class="light-label" id="light-left">7:12 am</span>
-              <span class="light-legend" id="light-legend">UV 3</span>
+              <span class="light-legend" id="light-legend">UV 4</span>
               <span class="light-label" id="light-right">4:48 pm</span>
             </div>
           </section>
@@ -765,30 +769,31 @@
 
   <script>
     const PALETTE = {
-      cobalt: '#0410F1',
-      chartreuse: '#C2F970',
-      ink: '#141115',
-      stone: '#7D7C7A',
-      sienna: '#A33B20',
-      pearl: '#F0EDEA',
+      sky:     '#F6FAFF',
+      ice:     '#DCEBFA',
+      dusk:    '#2A2D52',
+      stone:   '#B8B6B3',
+      clay:    '#C4654D',
+      pearl:   '#F0EDEA',
+      ink:     '#1A2A3A',
     };
 
     const GLOW = {
-      bright:  { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.5)' },
-      faint:   { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.2)' },
-      diffuse: { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.3)' },
-      sharp:   { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.6)' },
-      none:    { color: PALETTE.pearl, glow: 'rgba(240,237,234,0)' },
+      sunlight: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.60)' },
+      halo:     { color: '#E8E6F0', glow: 'rgba(232,230,240,0.55)' },
+      fog:      { color: '#F0EDEA', glow: 'rgba(240,237,234,0.50)' },
+      ember:    { color: '#FFE8D0', glow: 'rgba(255,232,208,0.45)' },
+      none:     { color: '#F6FAFF', glow: 'rgba(246,250,255,0)' },
     };
 
     const WEATHER_THEMES = {
-      clearDay:   { from: PALETTE.cobalt, to: PALETTE.ink,   text: PALETTE.pearl, secondary: 'rgba(194,249,112,0.7)', glow: GLOW.bright, rain: '#A8B4FF', isNight: false },
-      clearNight: { from: '#1A1E30',      to: '#0A0D3A',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.5)', glow: GLOW.none, rain: '#C8CDFF', isNight: true },
-      overcast:   { from: '#9E9B98',      to: '#3A3540',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.faint, rain: '#A8B4FF', isNight: false },
-      rain:       { from: PALETTE.ink,    to: PALETTE.cobalt, text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.diffuse, rain: '#A8B4FF', isNight: false },
-      storm:      { from: PALETTE.sienna, to: PALETTE.ink,   text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.6)', glow: GLOW.sharp, rain: '#FFD4C8', isNight: false },
-      snow:       { from: PALETTE.pearl,  to: PALETTE.stone,  text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.6)', glow: GLOW.bright, rain: '#2F5AB8', isNight: false },
-      fog:        { from: PALETTE.stone,  to: PALETTE.pearl,  text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.5)', glow: GLOW.diffuse, rain: '#2F5AB8', isNight: false },
+      clearDay:   { from: PALETTE.sky,   to: PALETTE.ice,   text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4', isNight: false },
+      clearNight: { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4', isNight: true },
+      overcast:   { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4', isNight: false },
+      rain:       { from: '#3B425F',     to: '#2F3A66',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#A8B8D8', isNight: false },
+      storm:      { from: PALETTE.clay,  to: PALETTE.dusk,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.ember,    rain: '#FFD4C8', isNight: false },
+      snow:       { from: '#FAFCFF',     to: '#E0DDD9',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#5B7DB8', isNight: false },
+      fog:        { from: '#D5D2CF',     to: PALETTE.pearl,  text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.fog,      rain: '#5B7DB8', isNight: false },
     };
 
     const CONTENT = {

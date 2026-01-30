@@ -9,12 +9,13 @@ const STORAGE_KEY = 'insolar_palette_overrides';
 
 // Labels for each palette key
 const LABELS = {
-  cobalt: 'Cobalt',
-  chartreuse: 'Chartreuse',
-  ink: 'Ink',
+  sky: 'Sky',
+  ice: 'Ice',
+  dusk: 'Dusk',
   stone: 'Stone',
-  sienna: 'Sienna',
+  clay: 'Clay',
   pearl: 'Pearl',
+  ink: 'Ink',
 };
 
 let currentOverrides = {};
@@ -78,20 +79,21 @@ function applyOverrides() {
   // Override the gradient colours based on custom palette
   // Map the theme's original PALETTE refs to the custom values
   const paletteMap = {
-    [PALETTE.cobalt]: palette.cobalt,
-    [PALETTE.chartreuse]: palette.chartreuse,
-    [PALETTE.ink]: palette.ink,
+    [PALETTE.sky]: palette.sky,
+    [PALETTE.ice]: palette.ice,
+    [PALETTE.dusk]: palette.dusk,
     [PALETTE.stone]: palette.stone,
-    [PALETTE.sienna]: palette.sienna,
+    [PALETTE.clay]: palette.clay,
     [PALETTE.pearl]: palette.pearl,
-    '#0A0D3A': palette.ink, // night dark cobalt maps to ink override
+    [PALETTE.ink]: palette.ink,
+    '#1E2145': palette.dusk, // night deep maps to dusk override
   };
 
   theme.baseFrom = paletteMap[theme.baseFrom] || theme.baseFrom;
   theme.baseTo = paletteMap[theme.baseTo] || theme.baseTo;
   theme.textColor = paletteMap[theme.textColor] || theme.textColor;
   theme.solarColor = palette.pearl;
-  theme.solarGlow = `rgba(${hexToRgb(palette.pearl)},0.5)`;
+  theme.solarGlow = `rgba(${hexToRgb(palette.pearl)},0.55)`;
 
   applyTheme(theme);
 }

@@ -1,37 +1,39 @@
 /**
  * Weather Theme System
- * Abstract museum-poster palette: 5 pigments + white glow
- * 2 hues + glow per screen maximum
+ * Luminous, scientific, museum-poster palette
+ * Sunlight diffusion, matte pigments, field-guide energy
+ * Max 2 pigments + white per screen
  */
 
 // ==================== PALETTE ====================
 export const PALETTE = {
-  cobalt: '#0410F1',       // Electric Cobalt
-  chartreuse: '#C2F970',   // Acid Chartreuse
-  ink: '#141115',           // Ink Black
-  stone: '#7D7C7A',         // Stone Grey
-  sienna: '#A33B20',        // Burnt Sienna
-  pearl: '#F0EDEA',         // Pearl White
+  sky:     '#F6FAFF',      // Sky White — high-key base
+  ice:     '#DCEBFA',      // Ice Blue — cool gradient
+  dusk:    '#2A2D52',      // Dusk Indigo — chromatic dark
+  stone:   '#B8B6B3',      // Warm Stone — fog/overcast
+  clay:    '#C4654D',      // Warm Clay — storm accent
+  pearl:   '#F0EDEA',      // Pearl White — snow/neutral
+  ink:     '#1A2A3A',      // Soft Ink — dark text
 };
 
-// ==================== GLOW (always white-based) ====================
+// ==================== GLOW (sunlight diffusion, not spotlight) ====================
 const GLOW = {
-  bright:  { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.5)' },
-  faint:   { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.2)' },
-  diffuse: { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.3)' },
-  sharp:   { color: PALETTE.pearl, glow: 'rgba(240,237,234,0.6)' },
-  none:    { color: PALETTE.pearl, glow: 'rgba(240,237,234,0)' },
+  sunlight: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.60)' },
+  halo:     { color: '#E8E6F0', glow: 'rgba(232,230,240,0.55)' },
+  fog:      { color: '#F0EDEA', glow: 'rgba(240,237,234,0.50)' },
+  ember:    { color: '#FFE8D0', glow: 'rgba(255,232,208,0.45)' },
+  none:     { color: '#F6FAFF', glow: 'rgba(246,250,255,0)' },
 };
 
 // ==================== WEATHER THEMES ====================
 export const WEATHER_THEMES = {
-  clearDay:   { from: PALETTE.cobalt,  to: PALETTE.ink,    text: PALETTE.pearl, secondary: 'rgba(194,249,112,0.7)', glow: GLOW.bright, rain: '#A8B4FF' },
-  clearNight: { from: '#1A1E30',       to: '#0A0D3A',      text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.5)', glow: GLOW.none, rain: '#C8CDFF' },
-  overcast:   { from: '#9E9B98',        to: '#3A3540',       text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.faint, rain: '#A8B4FF' },
-  rain:       { from: PALETTE.ink,     to: PALETTE.cobalt,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.diffuse, rain: '#A8B4FF' },
-  storm:      { from: PALETTE.sienna,  to: PALETTE.ink,     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.6)', glow: GLOW.sharp, rain: '#FFD4C8' },
-  snow:       { from: PALETTE.pearl,   to: PALETTE.stone,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.6)', glow: GLOW.bright, rain: '#2F5AB8' },
-  fog:        { from: PALETTE.stone,   to: PALETTE.pearl,   text: PALETTE.ink,   secondary: 'rgba(20,17,21,0.5)', glow: GLOW.diffuse, rain: '#2F5AB8' },
+  clearDay:   { from: PALETTE.sky,   to: PALETTE.ice,   text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4' },
+  clearNight: { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4' },
+  overcast:   { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4' },
+  rain:       { from: '#3B425F',     to: '#2F3A66',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#A8B8D8' },
+  storm:      { from: PALETTE.clay,  to: PALETTE.dusk,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.ember,    rain: '#FFD4C8' },
+  snow:       { from: '#FAFCFF',     to: '#E0DDD9',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#5B7DB8' },
+  fog:        { from: '#D5D2CF',     to: PALETTE.pearl,  text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.fog,      rain: '#5B7DB8' },
 };
 
 /**

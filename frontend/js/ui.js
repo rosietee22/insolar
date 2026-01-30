@@ -498,22 +498,19 @@ export function renderApp(data) {
       let uvText, uvColor;
       if (uvIndex >= 11) {
         uvText = 'UV ' + uvIndex + ' · Extreme';
-        uvColor = '#0410F1'; // cobalt
-      } else if (uvIndex >= 8) {
-        uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
-        uvColor = '#A33B20'; // sienna
+        uvColor = '#C4654D'; // clay
       } else if (uvIndex >= 6) {
         uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
-        uvColor = '#A33B20'; // sienna
+        uvColor = '#C4654D'; // clay
       } else if (uvIndex >= 3) {
         uvText = 'UV ' + uvIndex + ' · Wear sunscreen';
-        uvColor = '#F0EDEA'; // pearl
+        uvColor = '';
       } else if (uvIndex > 0) {
         uvText = 'UV ' + uvIndex + ' · Low';
-        uvColor = '#C2F970'; // chartreuse
+        uvColor = '';
       } else {
         uvText = 'UV Low';
-        uvColor = 'var(--text-secondary)';
+        uvColor = '';
       }
       lightLegend.textContent = uvText;
       lightLegend.style.color = uvColor;
