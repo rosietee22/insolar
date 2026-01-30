@@ -27,9 +27,10 @@ const GLOW = {
 
 // ==================== WEATHER THEMES ====================
 export const WEATHER_THEMES = {
-  clearDay:   { from: PALETTE.sky,   to: PALETTE.ice,   text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4' },
-  clearNight: { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4' },
-  overcast:   { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4' },
+  clearDay:      { from: '#FFFBF0',     to: '#FAE8C8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4' },
+  partlyCloudy:  { from: '#F5F2ED',     to: '#E8E3D8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#7BA3D4' },
+  clearNight:    { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4' },
+  overcast:      { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4' },
   rain:       { from: '#3B425F',     to: '#2F3A66',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#A8B8D8' },
   storm:      { from: PALETTE.clay,  to: PALETTE.dusk,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.ember,    rain: '#FFD4C8' },
   snow:       { from: '#FAFCFF',     to: '#E0DDD9',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#5B7DB8' },
@@ -45,6 +46,7 @@ function getCondition(rainProbability, cloudPercent, temp_c = 10) {
   if (rainProbability > 30) return 'rain';
   if (cloudPercent > 85) return 'fog';
   if (cloudPercent > 50) return 'overcast';
+  if (cloudPercent > 30) return 'partlyCloudy';
   return 'clear';
 }
 
@@ -53,6 +55,7 @@ function getCondition(rainProbability, cloudPercent, temp_c = 10) {
  */
 function getThemeKey(condition, is_day) {
   if (condition === 'clear') return is_day ? 'clearDay' : 'clearNight';
+  if (condition === 'partlyCloudy') return is_day ? 'partlyCloudy' : 'clearNight';
   if (condition === 'overcast') return 'overcast';
   if (condition === 'rain') return 'rain';
   if (condition === 'storm') return 'storm';
@@ -111,17 +114,21 @@ export function applyTheme(theme) {
   // Rain accent
   root.style.setProperty('--rain-color', theme.rainColor);
 
-  // Glass and icon styles
+  // Glass, icon, and accent styles
   if (theme.isDarkText) {
-    // Light background (snow/fog) — dark text, no icon invert
+    // Light background — dark text, cobalt accent, no icon invert
     root.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.06)');
     root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.1)');
     root.style.setProperty('--icon-filter', 'none');
+    root.style.setProperty('--accent-color', '#0000FF');
+    root.style.setProperty('--accent-filter', 'brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%)');
   } else {
-    // Dark background — light text, invert icons
+    // Dark background — light text, accent matches text, invert icons
     root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');
     root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.12)');
     root.style.setProperty('--icon-filter', 'invert(1)');
+    root.style.setProperty('--accent-color', theme.textColor);
+    root.style.setProperty('--accent-filter', 'invert(1)');
   }
 
   // Data attributes for CSS hooks

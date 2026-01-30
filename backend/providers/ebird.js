@@ -28,7 +28,7 @@ class EBirdProvider {
       throw new Error('eBird API key not configured');
     }
 
-    const url = `${this.baseUrl}/data/obs/geo/recent?lat=${lat}&lng=${lon}&maxResults=${maxResults}&back=7`;
+    const url = `${this.baseUrl}/data/obs/geo/recent?lat=${lat}&lng=${lon}&maxResults=${maxResults}&back=1`;
 
     const response = await fetch(url, {
       headers: { 'X-eBirdApiToken': this.apiKey }

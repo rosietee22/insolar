@@ -6,8 +6,8 @@
 /* CSS Custom Properties - 8pt Grid System */
 :root {
   /* Base gradient (Clear Day default) */
-  --gradient-from: #F6FAFF;
-  --gradient-to: #DCEBFA;
+  --gradient-from: #FFFBF0;
+  --gradient-to: #FAE8C8;
 
   /* Glow (sunlight diffusion) */
   --solar-color: #FFFDF7;
@@ -19,6 +19,10 @@
 
   /* Rain accent */
   --rain-color: #7BA3D4;
+
+  /* Accent (cobalt on light, text-color on dark) */
+  --accent-color: #0000FF;
+  --accent-filter: brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%);
 
   /* Glass */
   --glass-bg: rgba(0, 0, 0, 0.06);
@@ -221,7 +225,7 @@ body::after {
 .hero-temp {
   font-size: var(--text-hero);
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--accent-color);
   line-height: 0.9;
   letter-spacing: -0.04em;
   margin: 0;
@@ -278,9 +282,9 @@ body::after {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    #BFD9F6 0%,
+    #F0D9A8 0%,
     #FFFDF7 50%,
-    #BFD9F6 100%
+    #F0D9A8 100%
   );
 }
 
@@ -293,28 +297,32 @@ body::after {
   );
 }
 
-/* Position dot with UV glow */
+/* Sun/moon marker on light strip */
 .light-dot {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
-  background: white;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  transition: left 0.3s ease, box-shadow 0.3s ease;
+  transition: left 0.3s ease, filter 0.3s ease;
+  color: var(--text-primary);
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.15));
 }
 
-/* UV glow levels (sunlight diffusion) */
-.light-dot.uv-0 { box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
-.light-dot.uv-low { box-shadow: 0 0 8px 4px rgba(191,217,246,0.4), 0 1px 4px rgba(0,0,0,0.15); }
-.light-dot.uv-moderate { box-shadow: 0 0 12px 6px rgba(255,253,247,0.5), 0 1px 4px rgba(0,0,0,0.15); }
-.light-dot.uv-high { box-shadow: 0 0 16px 8px rgba(196,101,77,0.5), 0 1px 4px rgba(0,0,0,0.15); }
-.light-dot.uv-very-high { box-shadow: 0 0 20px 10px rgba(196,101,77,0.7), 0 1px 4px rgba(0,0,0,0.15); }
+/* UV glow levels (sunlight diffusion behind icon) */
+.light-dot.uv-0 { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12)); }
+.light-dot.uv-low { filter: drop-shadow(0 0 6px rgba(191,217,246,0.5)); }
+.light-dot.uv-moderate { filter: drop-shadow(0 0 8px rgba(255,253,247,0.6)); }
+.light-dot.uv-high { filter: drop-shadow(0 0 10px rgba(196,101,77,0.5)) drop-shadow(0 0 4px rgba(196,101,77,0.3)); }
+.light-dot.uv-very-high { filter: drop-shadow(0 0 12px rgba(196,101,77,0.7)) drop-shadow(0 0 6px rgba(196,101,77,0.4)); }
 
 .light-dot.night {
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.2);
+  color: #E8E6F0;
+  filter: drop-shadow(0 0 6px rgba(232,230,240,0.5));
 }
 
 /* Sunrise/Sunset labels */
@@ -379,24 +387,27 @@ body::after {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
-  background: white;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  transition: left 0.3s ease, box-shadow 0.3s ease;
+  transition: left 0.3s ease, filter 0.3s ease;
+  color: #E8E6F0;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.15));
 }
 
 .bird-dot.activity-high {
-  box-shadow: 0 0 12px 6px rgba(160,170,212,0.5), 0 1px 4px rgba(0,0,0,0.15);
+  filter: drop-shadow(0 0 10px rgba(160,170,212,0.6)) drop-shadow(0 0 4px rgba(160,170,212,0.3));
 }
 
 .bird-dot.activity-moderate {
-  box-shadow: 0 0 8px 4px rgba(168,180,255,0.3), 0 1px 4px rgba(0,0,0,0.2);
+  filter: drop-shadow(0 0 6px rgba(168,180,255,0.4));
 }
 
 .bird-dot.activity-low {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
 }
 
 .bird-labels {
@@ -435,11 +446,11 @@ body::after {
 }
 
 .bird-toggle-btn .bird-icon {
-  filter: var(--icon-filter);
+  filter: var(--accent-filter);
 }
 
 .bird-toggle-btn .weather-icon-toggle {
-  color: var(--text-primary);
+  color: var(--accent-color);
 }
 
 .bird-toggle-btn:hover {
@@ -473,7 +484,7 @@ body::after {
 .bird-hero-icon {
   width: 120px;
   height: 120px;
-  filter: var(--icon-filter);
+  filter: var(--accent-filter);
 }
 
 .bird-hero-headline {

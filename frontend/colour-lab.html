@@ -9,8 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gradient-from: #F6FAFF;
-      --gradient-to: #DCEBFA;
+      --gradient-from: #FFFBF0;
+      --gradient-to: #FAE8C8;
       --solar-color: #FFFDF7;
       --solar-glow: rgba(255,253,247,0.60);
       --text-primary: #1A2A3A;
@@ -19,6 +19,8 @@
       --glass-bg: rgba(0, 0, 0, 0.06);
       --glass-border: rgba(0, 0, 0, 0.1);
       --icon-filter: none;
+      --accent-color: #0000FF;
+      --accent-filter: brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%);
       --font-family: 'Inter', system-ui, sans-serif;
       --space-1: 8px;
       --space-2: 16px;
@@ -212,7 +214,7 @@
     }
 
     .app-toggle img {
-      filter: var(--icon-filter);
+      filter: var(--accent-filter);
     }
 
     .app-toggle svg {
@@ -252,7 +254,7 @@
     .hero-temp {
       font-size: var(--text-hero);
       font-weight: 700;
-      color: var(--text-primary);
+      color: var(--accent-color);
       line-height: 0.9;
       letter-spacing: -0.04em;
       position: relative;
@@ -291,7 +293,7 @@
     .bird-hero-icon {
       width: 120px;
       height: 120px;
-      filter: var(--icon-filter);
+      filter: var(--accent-filter);
     }
 
     .bird-hero-headline {
@@ -376,7 +378,7 @@
       position: relative;
       height: 12px;
       border-radius: 6px;
-      background: linear-gradient(90deg, #BFD9F6 0%, #FFFDF7 50%, #BFD9F6 100%);
+      background: linear-gradient(90deg, #F0D9A8 0%, #FFFDF7 50%, #F0D9A8 100%);
     }
 
     .light-strip.night {
@@ -387,20 +389,27 @@
       position: absolute;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 14px;
-      height: 14px;
-      background: white;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 50%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      transition: left 0.3s ease, filter 0.3s ease;
+      color: var(--text-primary);
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.15));
       left: 55%;
     }
 
-    .light-dot.night {
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.15);
-    }
+    .light-dot.uv-0 { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12)); }
+    .light-dot.uv-low { filter: drop-shadow(0 0 6px rgba(191,217,246,0.5)); }
+    .light-dot.uv-moderate { filter: drop-shadow(0 0 8px rgba(255,253,247,0.6)); }
+    .light-dot.uv-high { filter: drop-shadow(0 0 10px rgba(196,101,77,0.5)) drop-shadow(0 0 4px rgba(196,101,77,0.3)); }
+    .light-dot.uv-very-high { filter: drop-shadow(0 0 12px rgba(196,101,77,0.7)) drop-shadow(0 0 6px rgba(196,101,77,0.4)); }
 
-    .light-dot.uv-moderate {
-      box-shadow: 0 0 12px 6px rgba(255,253,247,0.5), 0 1px 4px rgba(0,0,0,0.15);
+    .light-dot.night {
+      color: #E8E6F0;
+      filter: drop-shadow(0 0 6px rgba(232,230,240,0.5));
     }
 
     .light-labels {
@@ -456,11 +465,15 @@
       position: absolute;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 14px;
-      height: 14px;
-      background: white;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 50%;
-      box-shadow: 0 0 8px 4px rgba(160,170,212,0.3), 0 1px 4px rgba(0,0,0,0.15);
+      transition: left 0.3s ease, filter 0.3s ease;
+      color: #E8E6F0;
+      filter: drop-shadow(0 0 6px rgba(168,180,255,0.4));
       left: 55%;
     }
 
@@ -587,6 +600,7 @@
         <label>Condition</label>
         <div class="toggle-group" id="condition-toggles">
           <button class="toggle-btn active" data-value="clearDay">Clear Day</button>
+          <button class="toggle-btn" data-value="partlyCloudy">Partly Cloudy</button>
           <button class="toggle-btn" data-value="clearNight">Clear Night</button>
           <button class="toggle-btn" data-value="overcast">Overcast</button>
           <button class="toggle-btn" data-value="rain">Rain</button>
@@ -703,7 +717,9 @@
             <div class="light-window-title" id="light-title">DAYLIGHT &amp; UV</div>
             <div class="light-strip-container">
               <div class="light-strip" id="light-strip">
-                <div class="light-dot uv-moderate" id="light-dot"></div>
+                <div class="light-dot uv-moderate" id="light-dot">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
+                </div>
               </div>
             </div>
             <div class="light-labels">
@@ -726,7 +742,9 @@
             <div class="bird-strip-title">BIRD ACTIVITY</div>
             <div class="bird-strip-container">
               <div class="bird-strip">
-                <div class="bird-dot"></div>
+                <div class="bird-dot">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
+                </div>
               </div>
             </div>
             <div class="bird-labels">
@@ -787,9 +805,10 @@
     };
 
     const WEATHER_THEMES = {
-      clearDay:   { from: PALETTE.sky,   to: PALETTE.ice,   text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4', isNight: false },
-      clearNight: { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4', isNight: true },
-      overcast:   { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4', isNight: false },
+      clearDay:      { from: '#FFFBF0',     to: '#FAE8C8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4', isNight: false },
+      partlyCloudy:  { from: '#F0EDE6',     to: '#D9D4C8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.fog,      rain: '#7BA3D4', isNight: false },
+      clearNight:    { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4', isNight: true },
+      overcast:      { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4', isNight: false },
       rain:       { from: '#3B425F',     to: '#2F3A66',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#A8B8D8', isNight: false },
       storm:      { from: PALETTE.clay,  to: PALETTE.dusk,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.ember,    rain: '#FFD4C8', isNight: false },
       snow:       { from: '#FAFCFF',     to: '#E0DDD9',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#5B7DB8', isNight: false },
@@ -797,9 +816,10 @@
     };
 
     const CONTENT = {
-      clearDay:   { headline: 'Clear and bright.', meta: '10% chance of rain / Light breeze', temp: '14', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 4', lightLeft: '7:12 am', lightRight: '4:48 pm', rainHours: [] },
-      clearNight: { headline: 'A clear night.', meta: 'Light breeze', temp: '3', lightTitle: 'UNTIL SUNRISE', lightLegend: '', lightLeft: '4:48 pm', lightRight: '7:14 am', rainHours: [] },
-      overcast:   { headline: 'Overcast and grey.', meta: '15% chance of rain / Calm', temp: '8', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 1', lightLeft: '7:30 am', lightRight: '4:35 pm', rainHours: [] },
+      clearDay:      { headline: 'Clear and bright.', meta: '10% chance of rain / Light breeze', temp: '14', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 4', lightLeft: '7:12 am', lightRight: '4:48 pm', rainHours: [] },
+      partlyCloudy:  { headline: 'Patches of sun.', meta: '15% chance of rain / Light breeze', temp: '10', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 2', lightLeft: '7:20 am', lightRight: '4:42 pm', rainHours: [] },
+      clearNight:    { headline: 'A clear night.', meta: 'Light breeze', temp: '3', lightTitle: 'UNTIL SUNRISE', lightLegend: '', lightLeft: '4:48 pm', lightRight: '7:14 am', rainHours: [] },
+      overcast:      { headline: 'Overcast and grey.', meta: '15% chance of rain / Calm', temp: '8', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 1', lightLeft: '7:30 am', lightRight: '4:35 pm', rainHours: [] },
       rain:       { headline: 'Grab an umbrella.', meta: '80% chance of rain / Moderate wind', temp: '6', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 1', lightLeft: '7:25 am', lightRight: '4:40 pm', rainHours: [65, 40, 20, 10] },
       storm:      { headline: 'Stormy weather.', meta: '90% chance of rain / Strong wind', temp: '11', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 2', lightLeft: '6:45 am', lightRight: '5:10 pm', rainHours: [90, 75, 60, 45] },
       snow:       { headline: 'Snow is falling.', meta: '70% chance of snow / Calm', temp: '-1', lightTitle: 'DAYLIGHT & UV', lightLegend: 'UV 1', lightLeft: '8:00 am', lightRight: '4:15 pm', rainHours: [50, 40, 30] },
@@ -844,10 +864,14 @@
         root.style.setProperty('--glass-bg', 'rgba(0,0,0,0.06)');
         root.style.setProperty('--glass-border', 'rgba(0,0,0,0.1)');
         root.style.setProperty('--icon-filter', 'none');
+        root.style.setProperty('--accent-color', '#0000FF');
+        root.style.setProperty('--accent-filter', 'brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%)');
       } else {
         root.style.setProperty('--glass-bg', 'rgba(255,255,255,0.08)');
         root.style.setProperty('--glass-border', 'rgba(255,255,255,0.12)');
         root.style.setProperty('--icon-filter', 'invert(1)');
+        root.style.setProperty('--accent-color', theme.text);
+        root.style.setProperty('--accent-filter', 'invert(1)');
       }
 
       // Swatches
