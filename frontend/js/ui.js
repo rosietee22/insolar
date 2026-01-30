@@ -159,6 +159,18 @@ function getWeatherEmojiFallback(rain_probability, cloud_percent, is_day) {
   return isNight ? '🌙' : '☀️';
 }
 
+/**
+ * Map forecast condition text to icon filename
+ */
+function getForecastIcon(condition) {
+  const c = condition.toLowerCase();
+  if (c.includes('rain likely') || c.includes('rain expected')) return 'rain';
+  if (c.includes('chance of rain')) return 'drizzle';
+  if (c.includes('cloudy') && !c.includes('partly')) return 'cloudy';
+  if (c.includes('partly cloudy')) return 'partly-cloudy-day';
+  if (c.includes('overcast')) return 'cloudy';
+  return 'clear-day';
+}
 
 /**
  * Estimate sunrise/sunset times from hourly is_day transitions
@@ -446,7 +458,7 @@ export function renderApp(data) {
       return `
         <div class="hourly-item${isNow ? ' now' : ''}">
           <span class="hourly-time">${isNow ? 'Now' : formatHourShort(hour.timestamp)}</span>
-          <img src="${getWeatherIconSrc(hour.rain_probability, hour.cloud_percent, hour.is_day)}"
+          <img src="/icons/weather/${getWeatherIconName(hour.rain_probability, hour.cloud_percent, hour.is_day)}.svg"
                class="hourly-icon" alt="">
           <span class="hourly-temp">${Math.round(hour.temp_c)}°</span>
           <span class="hourly-rain">${showRain ? `${hour.rain_probability}%` : ''}</span>
