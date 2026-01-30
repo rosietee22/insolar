@@ -1,30 +1,31 @@
-# Insolar
+# Sunbird
 
-A GPS-based weather Progressive Web App with a bold editorial design focused on sunlight and UV awareness. Built with vanilla JavaScript and Express, powered by Google Weather API.
+A GPS-based weather Progressive Web App with a museum-poster aesthetic focused on sunlight and UV awareness. Built with vanilla JavaScript and Express, powered by Google Weather API.
 
-**Live:** https://insolar.cloud
+**Live:** https://sunbird.today
 
 ## Features
 
-- ☀️ **Light Window** — Signature component showing daylight progression, UV index, and next 6 hours
-- 🐦 **Bird Activity** — eBird-powered bird sighting data with weather-based activity predictions
-- 📍 GPS-based location with neighbourhood-level accuracy
-- 🌡️ Large typographic temperature display (170px hero)
-- 📅 3-day forecast with daily highs/lows
-- 🎨 Museum-poster colour system with 6-pigment palette and live colour picker
-- ✍️ Editorial weather headlines ("Grey skies, warming later")
-- 💾 Offline support with service worker caching
-- 📱 Installable as a PWA
-- 🏙️ City search fallback with approximate location option
+- **Light Window** — Signature component showing daylight progression, UV index, and next 6 hours
+- **Bird Activity** — eBird-powered bird sighting data with weather-based activity predictions
+- GPS-based location with neighbourhood-level accuracy
+- Large typographic temperature display (170px hero)
+- 3-day forecast with daily highs/lows
+- Museum-poster colour system with 7-pigment palette (sky, ice, dusk, stone, clay, pearl, ink) and chalk cobalt accent
+- Weather-adaptive gradients across 8 themes (clear day, partly cloudy, clear night, overcast, rain, storm, snow, fog)
+- Editorial weather headlines ("Patches of sun.", "Grab an umbrella.")
+- Offline support with service worker caching
+- Installable as a PWA
+- City search fallback with approximate location option
 
 ## Tech Stack
 
 **Frontend:**
 - Vanilla JavaScript (ES6 modules)
-- Custom SVG weather icons
+- Custom SVG icons (bird, sun, favicon)
 - Service Worker for offline functionality
 - PWA manifest for installability
-- 8pt spacing grid, restrained typography
+- 8pt spacing grid, Inter typeface, restrained typography
 
 **Backend:**
 - Express.js (Node.js)
@@ -37,9 +38,10 @@ A GPS-based weather Progressive Web App with a bold editorial design focused on 
 ## Project Structure
 
 ```
-insolar/
+sunbird/
 ├── frontend/              # PWA client
 │   ├── index.html
+│   ├── colour-lab.html    # Theme preview tool
 │   ├── manifest.json
 │   ├── service-worker.js
 │   ├── css/styles.css
@@ -48,10 +50,10 @@ insolar/
 │   │   ├── api.js         # API client
 │   │   ├── location.js    # GPS & geocoding
 │   │   ├── ui.js          # UI rendering
-│   │   ├── theme.js       # Gradients & headlines
+│   │   ├── theme.js       # Palette, gradients & headlines
 │   │   ├── birds.js       # Bird data & activity model
 │   │   └── colour-picker.js # Live palette editor
-│   └── icons/             # SVG weather & bird icons
+│   └── icons/             # SVG icons (bird, sun, favicon)
 ├── backend/               # Express API
 │   ├── server.js
 │   ├── routes/
@@ -134,10 +136,10 @@ Add `FLY_API_TOKEN` as a repository secret (generate with `flyctl tokens create 
 
 ## Bird Activity
 
-Insolar includes an optional bird activity feature powered by the eBird API. When an `EBIRD_API_KEY` is configured, a bird icon toggle appears in the top-right corner, switching between the weather view and a dedicated birding page.
+Sunbird includes an optional bird activity feature powered by the eBird API. When an `EBIRD_API_KEY` is configured, a bird icon toggle appears in the top-right corner, switching between the weather view and a dedicated birding page.
 
 **How it works:**
-- Recent bird observations are fetched from eBird (7-day window, 25km radius)
+- Recent bird observations are fetched from eBird (today's sightings, 25km radius)
 - A weather-based activity model scores each hour (0-100) based on time of day, season, temperature, rain, wind, and cloud cover
 - The bird view shows an activity strip (matching the daylight tracker style), notable species, and a scrollable sightings list
 
@@ -235,26 +237,27 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 ```
 
 **PWA Install (Chrome DevTools):**
-1. Open DevTools → Application → Manifest
+1. Open DevTools > Application > Manifest
 2. Check for errors
-3. Application → Service Workers → check registration
+3. Application > Service Workers > check registration
 4. Try "Add to Home Screen"
 
 **Offline Mode:**
 1. Load app with network
-2. DevTools → Network → Offline
-3. Reload → should show cached forecast + warning banner
+2. DevTools > Network > Offline
+3. Reload > should show cached forecast + warning banner
 
 ## Design Philosophy
 
-Insolar follows a bold editorial aesthetic focused on sunlight awareness:
+Sunbird follows a museum-poster aesthetic — luminous, scientific, restrained:
 
 - **Single-screen fit** — No scrolling required for core weather information
-- **Museum-poster palette** — 6-pigment colour system (cobalt, chartreuse, ink, stone, sienna, pearl) with max 2 hues + glow per screen
+- **Museum-poster palette** — 7-pigment colour system (sky, ice, dusk, stone, clay, pearl, ink) with chalk cobalt accent and max 2 pigments + glow per screen
+- **8 weather themes** — Each condition maps to a unique gradient pair with matched text, glow, and rain colours
 - **Light Window** — Signature component showing daylight strip with UV index
 - **Bird Activity** — eBird integration with weather-based activity predictions, matching the daylight tracker style
-- **Editorial headlines** — Weather described in narrative style ("Grey skies, warming later")
-- **Typography-first** — Large temperature display, restrained type scale
+- **Editorial headlines** — Weather described in narrative style ("Patches of sun.", "Grab an umbrella.")
+- **Typography-first** — Large temperature display, Inter typeface, restrained type scale
 - **Graceful degradation** — Bird features hidden without API key, offline mode shows cached data
 
 See [docs/COLOUR-SYSTEM.md](docs/COLOUR-SYSTEM.md) for the palette specification and [docs/LIGHT-WINDOW-UX.md](docs/LIGHT-WINDOW-UX.md) for the UX specification.

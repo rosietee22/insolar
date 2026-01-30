@@ -40,8 +40,8 @@ app.use(compression());
 
 // CORS middleware - restrict to own domains
 const allowedOrigins = [
-  'https://insolar.cloud',
-  'https://www.insolar.cloud',
+  'https://sunbird.today',
+  'https://www.sunbird.today',
   'https://insolar.fly.dev',
   'http://localhost:3000', // development
 ];
