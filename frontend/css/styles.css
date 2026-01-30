@@ -209,12 +209,6 @@ body::after {
   color: var(--text-primary);
 }
 
-.current-time {
-  font-size: var(--text-sm);
-  font-weight: 400;
-  color: var(--text-secondary);
-}
-
 .hero-headline {
   font-size: var(--text-xl);
   font-weight: 500;
@@ -432,7 +426,7 @@ body::after {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   transition: opacity 0.2s;
   margin-left: auto;
   display: flex;
@@ -737,41 +731,6 @@ body::after {
 
 .forecast-day-temps .low {
   color: var(--text-secondary);
-}
-
-.tomorrow-hour {
-  display: flex;
-  align-items: center;
-  padding: 0.6rem 0;
-  border-top: 1px solid var(--glass-border);
-}
-
-.tomorrow-hour-time {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  width: 50px;
-}
-
-.tomorrow-hour-icon {
-  font-size: 1rem;
-  width: 30px;
-  text-align: center;
-}
-
-.tomorrow-hour-temp {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  width: 45px;
-  text-align: right;
-}
-
-.tomorrow-hour-rain {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-left: auto;
-  min-width: 35px;
-  text-align: right;
 }
 
 /* ==================== FRESHNESS FOOTER ==================== */

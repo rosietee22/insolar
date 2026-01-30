@@ -115,34 +115,6 @@ function getWindDescription(speedMs) {
 }
 
 /**
- * Get weather icon source path
- */
-/**
- * Map forecast condition text to the correct icon
- */
-function getForecastIcon(condition) {
-  const c = condition.toLowerCase();
-  if (c.includes('rain likely') || c.includes('rain expected')) return 'rain';
-  if (c.includes('chance of rain')) return 'drizzle';
-  if (c.includes('cloudy') && !c.includes('partly')) return 'cloudy';
-  if (c.includes('partly cloudy')) return 'partly-cloudy-day';
-  if (c.includes('overcast')) return 'cloudy';
-  return 'clear-day';
-}
-
-function getWeatherIconSrc(rain_probability, cloud_percent, is_day) {
-  const iconName = getWeatherIconName(rain_probability, cloud_percent, is_day);
-  return `/icons/weather/${iconName}.svg`;
-}
-
-/**
- * Get condition key for deduplication
- */
-function getConditionKey(rain_probability, cloud_percent, is_day) {
-  return getWeatherIconName(rain_probability, cloud_percent, is_day);
-}
-
-/**
  * Get weather icon filename based on conditions and time of day
  * @param {number} rain_probability
  * @param {number} cloud_percent
@@ -382,45 +354,6 @@ function getMultiDayForecast(hourly, numDays = 3) {
   }
   
   return days;
-}
-
-/**
- * Get tomorrow's forecast data
- * @param {Array} hourly - Hourly forecast data
- * @returns {Object|null}
- */
-function getTomorrowData(hourly) {
-  const now = new Date();
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  const tomorrowEnd = new Date(tomorrow);
-  tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
-
-  const tomorrowHours = hourly.filter(h => {
-    const d = new Date(h.timestamp);
-    return d >= tomorrow && d < tomorrowEnd;
-  });
-
-  if (tomorrowHours.length === 0) return null;
-
-  const temps = tomorrowHours.map(h => h.temp_c);
-  const maxRain = Math.max(...tomorrowHours.map(h => h.rain_probability));
-  const avgCloud = tomorrowHours.reduce((sum, h) => sum + h.cloud_percent, 0) / tomorrowHours.length;
-
-  let condition = 'Clear skies';
-  if (maxRain > 50) condition = 'Rain expected';
-  else if (maxRain > 25) condition = 'Chance of rain';
-  else if (avgCloud > 70) condition = 'Overcast';
-  else if (avgCloud > 30) condition = 'Partly cloudy';
-
-  return {
-    low: Math.round(Math.min(...temps)),
-    high: Math.round(Math.max(...temps)),
-    condition,
-    icon: getWeatherIcon(maxRain, avgCloud, true),
-    hours: tomorrowHours
-  };
 }
 
 /**

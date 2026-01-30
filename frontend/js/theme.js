@@ -37,7 +37,7 @@ export const WEATHER_THEMES = {
 /**
  * Determine weather condition from data
  */
-export function getCondition(rainProbability, cloudPercent, temp_c = 10) {
+function getCondition(rainProbability, cloudPercent, temp_c = 10) {
   if (temp_c < 2 && rainProbability > 30) return 'snow';
   if (rainProbability > 70) return 'storm';
   if (rainProbability > 30) return 'rain';
