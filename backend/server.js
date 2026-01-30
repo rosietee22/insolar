@@ -103,6 +103,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Insolar server running on http://localhost:${PORT}`);
+  console.log(`Sunbird server running on http://localhost:${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });

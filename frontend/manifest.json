@@ -1,11 +1,11 @@
 {
-  "name": "Insolar",
-  "short_name": "Insolar",
+  "name": "Sunbird",
+  "short_name": "Sunbird",
   "description": "GPS-based weather forecast for the next 24 hours",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
-  "theme_color": "#FFFBF0",
+  "theme_color": "#FEFCF0",
   "orientation": "portrait",
   "icons": [
     {

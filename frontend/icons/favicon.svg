@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="40" fill="#0000FF"/>
-  <path d="M96 24L108 80L164 96L108 112L96 168L84 112L28 96L84 80Z" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#2F5EEA"/>
+
+  <!-- Sun disc -->
+  <circle cx="20" cy="20" r="6" fill="#FFFFFF"/>
+
+  <!-- Bird -->
+  <path
+    d="M8 40
+       C22 28, 34 28, 48 34
+       C54 31, 60 30, 62 32
+       C56 34, 50 38, 48 42
+       C34 38, 22 38, 8 40Z"
+    fill="#FFFFFF"/>
 </svg>

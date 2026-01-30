@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Insolar Colour Lab</title>
+  <title>Sunbird Colour Lab</title>
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gradient-from: #FFFBF0;
-      --gradient-to: #FAE8C8;
+      --gradient-from: #FEFCF0;
+      --gradient-to: #F5EDDA;
       --solar-color: #FFFDF7;
       --solar-glow: rgba(255,253,247,0.60);
       --text-primary: #1A2A3A;
@@ -19,8 +20,8 @@
       --glass-bg: rgba(0, 0, 0, 0.06);
       --glass-border: rgba(0, 0, 0, 0.1);
       --icon-filter: none;
-      --accent-color: #0000FF;
-      --accent-filter: brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%);
+      --accent-color: #2F5EEA;
+      --accent-filter: brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%);
       --font-family: 'Inter', system-ui, sans-serif;
       --space-1: 8px;
       --space-2: 16px;
@@ -291,8 +292,9 @@
     }
 
     .bird-hero-icon {
-      width: 120px;
-      height: 120px;
+      width: 220px;
+      height: 110px;
+      object-fit: contain;
       filter: var(--accent-filter);
     }
 
@@ -378,7 +380,7 @@
       position: relative;
       height: 12px;
       border-radius: 6px;
-      background: linear-gradient(90deg, #F0D9A8 0%, #FFFDF7 50%, #F0D9A8 100%);
+      background: linear-gradient(90deg, #E8E2D4 0%, #FEFCF7 50%, #E8E2D4 100%);
     }
 
     .light-strip.night {
@@ -734,7 +736,7 @@
         <div class="app-middle hidden" id="bird-view">
           <section class="bird-hero">
             <h1 class="bird-hero-headline">Quiet for birds right now.</h1>
-            <img class="bird-hero-icon" src="/icons/bird.svg" width="120" height="120" alt="Bird">
+            <img class="bird-hero-icon" src="/icons/bird.svg" width="160" height="160" alt="Bird">
             <div class="bird-hero-meta">moderate activity / 47 species nearby</div>
           </section>
 
@@ -789,30 +791,33 @@
     const PALETTE = {
       sky:     '#F6FAFF',
       ice:     '#DCEBFA',
-      dusk:    '#2A2D52',
+      dusk:    '#3A3D55',
       stone:   '#B8B6B3',
-      clay:    '#C4654D',
+      clay:    '#A8796B',
       pearl:   '#F0EDEA',
       ink:     '#1A2A3A',
     };
 
     const GLOW = {
-      sunlight: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.60)' },
-      halo:     { color: '#E8E6F0', glow: 'rgba(232,230,240,0.55)' },
-      fog:      { color: '#F0EDEA', glow: 'rgba(240,237,234,0.50)' },
-      ember:    { color: '#FFE8D0', glow: 'rgba(255,232,208,0.45)' },
+      sunlight: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.55)' },
+      halo:     { color: '#E8E6F0', glow: 'rgba(232,230,240,0.50)' },
+      fog:      { color: '#F0EDEA', glow: 'rgba(240,237,234,0.45)' },
+      ember:    { color: '#F0DCC8', glow: 'rgba(240,220,200,0.40)' },
       none:     { color: '#F6FAFF', glow: 'rgba(246,250,255,0)' },
     };
 
+    const ACCENT = '#2F5EEA';
+    const ACCENT_FILTER = 'brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%)';
+
     const WEATHER_THEMES = {
-      clearDay:      { from: '#FFFBF0',     to: '#FAE8C8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4', isNight: false },
-      partlyCloudy:  { from: '#F0EDE6',     to: '#D9D4C8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.fog,      rain: '#7BA3D4', isNight: false },
-      clearNight:    { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4', isNight: true },
-      overcast:      { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4', isNight: false },
-      rain:       { from: '#3B425F',     to: '#2F3A66',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#A8B8D8', isNight: false },
-      storm:      { from: PALETTE.clay,  to: PALETTE.dusk,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.ember,    rain: '#FFD4C8', isNight: false },
-      snow:       { from: '#FAFCFF',     to: '#E0DDD9',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#5B7DB8', isNight: false },
-      fog:        { from: '#D5D2CF',     to: PALETTE.pearl,  text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.fog,      rain: '#5B7DB8', isNight: false },
+      clearDay:      { from: '#FEFCF0', to: '#F5EDDA', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#8EACC8', isNight: false },
+      partlyCloudy:  { from: '#FAF8EE', to: '#EBE6D8', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.42)',   glow: GLOW.sunlight, rain: '#8EACC8', isNight: false },
+      clearNight:    { from: '#353850', to: '#2A2D42', text: '#E0DEE8',     secondary: 'rgba(224,222,232,0.45)', glow: GLOW.halo,     rain: '#9AA4C8', isNight: true },
+      overcast:      { from: '#A5A3A0', to: '#6B6870', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.fog,      rain: '#8896B4', isNight: false },
+      rain:          { from: '#4A4E5E', to: '#3A3E50', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', glow: GLOW.fog,      rain: '#A0AACC', isNight: false },
+      storm:         { from: '#8B7368', to: PALETTE.dusk, text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.ember, rain: '#D4BEB0', isNight: false },
+      snow:          { from: '#FAFCFF', to: '#E0DDD9', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#7B96B8', isNight: false },
+      fog:           { from: '#D5D2CF', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(26,42,58,0.40)',  glow: GLOW.fog,      rain: '#7B96B8', isNight: false },
     };
 
     const CONTENT = {
@@ -864,8 +869,8 @@
         root.style.setProperty('--glass-bg', 'rgba(0,0,0,0.06)');
         root.style.setProperty('--glass-border', 'rgba(0,0,0,0.1)');
         root.style.setProperty('--icon-filter', 'none');
-        root.style.setProperty('--accent-color', '#0000FF');
-        root.style.setProperty('--accent-filter', 'brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%)');
+        root.style.setProperty('--accent-color', ACCENT);
+        root.style.setProperty('--accent-filter', ACCENT_FILTER);
       } else {
         root.style.setProperty('--glass-bg', 'rgba(255,255,255,0.08)');
         root.style.setProperty('--glass-border', 'rgba(255,255,255,0.12)');

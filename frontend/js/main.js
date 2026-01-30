@@ -37,7 +37,7 @@ const CACHE_MAX_AGE = 60 * 60 * 1000; // 60 minutes
  * Initialize app
  */
 async function init() {
-  console.log('Insolar initializing...');
+  console.log('Sunbird initializing...');
 
   // Register service worker with auto-update checking
   if ('serviceWorker' in navigator) {

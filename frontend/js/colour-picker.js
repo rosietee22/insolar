@@ -1,6 +1,6 @@
 /**
  * On-page Colour Picker
- * Allows live editing of the Insolar palette
+ * Allows live editing of the Sunbird palette
  */
 
 import { PALETTE, applyTheme, buildTheme } from './theme.js';
@@ -191,7 +191,9 @@ export function initColourPicker() {
   const closeBtn = document.getElementById('colour-picker-close');
   const resetBtn = document.getElementById('colour-picker-reset');
 
-  if (paletteBtn) paletteBtn.addEventListener('click', togglePicker);
+  if (paletteBtn) paletteBtn.addEventListener('click', () => {
+    window.location.href = '/colour-lab.html';
+  });
   if (closeBtn) closeBtn.addEventListener('click', togglePicker);
   if (resetBtn) resetBtn.addEventListener('click', resetOverrides);
 }

@@ -1,9 +1,9 @@
 /**
- * Service Worker for Insolar
+ * Service Worker for Sunbird
  * Handles offline caching and network-first strategy for API calls
  */
 
-const CACHE_NAME = 'insolar-v31';
+const CACHE_NAME = 'sunbird-v1';
 
 // Static assets to precache
 const STATIC_ASSETS = [
@@ -19,7 +19,9 @@ const STATIC_ASSETS = [
   '/js/colour-picker.js',
   '/js/birds.js',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
+  '/icons/sun.svg',
+  '/icons/bird.svg'
 ];
 
 /**

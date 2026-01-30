@@ -6,35 +6,49 @@
  */
 
 // ==================== PALETTE ====================
+// Restrained pigments — mineral, printed, sun-bleached
 export const PALETTE = {
   sky:     '#F6FAFF',      // Sky White — high-key base
   ice:     '#DCEBFA',      // Ice Blue — cool gradient
-  dusk:    '#2A2D52',      // Dusk Indigo — chromatic dark
+  dusk:    '#3A3D55',      // Dusk Indigo — lifted, warm
   stone:   '#B8B6B3',      // Warm Stone — fog/overcast
-  clay:    '#C4654D',      // Warm Clay — storm accent
+  clay:    '#A8796B',      // Muted Clay — desaturated warmth
   pearl:   '#F0EDEA',      // Pearl White — snow/neutral
   ink:     '#1A2A3A',      // Soft Ink — dark text
 };
 
-// ==================== GLOW (sunlight diffusion, not spotlight) ====================
+// ==================== GLOW (atmospheric diffusion, not spotlight) ====================
 const GLOW = {
-  sunlight: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.60)' },
-  halo:     { color: '#E8E6F0', glow: 'rgba(232,230,240,0.55)' },
-  fog:      { color: '#F0EDEA', glow: 'rgba(240,237,234,0.50)' },
-  ember:    { color: '#FFE8D0', glow: 'rgba(255,232,208,0.45)' },
+  sunlight: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.55)' },
+  halo:     { color: '#E8E6F0', glow: 'rgba(232,230,240,0.50)' },
+  fog:      { color: '#F0EDEA', glow: 'rgba(240,237,234,0.45)' },
+  ember:    { color: '#F0DCC8', glow: 'rgba(240,220,200,0.40)' },
   none:     { color: '#F6FAFF', glow: 'rgba(246,250,255,0)' },
 };
 
+// Chalk cobalt — mineral, dusty, printed ultramarine
+const ACCENT = '#2F5EEA';
+const ACCENT_FILTER = 'brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%)';
+
 // ==================== WEATHER THEMES ====================
+// Philosophy: meteorological instrument, museum poster, printed ink on textured paper
 export const WEATHER_THEMES = {
-  clearDay:      { from: '#FFFBF0',     to: '#FAE8C8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#7BA3D4' },
-  partlyCloudy:  { from: '#F5F2ED',     to: '#E8E3D8',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#7BA3D4' },
-  clearNight:    { from: '#2A2D52',     to: '#1E2145',     text: '#E8E6F0',     secondary: 'rgba(232,230,240,0.50)', glow: GLOW.halo,     rain: '#A0AAD4' },
-  overcast:      { from: '#A5A3A0',     to: '#5D5A65',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#8896B4' },
-  rain:       { from: '#3B425F',     to: '#2F3A66',     text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.50)', glow: GLOW.fog,      rain: '#A8B8D8' },
-  storm:      { from: PALETTE.clay,  to: PALETTE.dusk,  text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.55)', glow: GLOW.ember,    rain: '#FFD4C8' },
-  snow:       { from: '#FAFCFF',     to: '#E0DDD9',     text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.50)',   glow: GLOW.sunlight, rain: '#5B7DB8' },
-  fog:        { from: '#D5D2CF',     to: PALETTE.pearl,  text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.fog,      rain: '#5B7DB8' },
+  // Pale winter sun, sky glare, washed paper — luminous and airy
+  clearDay:      { from: '#FEFCF0', to: '#F5EDDA', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#8EACC8' },
+  // Cooler version of clear day — grey-blue veil, same lightness
+  partlyCloudy:  { from: '#FAF8EE', to: '#EBE6D8', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.42)',   glow: GLOW.sunlight, rain: '#8EACC8' },
+  // Lifted indigo, warm undertone — dusk not nightclub
+  clearNight:    { from: '#353850', to: '#2A2D42', text: '#E0DEE8',     secondary: 'rgba(224,222,232,0.45)', glow: GLOW.halo,     rain: '#9AA4C8' },
+  // Overcast — warm grey blanket
+  overcast:      { from: '#A5A3A0', to: '#6B6870', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.fog,      rain: '#8896B4' },
+  // Rain — dark blue-grey, warmer, less saturated
+  rain:          { from: '#4A4E5E', to: '#3A3E50', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', glow: GLOW.fog,      rain: '#A0AACC' },
+  // Storm — muted clay to warm indigo, not neon
+  storm:         { from: '#8B7368', to: PALETTE.dusk, text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.ember, rain: '#D4BEB0' },
+  // Snow — cold pale, untouched
+  snow:          { from: '#FAFCFF', to: '#E0DDD9', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#7B96B8' },
+  // Fog — warm diffusion
+  fog:           { from: '#D5D2CF', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(26,42,58,0.40)',  glow: GLOW.fog,      rain: '#7B96B8' },
 };
 
 /**
@@ -120,8 +134,8 @@ export function applyTheme(theme) {
     root.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.06)');
     root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.1)');
     root.style.setProperty('--icon-filter', 'none');
-    root.style.setProperty('--accent-color', '#0000FF');
-    root.style.setProperty('--accent-filter', 'brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%)');
+    root.style.setProperty('--accent-color', ACCENT);
+    root.style.setProperty('--accent-filter', ACCENT_FILTER);
   } else {
     // Dark background — light text, accent matches text, invert icons
     root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');

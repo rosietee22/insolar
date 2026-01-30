@@ -1,13 +1,13 @@
 /**
- * Insolar Styles
+ * Sunbird Styles
  * Abstract museum-poster palette: 5 pigments + white glow
  */
 
 /* CSS Custom Properties - 8pt Grid System */
 :root {
   /* Base gradient (Clear Day default) */
-  --gradient-from: #FFFBF0;
-  --gradient-to: #FAE8C8;
+  --gradient-from: #FEFCF0;
+  --gradient-to: #F5EDDA;
 
   /* Glow (sunlight diffusion) */
   --solar-color: #FFFDF7;
@@ -22,7 +22,7 @@
 
   /* Accent (cobalt on light, text-color on dark) */
   --accent-color: #2F5EEA;
-  --accent-filter: brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%);
+  --accent-filter: brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%);
 
   /* Glass */
   --glass-bg: rgba(0, 0, 0, 0.06);
@@ -282,9 +282,9 @@ body::after {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    #F0D9A8 0%,
-    #FFFDF7 50%,
-    #F0D9A8 100%
+    #E8E2D4 0%,
+    #FEFCF7 50%,
+    #E8E2D4 100%
   );
 }
 
@@ -450,7 +450,7 @@ body::after {
 }
 
 .bird-toggle-btn .weather-icon-toggle {
-  color: var(--accent-color);
+  filter: var(--accent-filter);
 }
 
 .bird-toggle-btn:hover {
@@ -482,8 +482,9 @@ body::after {
 }
 
 .bird-hero-icon {
-  width: 120px;
-  height: 120px;
+  width: 220px;
+  height: 110px;
+  object-fit: contain;
   filter: var(--accent-filter);
 }
 
