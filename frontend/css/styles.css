@@ -21,7 +21,7 @@
   --rain-color: #7BA3D4;
 
   /* Accent (cobalt on light, text-color on dark) */
-  --accent-color: #0000FF;
+  --accent-color: #2F5EEA;
   --accent-filter: brightness(0) saturate(100%) invert(11%) sepia(100%) saturate(7461%) hue-rotate(245deg) brightness(96%) contrast(144%);
 
   /* Glass */
