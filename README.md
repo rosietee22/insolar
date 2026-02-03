@@ -6,10 +6,10 @@ A GPS-based weather Progressive Web App with a museum-poster aesthetic focused o
 
 ## Features
 
-- **Light Window** — Signature component showing daylight progression, UV index, and next 6 hours
+- **Light Window** — Signature daylight strip with warm sunlight gradient, UV index, and sunrise/sunset times
 - **Bird Activity** — eBird-powered bird sighting data with weather-based activity predictions
 - GPS-based location with neighbourhood-level accuracy
-- Large typographic temperature display (170px hero)
+- Large typographic temperature display (120px hero)
 - 3-day forecast with daily highs/lows
 - Museum-poster colour system with 7-pigment palette (sky, ice, dusk, stone, clay, pearl, ink) and chalk cobalt accent
 - Weather-adaptive gradients across 8 themes (clear day, partly cloudy, clear night, overcast, rain, storm, snow, fog)
@@ -139,9 +139,9 @@ Add `FLY_API_TOKEN` as a repository secret (generate with `flyctl tokens create 
 Sunbird includes an optional bird activity feature powered by the eBird API. When an `EBIRD_API_KEY` is configured, a bird icon toggle appears in the top-right corner, switching between the weather view and a dedicated birding page.
 
 **How it works:**
-- Recent bird observations are fetched from eBird (today's sightings, 25km radius)
+- Recent bird observations are fetched from eBird (today's sightings, 5km radius)
 - A weather-based activity model scores each hour (0-100) based on time of day, season, temperature, rain, wind, and cloud cover
-- The bird view shows an activity strip (matching the daylight tracker style), notable species, and a scrollable sightings list
+- The bird view shows an activity strip (matching the daylight tracker style), notable species, and a full sightings list
 
 **Caching strategy:**
 - Backend: 6-hour cache for eBird data (observations don't change fast)
@@ -218,7 +218,7 @@ Authorization: Bearer <your_api_secret>
   ],
   "all_species": [ ... ],
   "total_species_count": 42,
-  "observation_radius_km": 25,
+  "observation_radius_km": 5,
   "activity": {
     "curve": [ { "hour": 0, "score": 25, "label": "Roosting" }, ... ],
     "current": { "score": 75, "label": "Morning foraging", "level": "high" },
@@ -251,7 +251,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 Sunbird follows a museum-poster aesthetic — luminous, scientific, restrained:
 
-- **Single-screen fit** — No scrolling required for core weather information
+- **Scrollable layout** — Content flows naturally, with a sticky footer for freshness status
 - **Museum-poster palette** — 7-pigment colour system (sky, ice, dusk, stone, clay, pearl, ink) with chalk cobalt accent and max 2 pigments + glow per screen
 - **8 weather themes** — Each condition maps to a unique gradient pair with matched text, glow, and rain colours
 - **Light Window** — Signature component showing daylight strip with UV index

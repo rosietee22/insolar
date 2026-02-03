@@ -98,7 +98,7 @@ router.get('/', authMiddleware, async (req, res, next) => {
       notable_species: notableSpecies,
       all_species: allSpecies,
       total_species_count: uniqueCount,
-      observation_radius_km: 25,
+      observation_radius_km: 5,
     };
 
     // Cache for 6 hours (21600 seconds)

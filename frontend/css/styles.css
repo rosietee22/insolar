@@ -22,7 +22,7 @@
 
   /* Accent (cobalt on light, text-color on dark) */
   --accent-color: #2F5EEA;
-  --accent-filter: brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%);
+  --accent-filter: brightness(0) saturate(100%) invert(27%) sepia(92%) saturate(4000%) hue-rotate(224deg) brightness(98%) contrast(93%);
 
   /* Glass */
   --glass-bg: rgba(0, 0, 0, 0.06);
@@ -84,14 +84,13 @@ body::after {
   max-width: 420px;
   margin: 0 auto;
   padding: var(--space-3);
-  padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom));
-  height: 100vh;
-  height: 100dvh;
+  padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   position: relative;
   z-index: 1;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .content {
@@ -102,16 +101,12 @@ body::after {
 }
 
 .middle-group {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 0;
-  overflow: hidden;
 }
 
 .bottom-group {
-  flex-shrink: 0;
+  margin-top: var(--space-2);
 }
 
 /* Utility Classes */
@@ -184,6 +179,7 @@ body::after {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding-top: var(--space-3);
   padding-bottom: var(--space-2);
   flex-shrink: 0;
 }
@@ -283,9 +279,9 @@ body::after {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    #E8E2D4 0%,
-    #FEFCF7 50%,
-    #E8E2D4 100%
+    #C4B899 0%,
+    #F5E8B0 50%,
+    #C4B899 100%
   );
 }
 
@@ -447,10 +443,14 @@ body::after {
 }
 
 .bird-toggle-btn .bird-icon {
+  width: 44px;
+  height: 44px;
   filter: var(--accent-filter);
 }
 
 .bird-toggle-btn .weather-icon-toggle {
+  width: 44px;
+  height: 44px;
   filter: var(--accent-filter);
 }
 
@@ -460,18 +460,13 @@ body::after {
 
 /* Bird view (full page - mirrors weather layout) */
 .bird-view {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .bird-middle-group {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 0;
 }
 
 .bird-hero {
@@ -479,12 +474,13 @@ body::after {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding-top: var(--space-3);
   padding-bottom: var(--space-2);
 }
 
 .bird-hero-icon {
-  width: 220px;
-  height: 110px;
+  width: 160px;
+  height: 80px;
   object-fit: contain;
   filter: var(--accent-filter);
 }
@@ -535,9 +531,6 @@ body::after {
 }
 
 .bird-species-list {
-  max-height: 160px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   padding: var(--space-1) 0;
 }
 
@@ -665,7 +658,6 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  flex-shrink: 0;
 }
 
 .moment {
@@ -748,13 +740,20 @@ body::after {
 
 /* ==================== FRESHNESS FOOTER ==================== */
 .freshness {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  padding: var(--space-1) 0;
+  padding: var(--space-2) 0 var(--space-1) 0;
+  padding-bottom: calc(var(--space-1) + env(safe-area-inset-bottom));
   font-size: var(--text-xs);
   color: var(--text-secondary);
+  background: linear-gradient(180deg, transparent 0%, var(--gradient-to) 40%);
+  z-index: 10;
 }
 
 .freshness-dot {

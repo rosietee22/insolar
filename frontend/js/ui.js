@@ -566,34 +566,8 @@ export function renderApp(data) {
 
   // Update freshness indicator
   updateFreshness(data.generated_at);
-
-  // Start time updater
-  startTimeUpdater();
 }
 
-// Time updater interval
-let timeUpdateInterval = null;
-
-/**
- * Toggle tomorrow section expansion
- */
-window.toggleTomorrow = function() {
-  const tomorrowEl = document.getElementById('tomorrow');
-  if (tomorrowEl) {
-    tomorrowEl.classList.toggle('expanded');
-  }
-};
-
-/**
- * Start updating current time every minute
- */
-function startTimeUpdater() {
-  if (timeUpdateInterval) clearInterval(timeUpdateInterval);
-
-  timeUpdateInterval = setInterval(() => {
-    // Time display removed
-  }, 60000);
-}
 
 /**
  * Update freshness indicator
@@ -805,8 +779,13 @@ export function renderBirdView(birdData, activity) {
       }
     }
     const unique = Array.from(seen.values());
+    unique.sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
 
-    const rows = unique.map(s => {
+    // Only show sightings from the last 12 hours
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const recent = unique.filter(s => new Date(s.observed_at) >= twelveHoursAgo);
+
+    const rows = (recent.length > 0 ? recent : unique.slice(0, 5)).map(s => {
       const time = new Date(s.observed_at);
       const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
       return `
