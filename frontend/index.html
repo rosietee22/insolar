@@ -56,8 +56,10 @@
           <span id="location-display">--</span>
         </button>
         <button id="bird-toggle-btn" class="bird-toggle-btn hidden" title="Bird activity">
-          <img class="bird-icon" src="/icons/bird.svg" width="36" height="36" alt="Birds">
-          <span class="weather-icon-toggle hidden" aria-label="Weather">°</span>
+          <div class="bird-icon" role="img" aria-label="Birds"></div>
+          <svg class="weather-icon-toggle hidden" width="44" height="44" viewBox="0 0 44 44" aria-label="Weather">
+            <circle cx="22" cy="22" r="10" fill="none" stroke="currentColor" stroke-width="4"/>
+          </svg>
         </button>
       </div>
 
@@ -105,7 +107,7 @@
         <div class="bird-middle-group">
           <section class="bird-hero">
             <h1 class="bird-hero-headline" id="bird-hero-headline">--</h1>
-            <img class="bird-hero-icon" src="/icons/bird.svg" width="160" height="160" alt="Bird">
+            <div class="bird-hero-icon" role="img" aria-label="Bird"></div>
             <div class="bird-hero-meta" id="bird-hero-meta"></div>
           </section>
 

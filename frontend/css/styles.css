@@ -443,6 +443,7 @@ body::after {
   color: var(--text-primary);
   width: 44px;
   height: 44px;
+  overflow: hidden;
 }
 
 .bird-toggle-btn .bird-icon {
@@ -460,11 +461,9 @@ body::after {
 }
 
 .bird-toggle-btn .weather-icon-toggle {
+  width: 44px;
+  height: 44px;
   color: var(--accent-color);
-  font-size: 72px;
-  font-weight: 200;
-  line-height: 0;
-  margin-top: 32px;
 }
 
 .bird-toggle-btn:hover {
