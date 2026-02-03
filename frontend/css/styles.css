@@ -434,24 +434,37 @@ body::after {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 6px;
+  padding: 0;
   transition: opacity 0.2s;
   margin-left: auto;
   display: flex;
   align-items: center;
+  justify-content: center;
   color: var(--text-primary);
+  width: 44px;
+  height: 44px;
 }
 
 .bird-toggle-btn .bird-icon {
   width: 44px;
   height: 44px;
-  filter: var(--accent-filter);
+  background-color: var(--accent-color);
+  -webkit-mask-image: url('/icons/bird.svg');
+  mask-image: url('/icons/bird.svg');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .bird-toggle-btn .weather-icon-toggle {
-  width: 44px;
-  height: 44px;
-  filter: var(--accent-filter);
+  color: var(--accent-color);
+  font-size: 72px;
+  font-weight: 200;
+  line-height: 0;
+  margin-top: 32px;
 }
 
 .bird-toggle-btn:hover {
@@ -481,8 +494,15 @@ body::after {
 .bird-hero-icon {
   width: 160px;
   height: 80px;
-  object-fit: contain;
-  filter: var(--accent-filter);
+  background-color: var(--accent-color);
+  -webkit-mask-image: url('/icons/bird.svg');
+  mask-image: url('/icons/bird.svg');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .bird-hero-headline {
@@ -553,6 +573,12 @@ body::after {
   margin-bottom: var(--space-1);
   padding-bottom: var(--space-1);
   border-bottom: 1px solid var(--glass-border);
+}
+
+.bird-empty-state {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  padding: var(--space-2) 0;
 }
 
 .bird-species-row {

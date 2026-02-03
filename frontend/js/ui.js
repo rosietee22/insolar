@@ -771,36 +771,43 @@ export function renderBirdView(birdData, activity) {
 
   // Species list
   const listEl = document.getElementById('bird-species-list');
-  if (listEl && birdData.all_species && birdData.all_species.length > 0) {
-    const seen = new Map();
-    for (const s of birdData.all_species) {
-      if (!seen.has(s.species_code)) {
-        seen.set(s.species_code, s);
-      }
-    }
-    const unique = Array.from(seen.values());
-    unique.sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
-
-    // Only show sightings from the last 12 hours
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
-    const recent = unique.filter(s => new Date(s.observed_at) >= twelveHoursAgo);
-
-    const rows = (recent.length > 0 ? recent : unique.slice(0, 5)).map(s => {
-      const time = new Date(s.observed_at);
-      const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
-      return `
-        <div class="bird-species-row">
-          <span class="bird-species-name">${s.common_name}</span>
-          <span class="bird-species-count">${s.how_many}</span>
-          <span class="bird-species-time">${timeStr}</span>
-        </div>
+  if (listEl) {
+    if (!birdData.all_species || birdData.all_species.length === 0) {
+      listEl.innerHTML = `
+        <div class="bird-species-header">Recent sightings (${birdData.observation_radius_km || 5}km)</div>
+        <div class="bird-empty-state">No bird sightings reported nearby today.</div>
       `;
-    }).join('');
+    } else {
+      const seen = new Map();
+      for (const s of birdData.all_species) {
+        if (!seen.has(s.species_code)) {
+          seen.set(s.species_code, s);
+        }
+      }
+      const unique = Array.from(seen.values());
+      unique.sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
 
-    listEl.innerHTML = `
-      <div class="bird-species-header">Recent sightings (${birdData.observation_radius_km || 25}km)</div>
-      ${rows}
-    `;
+      // Only show sightings from the last 12 hours
+      const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+      const recent = unique.filter(s => new Date(s.observed_at) >= twelveHoursAgo);
+
+      const rows = (recent.length > 0 ? recent : unique.slice(0, 5)).map(s => {
+        const time = new Date(s.observed_at);
+        const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+        return `
+          <div class="bird-species-row">
+            <span class="bird-species-name">${s.common_name}</span>
+            <span class="bird-species-count">${s.how_many}</span>
+            <span class="bird-species-time">${timeStr}</span>
+          </div>
+        `;
+      }).join('');
+
+      listEl.innerHTML = `
+        <div class="bird-species-header">Recent sightings (${birdData.observation_radius_km || 5}km)</div>
+        ${rows}
+      `;
+    }
   }
 
   // Freshness
@@ -821,11 +828,15 @@ export function setView(view) {
   const toggleBtn = document.getElementById('bird-toggle-btn');
   const birdIcon = toggleBtn?.querySelector('.bird-icon');
   const weatherIcon = toggleBtn?.querySelector('.weather-icon-toggle');
+  const weatherFooter = document.getElementById('freshness');
+  const birdFooter = document.getElementById('bird-freshness');
 
   if (view === 'birds') {
     if (middleGroup) middleGroup.classList.add('hidden');
     if (bottomGroup) bottomGroup.classList.add('hidden');
+    if (weatherFooter) weatherFooter.classList.add('hidden');
     if (birdView) birdView.classList.remove('hidden');
+    if (birdFooter) birdFooter.classList.remove('hidden');
     // Swap icon: show sun (back to weather), hide bird
     if (birdIcon) birdIcon.classList.add('hidden');
     if (weatherIcon) weatherIcon.classList.remove('hidden');
@@ -833,7 +844,9 @@ export function setView(view) {
   } else {
     if (middleGroup) middleGroup.classList.remove('hidden');
     if (bottomGroup) bottomGroup.classList.remove('hidden');
+    if (weatherFooter) weatherFooter.classList.remove('hidden');
     if (birdView) birdView.classList.add('hidden');
+    if (birdFooter) birdFooter.classList.add('hidden');
     // Swap icon: show bird, hide sun
     if (birdIcon) birdIcon.classList.remove('hidden');
     if (weatherIcon) weatherIcon.classList.add('hidden');

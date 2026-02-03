@@ -86,6 +86,13 @@ function cacheBirdData(data) {
 }
 
 /**
+ * Clear bird data cache to force a fresh fetch
+ */
+export function clearBirdCache() {
+  localStorage.removeItem(BIRD_CACHE_KEY);
+}
+
+/**
  * Get cached bird data from localStorage
  */
 export function getCachedBirdData() {
