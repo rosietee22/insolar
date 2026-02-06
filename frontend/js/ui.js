@@ -45,7 +45,7 @@ export function showError(message) {
  * Show offline warning with timestamp
  * @param {string} timestamp - Last updated timestamp
  */
-export function showOfflineWarning(timestamp) {
+export function showOfflineWarning() {
   show('offline-warning');
 }
 
@@ -133,33 +133,6 @@ function getWeatherIconName(rain_probability, cloud_percent, is_day) {
 }
 
 /**
- * Get weather icon HTML (SVG img tag)
- * Falls back to emoji if SVG not found
- * @param {number} rain_probability
- * @param {number} cloud_percent
- * @param {boolean} is_day
- * @returns {string} HTML string
- */
-function getWeatherIcon(rain_probability, cloud_percent, is_day) {
-  const iconName = getWeatherIconName(rain_probability, cloud_percent, is_day);
-  // Returns img tag - falls back gracefully if file missing
-  return `<img src="/icons/weather/${iconName}.svg" alt="${iconName}" class="weather-icon" onerror="this.style.display='none';this.nextSibling.style.display='inline'"><span style="display:none">${getWeatherEmojiFallback(rain_probability, cloud_percent, is_day)}</span>`;
-}
-
-/**
- * Fallback emoji for when SVG icons aren't available
- */
-function getWeatherEmojiFallback(rain_probability, cloud_percent, is_day) {
-  const isNight = !is_day;
-  if (rain_probability > 60) return '🌧️';
-  if (rain_probability > 30) return '🌦️';
-  if (rain_probability > 10) return '🌤️';
-  if (cloud_percent > 80) return '☁️';
-  if (cloud_percent > 30) return isNight ? '🌙' : '⛅';
-  return isNight ? '🌙' : '☀️';
-}
-
-/**
  * Map forecast condition text to icon filename
  */
 function getForecastIcon(condition) {
@@ -183,9 +156,6 @@ function estimateSunriseSunset(hourly) {
   let nextSunrise = null;
   const now = new Date();
   const today = now.toDateString();
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toDateString();
 
   // Check if currently night (first hour is_day = false)
   const currentlyNight = hourly[0] && !hourly[0].is_day;
@@ -326,7 +296,6 @@ function generateKeyMoments(hourly) {
 function getMultiDayForecast(hourly, numDays = 3) {
   const days = [];
   const now = new Date();
-  const dayNames = ['Today', 'Tomorrow'];
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   for (let i = 1; i <= numDays; i++) {

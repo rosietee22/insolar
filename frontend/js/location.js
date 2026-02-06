@@ -240,10 +240,3 @@ export function setCityLocation(lat, lon, name, country) {
   localStorage.setItem(LOCATION_KEY, JSON.stringify(location));
   return location;
 }
-
-/**
- * Clear cached location
- */
-export function clearLocation() {
-  localStorage.removeItem(LOCATION_KEY);
-}

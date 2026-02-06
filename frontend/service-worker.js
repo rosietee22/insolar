@@ -3,7 +3,7 @@
  * Handles offline caching and network-first strategy for API calls
  */
 
-const CACHE_NAME = 'sunbird-v6';
+const CACHE_NAME = 'sunbird-v7';
 
 // Static assets to precache
 const STATIC_ASSETS = [
@@ -20,7 +20,6 @@ const STATIC_ASSETS = [
   '/js/birds.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/icons/sun.svg',
   '/icons/bird.svg'
 ];
 
