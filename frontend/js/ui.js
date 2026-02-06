@@ -728,33 +728,55 @@ export function renderBirdView(birdData, activity) {
     metaEl.textContent = generateBirdMeta(activity, speciesCount);
   }
 
-  // Notable species
+  // Notable species (with thumbnails from Macaulay Library)
   const notableEl = document.getElementById('bird-notable');
   if (notableEl && birdData.notable_species && birdData.notable_species.length > 0) {
-    const items = birdData.notable_species.map(s =>
+    const items = birdData.notable_species.map((s, i) =>
       `<div class="bird-notable-item">
-        <span class="bird-notable-name">${s.common_name}</span>
-        <span class="bird-notable-sci">${s.scientific_name}</span>
+        <div class="bird-notable-thumb"
+             data-species="${s.species_code}"
+             data-name="${s.common_name}">
+          <img src="/api/bird-image/${s.species_code}"
+               alt="${s.common_name}"
+               width="42" height="42"
+               ${i >= 3 ? 'loading="lazy"' : ''}
+               class="bird-notable-img"
+               onerror="this.parentElement.classList.add('no-image')">
+        </div>
+        <div class="bird-notable-text">
+          <span class="bird-notable-name">${s.common_name}</span>
+          <span class="bird-notable-sci">${s.scientific_name}</span>
+        </div>
       </div>`
     ).join('');
     notableEl.innerHTML = `
       <div class="bird-notable-title">What to look for</div>
       <div class="bird-notable-list">${items}</div>
     `;
+
+    // Attach click handlers for image expansion
+    notableEl.querySelectorAll('.bird-notable-thumb').forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const code = thumb.dataset.species;
+        const name = thumb.dataset.name;
+        openBirdImageModal(code, name);
+      });
+    });
   }
 
-  // Species list
+  // Species list (exclude notable species already shown above)
   const listEl = document.getElementById('bird-species-list');
   if (listEl) {
+    const notableCodes = new Set(
+      (birdData.notable_species || []).map(s => s.species_code)
+    );
+
     if (!birdData.all_species || birdData.all_species.length === 0) {
-      listEl.innerHTML = `
-        <div class="bird-species-header">Recent sightings (${birdData.observation_radius_km || 5}km)</div>
-        <div class="bird-empty-state">No bird sightings reported nearby today.</div>
-      `;
+      listEl.innerHTML = '';
     } else {
       const seen = new Map();
       for (const s of birdData.all_species) {
-        if (!seen.has(s.species_code)) {
+        if (!seen.has(s.species_code) && !notableCodes.has(s.species_code)) {
           seen.set(s.species_code, s);
         }
       }
@@ -764,23 +786,28 @@ export function renderBirdView(birdData, activity) {
       // Only show sightings from the last 12 hours
       const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
       const recent = unique.filter(s => new Date(s.observed_at) >= twelveHoursAgo);
+      const display = recent.length > 0 ? recent : unique.slice(0, 5);
 
-      const rows = (recent.length > 0 ? recent : unique.slice(0, 5)).map(s => {
-        const time = new Date(s.observed_at);
-        const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
-        return `
-          <div class="bird-species-row">
-            <span class="bird-species-name">${s.common_name}</span>
-            <span class="bird-species-count">${s.how_many}</span>
-            <span class="bird-species-time">${timeStr}</span>
-          </div>
+      if (display.length === 0) {
+        listEl.innerHTML = '';
+      } else {
+        const rows = display.map(s => {
+          const time = new Date(s.observed_at);
+          const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+          return `
+            <div class="bird-species-row">
+              <span class="bird-species-name">${s.common_name}</span>
+              <span class="bird-species-count">${s.how_many}</span>
+              <span class="bird-species-time">${timeStr}</span>
+            </div>
+          `;
+        }).join('');
+
+        listEl.innerHTML = `
+          <div class="bird-species-header">Other sightings (${birdData.observation_radius_km || 5}km)</div>
+          ${rows}
         `;
-      }).join('');
-
-      listEl.innerHTML = `
-        <div class="bird-species-header">Recent sightings (${birdData.observation_radius_km || 5}km)</div>
-        ${rows}
-      `;
+      }
     }
   }
 
@@ -789,6 +816,53 @@ export function renderBirdView(birdData, activity) {
   if (freshnessText && birdData.generated_at) {
     freshnessText.textContent = `Bird data · ${formatRelativeTime(birdData.generated_at)}`;
   }
+}
+
+/**
+ * Open bird image modal with larger photo
+ */
+function openBirdImageModal(speciesCode, commonName) {
+  let modal = document.getElementById('bird-image-modal');
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = 'bird-image-modal';
+  modal.className = 'bird-image-modal';
+  modal.innerHTML = `
+    <div class="bird-image-modal-backdrop"></div>
+    <div class="bird-image-modal-content">
+      <div class="bird-image-modal-loading">Loading</div>
+      <img src="/api/bird-image/${speciesCode}?size=1200"
+           alt="${commonName}"
+           class="bird-image-modal-img"
+           onload="this.previousElementSibling.style.display='none'; this.style.opacity='1';"
+           onerror="this.previousElementSibling.textContent='Image unavailable';">
+      <div class="bird-image-modal-caption">
+        <span class="bird-image-modal-name">${commonName}</span>
+        <span class="bird-image-modal-credit">Macaulay Library</span>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  modal.querySelector('.bird-image-modal-backdrop').addEventListener('click', closeBirdImageModal);
+  document.addEventListener('keydown', handleModalEscape);
+
+  requestAnimationFrame(() => modal.classList.add('visible'));
+}
+
+function closeBirdImageModal() {
+  const modal = document.getElementById('bird-image-modal');
+  if (modal) {
+    modal.classList.remove('visible');
+    document.removeEventListener('keydown', handleModalEscape);
+    setTimeout(() => modal.remove(), 200);
+  }
+}
+
+function handleModalEscape(e) {
+  if (e.key === 'Escape') closeBirdImageModal();
 }
 
 /**

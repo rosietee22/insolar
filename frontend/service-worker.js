@@ -3,7 +3,7 @@
  * Handles offline caching and network-first strategy for API calls
  */
 
-const CACHE_NAME = 'sunbird-v9';
+const CACHE_NAME = 'sunbird-v10';
 
 // Static assets to precache
 const STATIC_ASSETS = [
@@ -88,6 +88,12 @@ self.addEventListener('fetch', (event) => {
     if (url.host === 'cdn.jsdelivr.net' && url.pathname.includes('chart.js')) {
       event.respondWith(cacheFirstStrategy(request));
     }
+    return;
+  }
+
+  // Bird images: Cache-first (images change very rarely)
+  if (url.pathname.startsWith('/api/bird-image/')) {
+    event.respondWith(cacheFirstStrategy(request));
     return;
   }
 
