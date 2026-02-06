@@ -129,20 +129,20 @@ export function applyTheme(theme) {
   root.style.setProperty('--rain-color', theme.rainColor);
 
   // Glass, icon, and accent styles
+  // Always use cobalt accent for brand consistency (toggle icons, hero temp)
+  root.style.setProperty('--accent-color', ACCENT);
+  root.style.setProperty('--accent-filter', ACCENT_FILTER);
+
   if (theme.isDarkText) {
-    // Light background — dark text, cobalt accent, no icon invert
+    // Light background — dark text, no icon invert
     root.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.06)');
     root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.1)');
     root.style.setProperty('--icon-filter', 'none');
-    root.style.setProperty('--accent-color', ACCENT);
-    root.style.setProperty('--accent-filter', ACCENT_FILTER);
   } else {
-    // Dark background — light text, accent matches text, invert icons
+    // Dark background — light text, invert icons
     root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.08)');
     root.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.12)');
     root.style.setProperty('--icon-filter', 'invert(1)');
-    root.style.setProperty('--accent-color', theme.textColor);
-    root.style.setProperty('--accent-filter', 'invert(1)');
   }
 
   // Data attributes for CSS hooks
