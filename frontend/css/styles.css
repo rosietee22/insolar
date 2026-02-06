@@ -3,49 +3,37 @@
  * Abstract museum-poster palette: 5 pigments + white glow
  */
 
-/* CSS Custom Properties - 8pt Grid System */
+/* CSS Custom Properties */
 :root {
-  /* Base gradient (Clear Day default) */
-  --gradient-from: #FEFCF0;
-  --gradient-to: #F5EDDA;
-
-  /* Glow (sunlight diffusion) */
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-data: 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  --gradient-from: #FDF9F0;
+  --gradient-to: #EDE6D6;
   --solar-color: #FFFDF7;
-  --solar-glow: rgba(255,253,247,0.60);
-
-  /* Text */
-  --text-primary: #1A2A3A;
-  --text-secondary: rgba(26,42,58,0.50);
-
-  /* Rain accent */
-  --rain-color: #7BA3D4;
-
-  /* Accent (cobalt on light, text-color on dark) */
+  --solar-glow: rgba(255,253,247,0.55);
+  --hero-bloom: radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%);
+  --veil: none;
+  --text-primary: #2B2E3A;
+  --text-secondary: rgba(43,46,58,0.42);
+  --rain-color: #8898B8;
+  --light-strip-edge: #C4B899;
+  --light-strip-mid: #F5E8B0;
   --accent-color: #2F5EEA;
-  --accent-filter: brightness(0) saturate(100%) invert(27%) sepia(92%) saturate(4000%) hue-rotate(224deg) brightness(98%) contrast(93%);
-
-  /* Glass */
-  --glass-bg: rgba(0, 0, 0, 0.06);
-  --glass-border: rgba(0, 0, 0, 0.1);
-
-  /* Typography */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-
-  /* 8pt Spacing Grid */
+  --accent-filter: brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%);
+  --glass-bg: rgba(0, 0, 0, 0.05);
+  --glass-border: rgba(0, 0, 0, 0.08);
   --space-1: 8px;
   --space-2: 16px;
   --space-3: 24px;
   --space-4: 32px;
   --space-5: 40px;
   --space-6: 48px;
-
-  /* Type Scale */
-  --text-xs: 12px;
+  --text-xs: 11px;
   --text-sm: 14px;
   --text-base: 16px;
   --text-lg: 20px;
-  --text-xl: 24px;
-  --text-hero: 120px;
+  --text-xl: 22px;
+  --text-hero: 128px;
 }
 
 /* Reset & Base */
@@ -56,7 +44,7 @@
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   background: linear-gradient(180deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
   background-attachment: fixed;
   color: var(--text-primary);
@@ -69,12 +57,22 @@ body {
   position: relative;
 }
 
+/* Atmospheric veil overlay (mist, haze — per-theme) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: var(--veil, none);
+}
+
 /* Grain/noise texture overlay */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  opacity: 0.025;
+  opacity: 0.038;
   pointer-events: none;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
@@ -177,8 +175,8 @@ body::after {
 .hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   padding-top: var(--space-3);
   padding-bottom: var(--space-2);
   flex-shrink: 0;
@@ -197,9 +195,11 @@ body::after {
   border: none;
   cursor: pointer;
   padding: 0;
-  font-family: var(--font-family);
-  font-size: var(--text-sm);
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-secondary);
   transition: color 0.2s;
   display: flex;
@@ -212,41 +212,42 @@ body::after {
 
 .hero-headline {
   font-size: var(--text-xl);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.2;
-  color: var(--text-primary);
-  margin-bottom: var(--space-1);
+  color: var(--text-secondary);
+  margin-bottom: 0;
   letter-spacing: -0.01em;
 }
 
 .hero-temp {
+  font-family: var(--font-data);
   font-size: var(--text-hero);
   font-weight: 700;
   color: var(--accent-color);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
+  line-height: 0.85;
+  letter-spacing: -0.06em;
   margin: 0;
   position: relative;
 }
 
-/* Radial solar glow behind hero temperature */
+/* Radial solar bloom behind hero temperature (warm directional glow) */
 .hero-temp::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--solar-glow) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  right: -100px;
+  bottom: -100px;
+  background: var(--hero-bloom);
   pointer-events: none;
   z-index: -1;
 }
 
 .hero-meta {
-  font-size: var(--text-sm);
-  font-weight: 400;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-secondary);
   margin-top: var(--space-1);
 }
@@ -275,23 +276,9 @@ body::after {
 
 .light-strip {
   position: relative;
-  height: 12px;
-  border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    #C4B899 0%,
-    #F5E8B0 50%,
-    #C4B899 100%
-  );
-}
-
-.light-strip.night {
-  background: linear-gradient(
-    90deg,
-    #2A2D52 0%,
-    #5D5A7A 50%,
-    #2A2D52 100%
-  );
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--light-strip-edge) 0%, var(--light-strip-mid) 50%, var(--light-strip-edge) 100%);
 }
 
 /* Sun/moon marker on light strip */
@@ -322,6 +309,14 @@ body::after {
   filter: drop-shadow(0 0 6px rgba(232,230,240,0.5));
 }
 
+/* Dark-theme daylight dot — visible glow on muted strips */
+[data-theme="overcast"] .light-dot,
+[data-theme="rain"] .light-dot,
+[data-theme="storm"] .light-dot {
+  color: #F0EDEA;
+  filter: drop-shadow(0 0 8px rgba(240,237,234,0.6));
+}
+
 /* Sunrise/Sunset labels */
 .light-labels {
   display: flex;
@@ -331,7 +326,8 @@ body::after {
 
 .light-label-left,
 .light-label-right {
-  font-size: var(--text-xs);
+  font-family: var(--font-data);
+  font-size: 11px;
   font-weight: 400;
   color: var(--text-secondary);
 }
@@ -415,7 +411,8 @@ body::after {
 
 .bird-label-left,
 .bird-label-right {
-  font-size: var(--text-xs);
+  font-family: var(--font-data);
+  font-size: 11px;
   font-weight: 400;
   color: var(--text-secondary);
 }
@@ -484,8 +481,8 @@ body::after {
 .bird-hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   padding-top: var(--space-3);
   padding-bottom: var(--space-2);
 }
@@ -506,16 +503,18 @@ body::after {
 
 .bird-hero-headline {
   font-size: var(--text-xl);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.2;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   margin-bottom: var(--space-1);
   letter-spacing: -0.01em;
 }
 
 .bird-hero-meta {
-  font-size: var(--text-sm);
-  font-weight: 400;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-secondary);
   margin-top: var(--space-1);
 }
@@ -645,11 +644,11 @@ body::after {
 }
 
 .hourly-time {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 .hourly-item.now .hourly-time {
@@ -664,17 +663,19 @@ body::after {
 }
 
 .hourly-temp {
-  font-size: var(--text-lg);
-  font-weight: 600;
+  font-family: var(--font-data);
+  font-size: 17px;
+  font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .hourly-rain {
-  font-size: 11px;
+  font-family: var(--font-data);
+  font-size: 10px;
   font-weight: 600;
   color: var(--rain-color);
-  min-height: 14px;
+  min-height: 13px;
 }
 
 /* ==================== KEY MOMENTS ==================== */
@@ -695,23 +696,27 @@ body::after {
 }
 
 .moment-time {
-  font-size: 0.7rem;
+  font-family: var(--font-data);
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--text-secondary);
   margin-bottom: 0.25rem;
 }
 
 .moment-text {
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: 600;
   color: var(--text-primary);
   line-height: 1.35;
 }
 
 .moment-detail {
-  font-size: 0.85rem;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-secondary);
   margin-top: 0.2rem;
 }
@@ -720,7 +725,7 @@ body::after {
 .forecast-days {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 0;
   padding-bottom: var(--space-2);
 }
 
@@ -728,12 +733,17 @@ body::after {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1) 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--glass-border);
+}
+
+.forecast-day:first-child {
+  border-top: none;
 }
 
 .forecast-day-name {
   font-size: var(--text-sm);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
   width: 90px;
   flex-shrink: 0;
@@ -747,14 +757,17 @@ body::after {
 
 .forecast-day-condition {
   flex: 1;
-  font-size: var(--text-sm);
-  font-weight: 400;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-secondary);
 }
 
 .forecast-day-temps {
-  font-size: var(--text-sm);
-  font-weight: 400;
+  font-family: var(--font-data);
+  font-size: var(--text-base);
+  font-weight: 700;
   color: var(--text-primary);
   text-align: right;
 }
@@ -773,9 +786,12 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  padding: var(--space-2) 0 var(--space-1) 0;
-  padding-bottom: calc(var(--space-1) + env(safe-area-inset-bottom));
-  font-size: var(--text-xs);
+  padding: var(--space-1) 0 6px 0;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom));
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-secondary);
   background: linear-gradient(180deg, transparent 0%, var(--gradient-to) 40%);
   z-index: 10;
@@ -789,7 +805,7 @@ body::after {
 }
 
 .freshness.stale .freshness-dot {
-  background: #B8B6B3;
+  background: #9B9994;
 }
 
 .freshness.old .freshness-dot {
@@ -818,7 +834,7 @@ body::after {
   padding: 0.75rem 1.5rem;
   border-radius: 12px;
   border: none;
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -879,8 +895,9 @@ body::after {
 .modal-content h2 {
   color: var(--text-primary);
   margin-bottom: var(--space-2);
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .modal-content p {
@@ -923,7 +940,7 @@ body::after {
   padding: 0.75rem 1rem;
   border-radius: 12px;
   border: 1px solid var(--glass-border);
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: 1rem;
   margin-bottom: var(--space-2);
   background: rgba(255, 255, 255, 0.2);
@@ -982,7 +999,7 @@ body::after {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.2);
   color: #F0EDEA;
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   font-size: 11px;
   padding: 4px 12px;
   border-radius: 6px;
@@ -1061,12 +1078,14 @@ body::after {
   }
 
   .hero-temp {
-    font-size: 88px;
+    font-size: 96px;
   }
 
   .hero-temp::before {
-    width: 200px;
-    height: 200px;
+    top: -60px;
+    left: -60px;
+    right: -60px;
+    bottom: -60px;
   }
 
   .bird-hero-icon {
@@ -1083,12 +1102,14 @@ body::after {
   }
 
   .hero-temp {
-    font-size: 64px;
+    font-size: 72px;
   }
 
   .hero-temp::before {
-    width: 160px;
-    height: 160px;
+    top: -40px;
+    left: -40px;
+    right: -40px;
+    bottom: -40px;
   }
 
   .bird-hero-icon {

@@ -8,47 +8,48 @@
 // ==================== PALETTE ====================
 // Restrained pigments — mineral, printed, sun-bleached
 export const PALETTE = {
-  sky:     '#F6FAFF',      // Sky White — high-key base
-  ice:     '#DCEBFA',      // Ice Blue — cool gradient
-  dusk:    '#3A3D55',      // Dusk Indigo — lifted, warm
-  stone:   '#B8B6B3',      // Warm Stone — fog/overcast
-  clay:    '#A8796B',      // Muted Clay — desaturated warmth
-  pearl:   '#F0EDEA',      // Pearl White — snow/neutral
-  ink:     '#1A2A3A',      // Soft Ink — dark text
+  sky:     '#F8F6F0',      // Warm bone — light base
+  ice:     '#E8E4DA',      // Warm grey — cool gradient
+  dusk:    '#363950',      // Deep slate — dark state
+  stone:   '#9B9994',      // Darker stone — fog/overcast
+  clay:    '#8B6F63',      // Deep earth — warm accent
+  pearl:   '#F0EDEA',      // Pearl white — glow/highlight
+  ink:     '#2B2E3A',      // Warm graphite — dark text
 };
 
 // ==================== GLOW (atmospheric diffusion, not spotlight) ====================
 const GLOW = {
   sunlight: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.55)' },
+  diffused: { color: '#FFFDF7', glow: 'rgba(255,253,247,0.25)' },
   halo:     { color: '#E8E6F0', glow: 'rgba(232,230,240,0.50)' },
   fog:      { color: '#F0EDEA', glow: 'rgba(240,237,234,0.45)' },
   ember:    { color: '#F0DCC8', glow: 'rgba(240,220,200,0.40)' },
-  none:     { color: '#F6FAFF', glow: 'rgba(246,250,255,0)' },
+  none:     { color: '#F8F6F0', glow: 'rgba(248,246,240,0)' },
 };
 
 // Chalk cobalt — mineral, dusty, printed ultramarine
-const ACCENT = '#2F5EEA';
+export const ACCENT = '#2F5EEA';
 const ACCENT_FILTER = 'brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%)';
 
 // ==================== WEATHER THEMES ====================
 // Philosophy: meteorological instrument, museum poster, printed ink on textured paper
+// Light strip: symmetric gradient (edge → mid → edge)
+const STRIP = {
+  sunlight: { edge: '#C4B899', mid: '#F5E8B0' },   // Warm gold — clear/sunny
+  night:    { edge: '#2A2D52', mid: '#5D5A7A' },    // Deep blue — after dark
+  overcast: { edge: '#7A7670', mid: '#A8A090' },    // Muted stone — diffused daylight
+  rain:     { edge: '#5A5750', mid: '#7A7468' },     // Dark subdued — wet conditions
+};
+
 export const WEATHER_THEMES = {
-  // Pale winter sun, sky glare, washed paper — luminous and airy
-  clearDay:      { from: '#FEFCF0', to: '#F5EDDA', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#8EACC8' },
-  // Cooler version of clear day — grey-blue veil, same lightness
-  partlyCloudy:  { from: '#FAF8EE', to: '#EBE6D8', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.42)',   glow: GLOW.sunlight, rain: '#8EACC8' },
-  // Lifted indigo, warm undertone — dusk not nightclub
-  clearNight:    { from: '#353850', to: '#2A2D42', text: '#E0DEE8',     secondary: 'rgba(224,222,232,0.45)', glow: GLOW.halo,     rain: '#9AA4C8' },
-  // Overcast — warm grey blanket
-  overcast:      { from: '#A5A3A0', to: '#6B6870', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.fog,      rain: '#8896B4' },
-  // Rain — dark blue-grey, warmer, less saturated
-  rain:          { from: '#4A4E5E', to: '#3A3E50', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', glow: GLOW.fog,      rain: '#A0AACC' },
-  // Storm — muted clay to warm indigo, not neon
-  storm:         { from: '#8B7368', to: PALETTE.dusk, text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.ember, rain: '#D4BEB0' },
-  // Snow — cold pale, untouched
-  snow:          { from: '#FAFCFF', to: '#E0DDD9', text: PALETTE.ink,   secondary: 'rgba(26,42,58,0.45)',   glow: GLOW.sunlight, rain: '#7B96B8' },
-  // Fog — warm diffusion
-  fog:           { from: '#D5D2CF', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(26,42,58,0.40)',  glow: GLOW.fog,      rain: '#7B96B8' },
+  clearDay:      { from: '#FDF9F0', to: '#EDE6D6', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   glow: GLOW.sunlight, rain: '#8898B8', strip: STRIP.sunlight, bloom: 'radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)' },
+  partlyCloudy:  { from: '#F3F4F1', to: '#DDD9CF', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.55)',   glow: GLOW.diffused, rain: '#8898B8', strip: STRIP.sunlight, veil: 'radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)' },
+  clearNight:    { from: '#2E3148', to: '#222538', text: '#DAD8E0',     secondary: 'rgba(218,216,224,0.45)', glow: GLOW.halo,     rain: '#9AA4C8', strip: STRIP.night },
+  overcast:      { from: '#918F8C', to: '#5A5860', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.fog,      rain: '#8896B4', strip: STRIP.overcast },
+  rain:          { from: '#42454F', to: '#32353F', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', glow: GLOW.fog,      rain: '#A0AACC', strip: STRIP.rain },
+  storm:         { from: '#6E5B50', to: PALETTE.dusk, text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.ember, rain: '#D4BEB0', strip: STRIP.rain },
+  snow:          { from: '#F6F8FA', to: '#DCD9D4', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   glow: GLOW.sunlight, rain: '#7B96B8', strip: STRIP.sunlight },
+  fog:           { from: '#C8C5C0', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(43,46,58,0.40)',  glow: GLOW.fog,      rain: '#7B96B8', strip: STRIP.sunlight },
 };
 
 /**
@@ -102,6 +103,12 @@ export function buildTheme({ is_day, timestamp, rain_probability, cloud_percent,
     textSecondary: theme.secondary,
     // Rain accent
     rainColor: theme.rain,
+    // Light strip
+    stripEdge: theme.strip.edge,
+    stripMid: theme.strip.mid,
+    // Hero bloom and atmospheric veil
+    bloom: theme.bloom || `radial-gradient(circle, ${theme.glow.glow} 0%, transparent 70%)`,
+    veil: theme.veil || 'none',
     // For icon filter and glass
     isDarkText,
   };
@@ -127,6 +134,14 @@ export function applyTheme(theme) {
 
   // Rain accent
   root.style.setProperty('--rain-color', theme.rainColor);
+
+  // Light strip
+  root.style.setProperty('--light-strip-edge', theme.stripEdge);
+  root.style.setProperty('--light-strip-mid', theme.stripMid);
+
+  // Hero bloom and atmospheric veil
+  root.style.setProperty('--hero-bloom', theme.bloom);
+  root.style.setProperty('--veil', theme.veil);
 
   // Glass, icon, and accent styles
   // Always use cobalt accent for brand consistency (toggle icons, hero temp)

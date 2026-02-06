@@ -3,7 +3,7 @@
  * Handles offline caching and network-first strategy for API calls
  */
 
-const CACHE_NAME = 'sunbird-v7';
+const CACHE_NAME = 'sunbird-v9';
 
 // Static assets to precache
 const STATIC_ASSETS = [

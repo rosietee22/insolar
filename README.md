@@ -9,7 +9,7 @@ A GPS-based weather Progressive Web App with a museum-poster aesthetic focused o
 - **Light Window** — Signature daylight strip with warm sunlight gradient, UV index, and sunrise/sunset times
 - **Bird Activity** — eBird-powered bird sighting data with weather-based activity predictions
 - GPS-based location with neighbourhood-level accuracy
-- Large typographic temperature display (120px hero)
+- Large typographic temperature display (128px hero)
 - 3-day forecast with daily highs/lows
 - Museum-poster colour system with 7-pigment palette (sky, ice, dusk, stone, clay, pearl, ink) and chalk cobalt accent
 - Weather-adaptive gradients across 8 themes (clear day, partly cloudy, clear night, overcast, rain, storm, snow, fog)
@@ -25,7 +25,7 @@ A GPS-based weather Progressive Web App with a museum-poster aesthetic focused o
 - Custom SVG icons (bird, sun, favicon)
 - Service Worker for offline functionality
 - PWA manifest for installability
-- 8pt spacing grid, Inter typeface, restrained typography
+- 8pt spacing grid, DM Sans + IBM Plex Mono typefaces, restrained typography
 
 **Backend:**
 - Express.js (Node.js)
@@ -257,10 +257,10 @@ Sunbird follows a museum-poster aesthetic — luminous, scientific, restrained:
 - **Light Window** — Signature component showing daylight strip with UV index
 - **Bird Activity** — eBird integration with weather-based activity predictions, matching the daylight tracker style
 - **Editorial headlines** — Weather described in narrative style ("Patches of sun.", "Grab an umbrella.")
-- **Typography-first** — Large temperature display, Inter typeface, restrained type scale
+- **Typography-first** — Large temperature display, DM Sans + IBM Plex Mono, restrained type scale
 - **Graceful degradation** — Bird features hidden without API key, offline mode shows cached data
 
-See [docs/COLOUR-SYSTEM.md](docs/COLOUR-SYSTEM.md) for the palette specification and [docs/LIGHT-WINDOW-UX.md](docs/LIGHT-WINDOW-UX.md) for the UX specification.
+See [CLAUDE.md](CLAUDE.md) for the full design system specification.
 
 ## License
 
