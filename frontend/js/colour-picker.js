@@ -73,8 +73,8 @@ function applyOverrides() {
   const palette = getEffectivePalette();
 
   // Rebuild theme with overridden palette values
-  const { is_day, rain_probability, cloud_percent, temp_c, timestamp } = lastWeatherData;
-  const theme = buildTheme({ is_day, timestamp, rain_probability, cloud_percent, temp_c });
+  const { is_day, rain_probability, cloud_percent, temp_c, wind_speed_ms, condition_type, timestamp } = lastWeatherData;
+  const theme = buildTheme({ is_day, timestamp, rain_probability, cloud_percent, temp_c, wind_speed_ms, condition_type });
 
   // Override the gradient colours based on custom palette
   // Map the theme's original PALETTE refs to the custom values

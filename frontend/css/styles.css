@@ -181,6 +181,24 @@ body::after {
   padding-top: var(--space-3);
   padding-bottom: var(--space-2);
   flex-shrink: 0;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: -80px;
+  right: -80px;
+  bottom: -100px;
+  background: var(--hero-bloom);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-top {
@@ -228,20 +246,6 @@ body::after {
   line-height: 0.85;
   letter-spacing: -0.06em;
   margin: 0;
-  position: relative;
-}
-
-/* Radial solar bloom behind hero temperature (warm directional glow) */
-.hero-temp::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  left: -100px;
-  right: -100px;
-  bottom: -100px;
-  background: var(--hero-bloom);
-  pointer-events: none;
-  z-index: -1;
 }
 
 .hero-meta {
@@ -480,8 +484,26 @@ body::after {
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
-  padding-top: var(--space-3);
+  padding-top: var(--space-1);
   padding-bottom: var(--space-2);
+  position: relative;
+}
+
+.bird-hero::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: -80px;
+  right: -80px;
+  bottom: -100px;
+  background: var(--hero-bloom);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bird-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .bird-hero-icon {
@@ -496,7 +518,6 @@ body::after {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
-  filter: drop-shadow(0 0 24px var(--solar-glow));
 }
 
 .bird-hero-headline {
@@ -972,6 +993,10 @@ body::after {
   opacity: 1;
 }
 
+#palette-btn {
+  display: flex;
+}
+
 /* ==================== BUTTONS ==================== */
 .btn {
   padding: 0.75rem 1.5rem;
@@ -1224,16 +1249,9 @@ body::after {
     font-size: 96px;
   }
 
-  .hero-temp::before {
-    top: -60px;
-    left: -60px;
-    right: -60px;
-    bottom: -60px;
-  }
-
   .bird-hero-icon {
-    width: 88px;
-    height: 88px;
+    width: 120px;
+    height: 60px;
   }
 }
 
@@ -1248,16 +1266,9 @@ body::after {
     font-size: 72px;
   }
 
-  .hero-temp::before {
-    top: -40px;
-    left: -40px;
-    right: -40px;
-    bottom: -40px;
-  }
-
   .bird-hero-icon {
-    width: 64px;
-    height: 64px;
+    width: 96px;
+    height: 48px;
   }
 }
 

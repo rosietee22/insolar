@@ -36,8 +36,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 24px;
+      padding: 12px 24px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
+      position: sticky;
+      top: 0;
+      background: #2B2E3A;
+      z-index: 10;
     }
 
     .lab-header h1 {
@@ -45,6 +49,38 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+    }
+
+    .lab-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .view-toggle button {
+      padding: 6px 14px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .view-toggle button.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
     }
 
     .back-link {
@@ -119,6 +155,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
+      z-index: 2;
     }
 
     .app-location {
@@ -139,6 +177,8 @@
       align-items: flex-start;
       text-align: left;
       padding: var(--space-2) 0;
+      position: relative;
+      z-index: 2;
     }
 
     .hero-headline {
@@ -155,19 +195,6 @@
       font-weight: 700;
       line-height: 0.85;
       letter-spacing: -0.06em;
-      position: relative;
-    }
-
-    .hero-temp::before {
-      content: '';
-      position: absolute;
-      top: -60px;
-      left: -60px;
-      right: -60px;
-      bottom: -60px;
-      background: var(--hero-bloom);
-      pointer-events: none;
-      z-index: -1;
     }
 
     .hero-meta {
@@ -178,12 +205,20 @@
       margin-top: var(--space-1);
     }
 
+    /* Bird hero */
+    .bird-hero-icon {
+      width: 100px;
+      height: 50px;
+    }
+
     /* Hourly strip */
     .hourly-strip {
       display: flex;
       gap: 12px;
       overflow: hidden;
       padding: var(--space-1) 0;
+      position: relative;
+      z-index: 2;
     }
 
     .hourly-item {
@@ -216,13 +251,15 @@
       min-height: 11px;
     }
 
-    /* Light window */
-    .light-window {
+    /* Light window & bird strip */
+    .light-window, .bird-strip-section {
       margin-top: var(--space-1);
       padding: 4px 0;
+      position: relative;
+      z-index: 2;
     }
 
-    .light-window-title {
+    .section-title {
       font-size: 9px;
       font-weight: 500;
       text-transform: uppercase;
@@ -237,7 +274,14 @@
       background: linear-gradient(90deg, var(--light-strip-edge) 0%, var(--light-strip-mid) 50%, var(--light-strip-edge) 100%);
     }
 
-    .light-dot {
+    .bird-strip {
+      position: relative;
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #1E2145 0%, #1E2145 18%, #5B7DB8 28%, #BFD9F6 35%, #2A2D52 48%, #2A2D52 58%, #BFD9F6 68%, #5B7DB8 75%, #1E2145 85%, #1E2145 100%);
+    }
+
+    .light-dot, .bird-dot {
       position: absolute;
       top: 50%;
       left: 55%;
@@ -246,27 +290,34 @@
       filter: drop-shadow(0 0 6px rgba(255,253,247,0.5));
     }
 
+    .bird-dot {
+      left: 30%;
+      color: #E8E6F0;
+      filter: drop-shadow(0 0 6px rgba(168,180,255,0.4));
+    }
+
     [data-theme="overcast"] .light-dot,
     [data-theme="rain"] .light-dot,
     [data-theme="storm"] .light-dot,
+    [data-theme="partlyCloudyNight"] .light-dot,
     [data-theme="clearNight"] .light-dot {
       color: #F0EDEA;
       filter: drop-shadow(0 0 8px rgba(240,237,234,0.6));
     }
 
-    .light-labels {
+    .strip-labels {
       display: flex;
       justify-content: space-between;
       margin-top: 3px;
     }
 
-    .light-label {
+    .strip-label {
       font-family: var(--font-data);
       font-size: 10px;
       font-weight: 400;
     }
 
-    .light-legend {
+    .strip-legend {
       font-size: 9px;
       font-weight: 500;
       opacity: 0.7;
@@ -274,8 +325,33 @@
       letter-spacing: 0.05em;
     }
 
+    /* Species list */
+    .species-section {
+      border-top: 1px solid var(--glass-border);
+      padding-top: 8px;
+      margin-top: 4px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .species-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-top: 1px solid var(--glass-border);
+      font-size: 12px;
+    }
+    .species-row:first-of-type { border-top: none; }
+
+    .species-name { font-weight: 500; }
+    .species-time {
+      font-family: var(--font-data);
+      font-size: 10px;
+    }
+
     /* Moments */
-    .moments { margin-top: var(--space-1); }
+    .moments { margin-top: var(--space-1); position: relative; z-index: 2; }
 
     .moment {
       padding: 6px 0;
@@ -312,6 +388,8 @@
       display: flex;
       flex-direction: column;
       padding-bottom: 4px;
+      position: relative;
+      z-index: 2;
     }
 
     .forecast-day {
@@ -356,6 +434,8 @@
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      position: relative;
+      z-index: 2;
     }
 
     .freshness-dot {
@@ -366,10 +446,24 @@
     }
 
     @media (max-width: 640px) {
+      .lab-header {
+        padding: 10px 16px;
+      }
+      .lab-header h1 {
+        font-size: 12px;
+      }
       .themes-grid {
         grid-template-columns: 1fr;
         padding: 16px;
-        gap: 20px;
+        gap: 16px;
+      }
+      .view-toggle button {
+        padding: 5px 10px;
+        font-size: 10px;
+      }
+      .back-link {
+        padding: 5px 10px;
+        font-size: 11px;
       }
     }
   </style>
@@ -378,7 +472,13 @@
 
   <div class="lab-header">
     <h1>Theme Lab</h1>
-    <a href="/" class="back-link">&larr; Back</a>
+    <div class="lab-controls">
+      <div class="view-toggle">
+        <button id="toggle-weather" class="active">Weather</button>
+        <button id="toggle-bird">Bird</button>
+      </div>
+      <a href="/" class="back-link">&larr; Back</a>
+    </div>
   </div>
 
   <div class="themes-grid" id="themes-grid"></div>
@@ -387,29 +487,45 @@
     import { PALETTE, WEATHER_THEMES, ACCENT } from '/js/theme.js';
 
     const THEME_LABELS = {
-      clearDay:     'Clear Day',
-      partlyCloudy: 'Partly Cloudy',
-      clearNight:   'Clear Night',
-      overcast:     'Overcast',
-      rain:         'Rain',
-      storm:        'Storm',
-      snow:         'Snow',
-      fog:          'Fog',
+      clearDay:          'Clear Day',
+      partlyCloudy:      'Partly Cloudy',
+      partlyCloudyNight: 'Partly Cloudy Night',
+      clearNight:        'Clear Night',
+      overcast:          'Overcast',
+      rain:              'Rain',
+      storm:             'Storm',
+      snow:              'Snow',
+      fog:               'Fog',
     };
 
-    const CONTENT = {
-      clearDay:     { headline: 'Clear and bright.', meta: '10% rain / light breeze', temp: '14', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:12 am', lightRight: '4:48 pm', rainHours: [], moment: null },
+    const WEATHER_CONTENT = {
+      clearDay:     { headline: 'Clear skies this morning.', meta: '10% rain / light breeze', temp: '14', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:12 am', lightRight: '4:48 pm', rainHours: [], moment: null },
       partlyCloudy: { headline: 'Patches of sun.', meta: '15% rain / light breeze', temp: '10', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:20 am', lightRight: '4:42 pm', rainHours: [], moment: null },
-      clearNight:   { headline: 'A clear night.', meta: 'light breeze', temp: '3', lightTitle: 'until sunrise', lightLegend: '', lightLeft: '4:48 pm', lightRight: '7:14 am', rainHours: [], moment: null },
-      overcast:     { headline: 'Overcast and grey.', meta: '15% rain / calm', temp: '8', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:30 am', lightRight: '4:35 pm', rainHours: [], moment: null },
-      rain:         { headline: 'Grab an umbrella.', meta: '80% rain / moderate wind', temp: '6', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:25 am', lightRight: '4:40 pm', rainHours: [65, 40, 20], moment: { time: '2:00 pm', text: 'Rain easing off', detail: 'Down to 10% by 4pm' } },
-      storm:        { headline: 'Stormy weather.', meta: '90% rain / strong wind', temp: '11', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '6:45 am', lightRight: '5:10 pm', rainHours: [90, 75, 60], moment: { time: '5:00 pm', text: 'Heavy rain arriving', detail: 'Gusts to 45mph' } },
-      snow:         { headline: 'Snow is falling.', meta: '70% snow / calm', temp: '-1', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '8:00 am', lightRight: '4:15 pm', rainHours: [50, 40], moment: null },
-      fog:          { headline: 'Foggy start.', meta: 'calm / low visibility', temp: '4', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:40 am', lightRight: '4:30 pm', rainHours: [], moment: null },
+      partlyCloudyNight: { headline: 'Partly cloudy tonight.', meta: 'light breeze', temp: '5', lightTitle: 'until sunrise', lightLegend: '', lightLeft: '4:48 pm', lightRight: '7:14 am', rainHours: [], moment: null },
+      clearNight:   { headline: 'Clear and frosty tonight.', meta: 'light breeze', temp: '1', lightTitle: 'until sunrise', lightLegend: '', lightLeft: '4:48 pm', lightRight: '7:14 am', rainHours: [], moment: null },
+      overcast:     { headline: 'Dry, but dull.', meta: '15% rain / calm', temp: '8', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:30 am', lightRight: '4:35 pm', rainHours: [], moment: null },
+      rain:         { headline: 'Rain set in for the afternoon.', meta: '80% rain / moderate wind', temp: '6', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:25 am', lightRight: '4:40 pm', rainHours: [65, 40, 20], moment: { time: '2:00 pm', text: 'Rain easing off', detail: 'Down to 10% by 4pm' } },
+      storm:        { headline: 'Thunder in the air.', meta: '90% rain / strong wind', temp: '11', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '6:45 am', lightRight: '5:10 pm', rainHours: [90, 75, 60], moment: { time: '5:00 pm', text: 'Heavy rain arriving', detail: 'Gusts to 45mph' } },
+      snow:         { headline: 'Snow falling this morning.', meta: '70% snow / calm', temp: '-1', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '8:00 am', lightRight: '4:15 pm', rainHours: [50, 40], moment: null },
+      fog:          { headline: 'Foggy start. Should lift.', meta: 'calm / low visibility', temp: '4', lightTitle: 'daylight & uv', lightLegend: 'UV LOW', lightLeft: '7:40 am', lightRight: '4:30 pm', rainHours: [], moment: null },
     };
+
+    const BIRD_CONTENT = {
+      clearDay:     { headline: 'Peak morning activity.', meta: 'high activity / 52 species nearby / peaks 6am / 5pm' },
+      partlyCloudy: { headline: 'Some birds about.', meta: 'moderate activity / 44 species nearby / peaks 6am / 5pm' },
+      partlyCloudyNight: { headline: 'Settling in for the night.', meta: 'low activity / 40 species nearby / peaks 7am / 4pm' },
+      clearNight:   { headline: 'Roosting. Quiet until dawn.', meta: 'low activity / 38 species nearby / peaks 7am / 4pm' },
+      overcast:     { headline: 'Morning chorus winding down.', meta: 'moderate activity / 41 species nearby / peaks 6am / 5pm' },
+      rain:         { headline: 'Quiet for birds right now.', meta: 'low activity / 35 species nearby / peaks 7am / 5pm' },
+      storm:        { headline: 'Midday lull.', meta: 'low activity / 28 species nearby / peaks 7am / 5pm' },
+      snow:         { headline: 'Midday feeders still active.', meta: 'moderate activity / 22 species nearby / peaks 8am / 4pm' },
+      fog:          { headline: 'Dawn chorus underway.', meta: 'high activity / 46 species nearby / peaks 7am / 5pm' },
+    };
+
+    let currentView = 'weather';
 
     function buildHourly(themeKey) {
-      const content = CONTENT[themeKey];
+      const content = WEATHER_CONTENT[themeKey];
       const baseTemp = parseInt(content.temp);
       const hours = [];
       for (let i = 0; i < 5; i++) {
@@ -424,31 +540,136 @@
 
     function renderTheme(themeKey) {
       const theme = WEATHER_THEMES[themeKey];
-      const content = CONTENT[themeKey];
       const isDarkText = theme.text === PALETTE.ink;
-      const hours = buildHourly(themeKey);
       const glassB = isDarkText ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.12)';
-      const bloom = theme.bloom || `radial-gradient(circle, ${theme.glow.glow} 0%, transparent 70%)`;
+      const bloom = theme.bloom || `radial-gradient(circle at 40% 25%, ${theme.glow.glow} 0%, transparent 70%)`;
       const veil = theme.veil || 'none';
 
-      const momentHTML = content.moment ? `
-        <div class="moments">
-          <div class="moment">
-            <div class="moment-time" style="color: ${theme.secondary}">${content.moment.time}</div>
-            <div class="moment-text" style="color: ${theme.text}">${content.moment.text}</div>
-            <div class="moment-detail" style="color: ${theme.secondary}">${content.moment.detail}</div>
+      const phoneStyle = `background: ${bloom}, linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%); --gradient-from: ${theme.from}; --gradient-to: ${theme.to}; --solar-color: ${theme.glow.color}; --solar-glow: ${theme.glow.glow}; --hero-bloom: ${bloom}; --veil: ${veil}; --text-primary: ${theme.text}; --text-secondary: ${theme.secondary}; --text-muted: ${theme.muted}; --rain-color: ${theme.rain}; --light-strip-edge: ${theme.strip.edge}; --light-strip-mid: ${theme.strip.mid}; --glass-bg: ${isDarkText ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}; --glass-border: ${glassB}; --icon-filter: ${isDarkText ? 'none' : 'invert(1)'}; color: ${theme.text};`;
+
+      let bodyHTML;
+
+      if (currentView === 'bird') {
+        const bird = BIRD_CONTENT[themeKey];
+        bodyHTML = `
+          <div class="hero">
+            <h1 class="hero-headline" style="color: ${theme.secondary}">${bird.headline}</h1>
+            <div class="bird-hero-icon">
+              <svg viewBox="0 4.5 24 10" width="100" height="50" style="color: ${ACCENT}">
+                <path d="M1 14 C5 7, 11 5, 15 9 C17 6, 21 5, 23 6.5 C21 8, 18 10, 15 12.5 C11 11, 6 12, 1 14Z" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="hero-meta" style="color: ${theme.secondary}">${bird.meta}</div>
           </div>
-        </div>
-      ` : '';
+
+          <div class="bird-strip-section" style="border-top: 1px solid ${glassB}; padding-top: 8px;">
+            <div class="section-title" style="color: ${theme.muted}">Bird activity</div>
+            <div class="bird-strip">
+              <div class="bird-dot">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
+              </div>
+            </div>
+            <div class="strip-labels">
+              <span class="strip-label" style="color: ${theme.secondary}">dawn 6am</span>
+              <span class="strip-legend" style="color: ${theme.secondary}">MODERATE</span>
+              <span class="strip-label" style="color: ${theme.secondary}">dusk 5pm</span>
+            </div>
+          </div>
+
+          <div class="species-section" style="--glass-border: ${glassB}">
+            <div class="section-title" style="color: ${theme.muted}">Other sightings (5km)</div>
+            <div class="species-row">
+              <span class="species-name" style="color: ${theme.text}">Eurasian Magpie</span>
+              <span class="species-time" style="color: ${theme.secondary}">08:16</span>
+            </div>
+            <div class="species-row">
+              <span class="species-name" style="color: ${theme.text}">House Sparrow</span>
+              <span class="species-time" style="color: ${theme.secondary}">08:12</span>
+            </div>
+            <div class="species-row">
+              <span class="species-name" style="color: ${theme.text}">European Robin</span>
+              <span class="species-time" style="color: ${theme.secondary}">07:45</span>
+            </div>
+          </div>
+
+          <div class="freshness" style="color: ${theme.secondary}">
+            <span class="freshness-dot"></span>
+            Bird data 5 min ago
+          </div>
+        `;
+      } else {
+        const content = WEATHER_CONTENT[themeKey];
+        const hours = buildHourly(themeKey);
+        const momentHTML = content.moment ? `
+          <div class="moments">
+            <div class="moment">
+              <div class="moment-time" style="color: ${theme.secondary}">${content.moment.time}</div>
+              <div class="moment-text" style="color: ${theme.text}">${content.moment.text}</div>
+              <div class="moment-detail" style="color: ${theme.secondary}">${content.moment.detail}</div>
+            </div>
+          </div>
+        ` : '';
+
+        bodyHTML = `
+          <div class="hero">
+            <h1 class="hero-headline" style="color: ${theme.secondary}">${content.headline}</h1>
+            <div class="hero-temp" style="color: ${ACCENT}">${content.temp}&deg;</div>
+            <div class="hero-meta" style="color: ${theme.secondary}">${content.meta}</div>
+          </div>
+
+          <div class="hourly-strip">
+            ${hours.map((h, i) => `
+              <div class="hourly-item">
+                <span class="hourly-time" style="color: ${i === 0 ? theme.text : theme.secondary}">${h.label}</span>
+                <span class="hourly-temp" style="color: ${theme.text}">${h.temp}&deg;</span>
+                <span class="hourly-rain" style="color: ${theme.rain}">${h.rain > 0 ? h.rain + '%' : ''}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="light-window">
+            <div class="section-title" style="color: ${theme.muted}">${content.lightTitle}</div>
+            <div class="light-strip">
+              <div class="light-dot">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
+              </div>
+            </div>
+            <div class="strip-labels">
+              <span class="strip-label" style="color: ${theme.secondary}">${content.lightLeft}</span>
+              <span class="strip-legend" style="color: ${theme.secondary}">${content.lightLegend}</span>
+              <span class="strip-label" style="color: ${theme.secondary}">${content.lightRight}</span>
+            </div>
+          </div>
+
+          ${momentHTML}
+
+          <div class="forecast-days" style="--glass-border: ${glassB}">
+            <div class="forecast-day">
+              <span class="forecast-day-name" style="color: ${theme.text}">Tomorrow</span>
+              <span class="forecast-day-condition" style="color: ${theme.secondary}">Chance of rain</span>
+              <span class="forecast-day-temps" style="color: ${theme.text}"><span style="color: ${theme.secondary}">3&deg;</span> / 8&deg;</span>
+            </div>
+            <div class="forecast-day">
+              <span class="forecast-day-name" style="color: ${theme.text}">Sunday</span>
+              <span class="forecast-day-condition" style="color: ${theme.secondary}">Partly cloudy</span>
+              <span class="forecast-day-temps" style="color: ${theme.text}"><span style="color: ${theme.secondary}">2&deg;</span> / 7&deg;</span>
+            </div>
+          </div>
+
+          <div class="freshness" style="color: ${theme.secondary}">
+            <span class="freshness-dot"></span>
+            Updated just now
+          </div>
+        `;
+      }
 
       return `
         <div class="theme-card">
           <div class="theme-label">
             <span class="theme-name">${THEME_LABELS[themeKey]}</span>
-            <span>${theme.from} &rarr; ${theme.to}</span>
+            <span>${theme.from} &rarr; ${typeof theme.to === 'string' && theme.to.startsWith('#') ? theme.to : '(palette)'}</span>
           </div>
-          <div class="phone" data-theme="${themeKey}" style="background: linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%); --gradient-from: ${theme.from}; --gradient-to: ${theme.to}; --solar-color: ${theme.glow.color}; --solar-glow: ${theme.glow.glow}; --hero-bloom: ${bloom}; --veil: ${veil}; --text-primary: ${theme.text}; --text-secondary: ${theme.secondary}; --text-muted: ${theme.muted}; --rain-color: ${theme.rain}; --light-strip-edge: ${theme.strip.edge}; --light-strip-mid: ${theme.strip.mid}; --glass-bg: ${isDarkText ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}; --glass-border: ${glassB}; --icon-filter: ${isDarkText ? 'none' : 'invert(1)'}; color: ${theme.text};">
-
+          <div class="phone" data-theme="${themeKey}" style="${phoneStyle}">
             <div class="app-top">
               <div class="app-location" style="color: ${theme.secondary}">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="opacity:0.7">
@@ -456,68 +677,37 @@
                 </svg>
                 Homerton
               </div>
-              <svg width="22" height="12" viewBox="0 0 24 16" style="color: ${ACCENT}">
+              <svg width="22" height="12" viewBox="0 4.5 24 10" style="color: ${ACCENT}">
                 <path d="M1 14 C5 7, 11 5, 15 9 C17 6, 21 5, 23 6.5 C21 8, 18 10, 15 12.5 C11 11, 6 12, 1 14Z" fill="currentColor"/>
               </svg>
             </div>
-
-            <div class="hero">
-              <h1 class="hero-headline" style="color: ${theme.secondary}">${content.headline}</h1>
-              <div class="hero-temp" style="color: ${ACCENT}">${content.temp}&deg;</div>
-              <div class="hero-meta" style="color: ${theme.secondary}">${content.meta}</div>
-            </div>
-
-            <div class="hourly-strip">
-              ${hours.map((h, i) => `
-                <div class="hourly-item">
-                  <span class="hourly-time" style="color: ${i === 0 ? theme.text : theme.secondary}">${h.label}</span>
-                  <span class="hourly-temp" style="color: ${theme.text}">${h.temp}&deg;</span>
-                  <span class="hourly-rain" style="color: ${theme.rain}">${h.rain > 0 ? h.rain + '%' : ''}</span>
-                </div>
-              `).join('')}
-            </div>
-
-            <div class="light-window">
-              <div class="light-window-title" style="color: ${theme.muted}">${content.lightTitle}</div>
-              <div class="light-strip">
-                <div class="light-dot">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
-                </div>
-              </div>
-              <div class="light-labels">
-                <span class="light-label" style="color: ${theme.secondary}">${content.lightLeft}</span>
-                <span class="light-legend" style="color: ${theme.secondary}">${content.lightLegend}</span>
-                <span class="light-label" style="color: ${theme.secondary}">${content.lightRight}</span>
-              </div>
-            </div>
-
-            ${momentHTML}
-
-            <div class="forecast-days" style="--glass-border: ${glassB}">
-              <div class="forecast-day">
-                <span class="forecast-day-name" style="color: ${theme.text}">Tomorrow</span>
-                <span class="forecast-day-condition" style="color: ${theme.secondary}">Chance of rain</span>
-                <span class="forecast-day-temps" style="color: ${theme.text}"><span style="color: ${theme.secondary}">3&deg;</span> / 8&deg;</span>
-              </div>
-              <div class="forecast-day">
-                <span class="forecast-day-name" style="color: ${theme.text}">Sunday</span>
-                <span class="forecast-day-condition" style="color: ${theme.secondary}">Partly cloudy</span>
-                <span class="forecast-day-temps" style="color: ${theme.text}"><span style="color: ${theme.secondary}">2&deg;</span> / 7&deg;</span>
-              </div>
-            </div>
-
-            <div class="freshness" style="color: ${theme.secondary}">
-              <span class="freshness-dot"></span>
-              Updated just now
-            </div>
-
+            ${bodyHTML}
           </div>
         </div>
       `;
     }
 
-    const grid = document.getElementById('themes-grid');
-    grid.innerHTML = Object.keys(WEATHER_THEMES).map(renderTheme).join('');
+    function render() {
+      const grid = document.getElementById('themes-grid');
+      grid.innerHTML = Object.keys(WEATHER_THEMES).map(renderTheme).join('');
+    }
+
+    // Toggle handlers
+    document.getElementById('toggle-weather').addEventListener('click', () => {
+      currentView = 'weather';
+      document.getElementById('toggle-weather').classList.add('active');
+      document.getElementById('toggle-bird').classList.remove('active');
+      render();
+    });
+
+    document.getElementById('toggle-bird').addEventListener('click', () => {
+      currentView = 'bird';
+      document.getElementById('toggle-bird').classList.add('active');
+      document.getElementById('toggle-weather').classList.remove('active');
+      render();
+    });
+
+    render();
   </script>
 </body>
 </html>

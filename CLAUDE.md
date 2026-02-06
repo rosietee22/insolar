@@ -63,10 +63,11 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 |-----------|------|----|------|-----------|------|-------|
 | Clear Day | `#FDF9F0` | `#EDE6D6` | ink | `rgba(43,46,58,0.42)` | sunlight | sunlight |
 | Partly Cloudy | `#F3F4F1` | `#DDD9CF` | ink | `rgba(43,46,58,0.55)` | diffused | sunlight |
+| Partly Cloudy Night | `#363A52` | `#2A2D44` | `#DAD8E0` | `rgba(218,216,224,0.50)` | diffused | night |
 | Clear Night | `#2E3148` | `#222538` | `#DAD8E0` | `rgba(218,216,224,0.45)` | halo | night |
 | Overcast | `#918F8C` | `#5A5860` | pearl | `rgba(240,237,234,0.48)` | fog | overcast |
 | Rain | `#42454F` | `#32353F` | pearl | `rgba(240,237,234,0.45)` | fog | rain |
-| Storm | `#6E5B50` | dusk | pearl | `rgba(240,237,234,0.48)` | ember | rain |
+| Storm | `#A99890` | `#6A5E6E` | pearl | `rgba(240,237,234,0.48)` | ember | rain |
 | Snow | `#F6F8FA` | `#DCD9D4` | ink | `rgba(43,46,58,0.42)` | sunlight | sunlight |
 | Fog | `#C8C5C0` | pearl | ink | `rgba(43,46,58,0.40)` | fog | sunlight |
 
@@ -76,6 +77,7 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 |-----------|-------------------|----------------------------|
 | Clear Day | `radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)` — warm directional sun | none |
 | Partly Cloudy | default (from glow) | `radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)` — mist veil |
+| Partly Cloudy Night | default (from glow) | `radial-gradient(circle at 40% 30%, rgba(200,200,220,0.06), transparent 60%)` — faint cloud veil |
 | All others | default `radial-gradient(circle, <glow> 0%, transparent 70%)` | none |
 
 ## CSS Variables
@@ -177,4 +179,4 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 - **Single source of truth**: All theme data lives in `frontend/js/theme.js` — palette, glow presets, strip presets, weather themes
 - **CSS variables bridge**: `applyTheme()` sets CSS custom properties on `document.documentElement`, so CSS never needs hardcoded theme colours
 - **Theme Lab**: `frontend/colour-lab.html` imports directly from `theme.js` — no duplicated data
-- **8 themes**: clearDay, partlyCloudy, clearNight, overcast, rain, storm, snow, fog
+- **9 themes**: clearDay, partlyCloudy, partlyCloudyNight, clearNight, overcast, rain, storm, snow, fog

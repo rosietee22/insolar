@@ -356,6 +356,8 @@ export function renderApp(data) {
     rain_probability: current.rain_probability,
     cloud_percent: current.cloud_percent,
     temp_c: current.temp_c,
+    wind_speed_ms: current.wind_speed_ms,
+    condition_type: current.condition_type,
   });
   applyTheme(theme);
 
@@ -659,28 +661,40 @@ function formatHourLabel(hour) {
  */
 function generateBirdHeadline(activity) {
   if (!activity?.current) return 'Bird activity.';
-  const { level, hour } = activity.current;
+  const { level, hour, score } = activity.current;
   const dawnHour = activity.dawn_peak?.hour ?? 6;
   const duskHour = activity.dusk_peak?.hour ?? 17;
+  const month = new Date().getMonth();
+  const isSpring = month >= 2 && month <= 4;
+  const isWinter = month >= 11 || month <= 1;
 
-  // High activity right now
+  // High activity
   if (level === 'high') {
-    if (hour >= 5 && hour <= 8) return 'Peak bird hour.';
-    if (hour >= 16 && hour <= 19) return 'Peak bird hour.';
+    if (hour >= 5 && hour <= 7) return 'Dawn chorus underway.';
+    if (hour >= 7 && hour <= 9) return 'Peak morning activity.';
+    if (hour >= 16 && hour <= 19) return 'Active before dusk.';
+    if (isSpring) return 'Spring birds out in force.';
     return 'Lots of birds about.';
   }
 
   // Moderate activity
   if (level === 'moderate') {
-    if (hour < dawnHour) return `Bird hour at ${formatHourLabel(dawnHour)}.`;
-    if (hour >= 12 && hour <= 15) return `Birds back at ${formatHourLabel(duskHour)}.`;
+    if (hour < dawnHour) return `Dawn activity from ${formatHourLabel(dawnHour)}.`;
+    if (hour >= 9 && hour <= 11) return 'Morning chorus winding down.';
+    if (hour >= 12 && hour <= 15) {
+      if (isWinter) return 'Midday feeders still active.';
+      return `Picks up again at ${formatHourLabel(duskHour)}.`;
+    }
+    if (hour >= 16 && hour <= 17) return 'Building towards dusk.';
     return 'Some birds about.';
   }
 
   // Low activity
-  if (hour >= 20 || hour <= 3) return 'Not many birds at night.';
-  if (hour < dawnHour) return `Bird hour at ${formatHourLabel(dawnHour)}.`;
-  if (hour > duskHour) return 'Birds done for today.';
+  if (hour >= 21 || hour <= 3) return 'Roosting. Quiet until dawn.';
+  if (hour >= 20) return 'Last calls of the day.';
+  if (hour < dawnHour) return `Still dark. Dawn at ${formatHourLabel(dawnHour)}.`;
+  if (hour > duskHour) return 'Gone to roost.';
+  if (hour >= 12 && hour <= 14) return 'Midday lull.';
   return 'Quiet for birds right now.';
 }
 
@@ -694,6 +708,9 @@ function generateBirdMeta(activity, speciesCount) {
   }
   if (speciesCount > 0) {
     parts.push(`${speciesCount} species nearby`);
+  }
+  if (activity?.dawn_peak && activity?.dusk_peak) {
+    parts.push(`peaks ${formatHourLabel(activity.dawn_peak.hour)} / ${formatHourLabel(activity.dusk_peak.hour)}`);
   }
   return parts.join(' / ');
 }

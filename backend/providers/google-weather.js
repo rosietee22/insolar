@@ -219,7 +219,8 @@ class GoogleWeatherProvider extends WeatherProvider {
       wind_speed_ms: Math.round(wind_speed_ms * 10) / 10,
       wind_direction_deg: Math.round(wind_direction_deg),
       uv_index: Math.round(uv_index),
-      is_day
+      is_day,
+      condition_type: hour.weatherCondition?.type || null
     };
   }
 
