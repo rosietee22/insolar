@@ -42,14 +42,14 @@ const STRIP = {
 };
 
 export const WEATHER_THEMES = {
-  clearDay:      { from: '#FDF9F0', to: '#EDE6D6', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   glow: GLOW.sunlight, rain: '#8898B8', strip: STRIP.sunlight, bloom: 'radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)' },
-  partlyCloudy:  { from: '#F3F4F1', to: '#DDD9CF', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.55)',   glow: GLOW.diffused, rain: '#8898B8', strip: STRIP.sunlight, veil: 'radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)' },
-  clearNight:    { from: '#2E3148', to: '#222538', text: '#DAD8E0',     secondary: 'rgba(218,216,224,0.45)', glow: GLOW.halo,     rain: '#9AA4C8', strip: STRIP.night },
-  overcast:      { from: '#918F8C', to: '#5A5860', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.fog,      rain: '#8896B4', strip: STRIP.overcast },
-  rain:          { from: '#42454F', to: '#32353F', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', glow: GLOW.fog,      rain: '#A0AACC', strip: STRIP.rain },
-  storm:         { from: '#6E5B50', to: PALETTE.dusk, text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', glow: GLOW.ember, rain: '#D4BEB0', strip: STRIP.rain },
-  snow:          { from: '#F6F8FA', to: '#DCD9D4', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   glow: GLOW.sunlight, rain: '#7B96B8', strip: STRIP.sunlight },
-  fog:           { from: '#C8C5C0', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(43,46,58,0.40)',  glow: GLOW.fog,      rain: '#7B96B8', strip: STRIP.sunlight },
+  clearDay:      { from: '#FDF9F0', to: '#EDE6D6', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   muted: 'rgba(43,46,58,0.32)',   glow: GLOW.sunlight, rain: '#8898B8', strip: STRIP.sunlight, bloom: 'radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)' },
+  partlyCloudy:  { from: '#F3F4F1', to: '#DDD9CF', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.55)',   muted: 'rgba(43,46,58,0.40)',   glow: GLOW.diffused, rain: '#8898B8', strip: STRIP.sunlight, veil: 'radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)' },
+  clearNight:    { from: '#2E3148', to: '#222538', text: '#DAD8E0',     secondary: 'rgba(218,216,224,0.45)', muted: 'rgba(218,216,224,0.35)', glow: GLOW.halo,     rain: '#9AA4C8', strip: STRIP.night },
+  overcast:      { from: '#918F8C', to: '#5A5860', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', muted: 'rgba(240,237,234,0.38)', glow: GLOW.fog,      rain: '#8896B4', strip: STRIP.overcast },
+  rain:          { from: '#42454F', to: '#32353F', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', muted: 'rgba(240,237,234,0.35)', glow: GLOW.fog,      rain: '#A0AACC', strip: STRIP.rain },
+  storm:         { from: '#6E5B50', to: PALETTE.dusk, text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', muted: 'rgba(240,237,234,0.38)', glow: GLOW.ember, rain: '#D4BEB0', strip: STRIP.rain },
+  snow:          { from: '#F6F8FA', to: '#DCD9D4', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   muted: 'rgba(43,46,58,0.32)',   glow: GLOW.sunlight, rain: '#7B96B8', strip: STRIP.sunlight },
+  fog:           { from: '#C8C5C0', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(43,46,58,0.40)',  muted: 'rgba(43,46,58,0.30)',   glow: GLOW.fog,      rain: '#7B96B8', strip: STRIP.sunlight },
 };
 
 /**
@@ -101,6 +101,7 @@ export function buildTheme({ is_day, timestamp, rain_probability, cloud_percent,
     // Text
     textColor: theme.text,
     textSecondary: theme.secondary,
+    textMuted: theme.muted,
     // Rain accent
     rainColor: theme.rain,
     // Light strip
@@ -131,6 +132,7 @@ export function applyTheme(theme) {
   // Text
   root.style.setProperty('--text-primary', theme.textColor);
   root.style.setProperty('--text-secondary', theme.textSecondary);
+  root.style.setProperty('--text-muted', theme.textMuted);
 
   // Rain accent
   root.style.setProperty('--rain-color', theme.rainColor);

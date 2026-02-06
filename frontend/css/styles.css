@@ -15,6 +15,7 @@
   --veil: none;
   --text-primary: #2B2E3A;
   --text-secondary: rgba(43,46,58,0.42);
+  --text-muted: rgba(43,46,58,0.32);
   --rain-color: #8898B8;
   --light-strip-edge: #C4B899;
   --light-strip-mid: #F5E8B0;
@@ -264,8 +265,7 @@ body::after {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  opacity: 0.6;
+  color: var(--text-muted);
   margin-bottom: var(--space-1);
 }
 
@@ -336,8 +336,7 @@ body::after {
 .light-legend {
   font-size: 10px;
   font-weight: 500;
-  color: var(--text-secondary);
-  opacity: 0.7;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -348,8 +347,7 @@ body::after {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  opacity: 0.6;
+  color: var(--text-muted);
   margin-bottom: var(--space-1);
 }
 
@@ -420,8 +418,7 @@ body::after {
 .bird-legend {
   font-size: 10px;
   font-weight: 500;
-  color: var(--text-secondary);
-  opacity: 0.7;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -499,6 +496,7 @@ body::after {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+  filter: drop-shadow(0 0 24px var(--solar-glow));
 }
 
 .bird-hero-headline {
@@ -520,12 +518,14 @@ body::after {
 }
 
 .bird-view-strip-section {
-  padding: var(--space-1) 0;
+  padding: var(--space-2) 0;
   flex-shrink: 0;
+  border-top: 1px solid var(--glass-border);
 }
 
 .bird-notable {
   padding: var(--space-2) 0;
+  border-top: 1px solid var(--glass-border);
 }
 
 .bird-notable-title {
@@ -533,19 +533,39 @@ body::after {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  opacity: 0.6;
+  color: var(--text-muted);
   margin-bottom: var(--space-1);
 }
 
 .bird-notable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bird-notable-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.bird-notable-name {
   font-size: var(--text-base);
-  color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+.bird-notable-sci {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text-muted);
 }
 
 .bird-bottom-group {
   flex-shrink: 0;
+  border-top: 1px solid var(--glass-border);
+  padding-top: var(--space-1);
 }
 
 .bird-species-list {
@@ -566,11 +586,9 @@ body::after {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  opacity: 0.6;
-  margin-bottom: var(--space-1);
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .bird-empty-state {
@@ -583,20 +601,22 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 0;
+  padding: 8px 0;
   font-size: var(--text-sm);
   color: var(--text-primary);
+  border-top: 1px solid var(--glass-border);
 }
 
 .bird-species-name {
   flex: 1;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .bird-species-count {
   width: 30px;
   text-align: right;
   color: var(--text-secondary);
+  font-family: var(--font-data);
   font-size: var(--text-xs);
 }
 
@@ -604,6 +624,7 @@ body::after {
   width: 50px;
   text-align: right;
   color: var(--text-secondary);
+  font-family: var(--font-data);
   font-size: var(--text-xs);
 }
 

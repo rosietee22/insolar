@@ -92,6 +92,7 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
   --veil: none;
   --text-primary: #2B2E3A;
   --text-secondary: rgba(43,46,58,0.42);
+  --text-muted: rgba(43,46,58,0.32);
   --rain-color: #8898B8;
   --light-strip-edge: #C4B899;
   --light-strip-mid: #F5E8B0;

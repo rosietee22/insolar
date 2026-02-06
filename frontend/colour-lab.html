@@ -227,7 +227,6 @@
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      opacity: 0.6;
       margin-bottom: 6px;
     }
 
@@ -448,7 +447,7 @@
             <span class="theme-name">${THEME_LABELS[themeKey]}</span>
             <span>${theme.from} &rarr; ${theme.to}</span>
           </div>
-          <div class="phone" data-theme="${themeKey}" style="background: linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%); --gradient-from: ${theme.from}; --gradient-to: ${theme.to}; --solar-color: ${theme.glow.color}; --solar-glow: ${theme.glow.glow}; --hero-bloom: ${bloom}; --veil: ${veil}; --text-primary: ${theme.text}; --text-secondary: ${theme.secondary}; --rain-color: ${theme.rain}; --light-strip-edge: ${theme.strip.edge}; --light-strip-mid: ${theme.strip.mid}; --glass-bg: ${isDarkText ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}; --glass-border: ${glassB}; --icon-filter: ${isDarkText ? 'none' : 'invert(1)'}; color: ${theme.text};">
+          <div class="phone" data-theme="${themeKey}" style="background: linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%); --gradient-from: ${theme.from}; --gradient-to: ${theme.to}; --solar-color: ${theme.glow.color}; --solar-glow: ${theme.glow.glow}; --hero-bloom: ${bloom}; --veil: ${veil}; --text-primary: ${theme.text}; --text-secondary: ${theme.secondary}; --text-muted: ${theme.muted}; --rain-color: ${theme.rain}; --light-strip-edge: ${theme.strip.edge}; --light-strip-mid: ${theme.strip.mid}; --glass-bg: ${isDarkText ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}; --glass-border: ${glassB}; --icon-filter: ${isDarkText ? 'none' : 'invert(1)'}; color: ${theme.text};">
 
             <div class="app-top">
               <div class="app-location" style="color: ${theme.secondary}">
@@ -479,7 +478,7 @@
             </div>
 
             <div class="light-window">
-              <div class="light-window-title" style="color: ${theme.secondary}">${content.lightTitle}</div>
+              <div class="light-window-title" style="color: ${theme.muted}">${content.lightTitle}</div>
               <div class="light-strip">
                 <div class="light-dot">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>

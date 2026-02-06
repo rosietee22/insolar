@@ -731,10 +731,15 @@ export function renderBirdView(birdData, activity) {
   // Notable species
   const notableEl = document.getElementById('bird-notable');
   if (notableEl && birdData.notable_species && birdData.notable_species.length > 0) {
-    const names = birdData.notable_species.map(s => s.common_name).join(', ');
+    const items = birdData.notable_species.map(s =>
+      `<div class="bird-notable-item">
+        <span class="bird-notable-name">${s.common_name}</span>
+        <span class="bird-notable-sci">${s.scientific_name}</span>
+      </div>`
+    ).join('');
     notableEl.innerHTML = `
       <div class="bird-notable-title">What to look for</div>
-      <div class="bird-notable-list">${names}</div>
+      <div class="bird-notable-list">${items}</div>
     `;
   }
 
