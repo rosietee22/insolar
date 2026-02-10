@@ -430,45 +430,76 @@ body::after {
   letter-spacing: 0.05em;
 }
 
-/* Bird toggle button */
-.bird-toggle-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.2s;
-  margin-left: auto;
+/* View toggle (segmented pill) */
+.view-toggle {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-  width: 44px;
-  height: 44px;
+  margin-left: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   overflow: hidden;
+  background: transparent;
+  flex-shrink: 0;
 }
 
-.bird-toggle-btn .bird-icon {
-  width: 44px;
-  height: 44px;
-  background-color: var(--accent-color);
-  -webkit-mask-image: url('/icons/bird.svg');
-  mask-image: url('/icons/bird.svg');
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
+.view-toggle-seg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+  line-height: 1;
+  position: relative;
 }
 
-.bird-toggle-btn .weather-icon-toggle {
-  width: 44px;
-  height: 44px;
-  color: var(--accent-color);
+.view-toggle-seg:first-child::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 1px;
+  background: var(--glass-border);
+  transition: opacity 0.2s;
 }
 
-.bird-toggle-btn:hover {
-  opacity: 0.7;
+.view-toggle-seg.active {
+  color: var(--text-primary);
+  background: var(--glass-bg);
+  cursor: default;
+}
+
+.view-toggle-seg.active:first-child::after {
+  opacity: 0;
+}
+
+.view-toggle-seg:not(.active):hover {
+  color: var(--text-secondary);
+}
+
+.view-toggle-seg:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+  border-radius: 14px;
+}
+
+.view-toggle-seg svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.view-toggle-seg.active svg {
+  opacity: 1;
 }
 
 /* Bird view (full page - mirrors weather layout) */
@@ -1283,5 +1314,11 @@ body::after {
 
   .hero-temp {
     font-size: 72px;
+  }
+
+  .view-toggle-seg {
+    padding: 5px 8px;
+    gap: 4px;
+    font-size: 9px;
   }
 }

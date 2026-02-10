@@ -780,8 +780,8 @@ function generateBirdMeta(activity, speciesCount) {
  * Show bird toggle button
  */
 export function showBirdToggle() {
-  const btn = document.getElementById('bird-toggle-btn');
-  if (btn) btn.classList.remove('hidden');
+  const toggle = document.getElementById('view-toggle');
+  if (toggle) toggle.classList.remove('hidden');
 }
 
 /**
@@ -953,11 +953,10 @@ export function setView(view) {
   const middleGroup = document.querySelector('.middle-group');
   const bottomGroup = document.querySelector('.bottom-group');
   const birdView = document.getElementById('bird-view');
-  const toggleBtn = document.getElementById('bird-toggle-btn');
-  const birdIcon = toggleBtn?.querySelector('.bird-icon');
-  const weatherIcon = toggleBtn?.querySelector('.weather-icon-toggle');
   const weatherFooter = document.getElementById('freshness');
   const birdFooter = document.getElementById('bird-freshness');
+  const weatherTab = document.getElementById('view-toggle-weather');
+  const birdsTab = document.getElementById('view-toggle-birds');
 
   if (view === 'birds') {
     if (middleGroup) middleGroup.classList.add('hidden');
@@ -965,20 +964,16 @@ export function setView(view) {
     if (weatherFooter) weatherFooter.classList.add('hidden');
     if (birdView) birdView.classList.remove('hidden');
     if (birdFooter) birdFooter.classList.remove('hidden');
-    // Swap icon: show sun (back to weather), hide bird
-    if (birdIcon) birdIcon.classList.add('hidden');
-    if (weatherIcon) weatherIcon.classList.remove('hidden');
-    if (toggleBtn) toggleBtn.title = 'Back to weather';
+    if (weatherTab) { weatherTab.classList.remove('active'); weatherTab.setAttribute('aria-selected', 'false'); }
+    if (birdsTab) { birdsTab.classList.add('active'); birdsTab.setAttribute('aria-selected', 'true'); }
   } else {
     if (middleGroup) middleGroup.classList.remove('hidden');
     if (bottomGroup) bottomGroup.classList.remove('hidden');
     if (weatherFooter) weatherFooter.classList.remove('hidden');
     if (birdView) birdView.classList.add('hidden');
     if (birdFooter) birdFooter.classList.add('hidden');
-    // Swap icon: show bird, hide sun
-    if (birdIcon) birdIcon.classList.remove('hidden');
-    if (weatherIcon) weatherIcon.classList.add('hidden');
-    if (toggleBtn) toggleBtn.title = 'Bird activity';
+    if (weatherTab) { weatherTab.classList.add('active'); weatherTab.setAttribute('aria-selected', 'true'); }
+    if (birdsTab) { birdsTab.classList.remove('active'); birdsTab.setAttribute('aria-selected', 'false'); }
   }
 }
 

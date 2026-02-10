@@ -96,8 +96,9 @@ async function init() {
   document.getElementById('fallback-search-btn')?.addEventListener('click', showCitySearch);
   document.getElementById('fallback-retry-btn')?.addEventListener('click', handleUseMyLocation);
   
-  // Bird toggle
-  document.getElementById('bird-toggle-btn').addEventListener('click', handleBirdToggle);
+  // View toggle (weather / birds)
+  document.getElementById('view-toggle-weather').addEventListener('click', () => handleViewSwitch('weather'));
+  document.getElementById('view-toggle-birds').addEventListener('click', () => handleViewSwitch('birds'));
 
   // Initialize colour picker
   initColourPicker();
@@ -401,11 +402,12 @@ async function loadBirdsInBackground(forecast) {
 }
 
 /**
- * Handle bird toggle button
+ * Handle view switch (weather / birds)
  */
-function handleBirdToggle() {
-  const newView = toggleView();
-  setView(newView);
+function handleViewSwitch(view) {
+  if (view === getCurrentView()) return;
+  toggleView();
+  setView(view);
 }
 
 /**

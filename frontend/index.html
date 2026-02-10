@@ -55,12 +55,16 @@
           </svg>
           <span id="location-display">--</span>
         </button>
-        <button id="bird-toggle-btn" class="bird-toggle-btn hidden" title="Bird activity">
-          <div class="bird-icon" role="img" aria-label="Birds"></div>
-          <svg class="weather-icon-toggle hidden" width="44" height="44" viewBox="0 0 44 44" aria-label="Weather">
-            <circle cx="22" cy="22" r="9" fill="none" stroke="currentColor" stroke-width="3.5"/>
-          </svg>
-        </button>
+        <div id="view-toggle" class="view-toggle hidden" role="tablist">
+          <button id="view-toggle-weather" class="view-toggle-seg active" role="tab" aria-selected="true" data-view="weather">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>
+            <span>Weather</span>
+          </button>
+          <button id="view-toggle-birds" class="view-toggle-seg" role="tab" aria-selected="false" data-view="birds">
+            <svg width="14" height="10" viewBox="0 0 24 16" fill="currentColor" aria-hidden="true"><path d="M1 14 C5 7,11 5,15 9 C17 6,21 5,23 6.5 C21 8,18 10,15 12.5 C11 11,6 12,1 14Z"/></svg>
+            <span>Birds</span>
+          </button>
+        </div>
       </div>
 
       <!-- Middle: vertically centered group -->
