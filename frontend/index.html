@@ -132,28 +132,30 @@
           <div class="bird-notable" id="bird-notable"></div>
         </div>
 
-        <!-- Scrollable species list (pinned to bottom) -->
+        <!-- Scrollable species list -->
         <div class="bird-bottom-group">
           <div class="bird-species-list" id="bird-species-list"></div>
-          <footer class="freshness hidden" id="bird-freshness">
-            <span class="freshness-dot"></span>
-            <span id="bird-freshness-text">Bird data</span>
-            <button id="bird-refresh-btn" class="refresh-btn" title="Refresh bird data">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M23 4v6h-6M1 20v-6h6"/>
-                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-              </svg>
-            </button>
-          </footer>
         </div>
+
+        <footer class="freshness hidden" id="bird-freshness">
+          <span class="freshness-dot"></span>
+          <span id="bird-freshness-text">Bird data</span>
+          <button id="bird-refresh-btn" class="refresh-btn" title="Refresh bird data">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+          </button>
+        </footer>
 
       </div>
 
-      <!-- Bottom: pinned forecast + footer -->
+      <!-- Bottom: forecast -->
       <div class="bottom-group">
         <section class="forecast-days" id="forecast-days"></section>
+      </div>
 
-      <!-- Freshness -->
+      <!-- Freshness (outside bottom-group so position: fixed works reliably on mobile) -->
       <footer class="freshness" id="freshness">
         <span class="freshness-dot"></span>
         <span id="freshness-text">Updated just now</span>
@@ -169,7 +171,6 @@
           </svg>
         </button>
       </footer>
-      </div>
 
     </main>
 

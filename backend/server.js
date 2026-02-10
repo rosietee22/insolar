@@ -86,6 +86,21 @@ app.get('/service-worker.js', (req, res) => {
   res.send(SW_TEMPLATE.replace('__CACHE_VERSION__', CACHE_VERSION));
 });
 
+// Set session cookie on page loads (before static so / gets it)
+app.use((req, res, next) => {
+  const secret = process.env.API_SECRET;
+  if (secret && !req.path.startsWith('/api/')) {
+    const sessionValue = crypto.createHmac('sha256', secret).update('sunbird-session').digest('hex');
+    res.cookie('sb_session', sessionValue, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+  }
+  next();
+});
+
 // Serve static frontend files with cache control
 app.use(express.static(path.join(FRONTEND_DIR), {
   maxAge: '1d', // Cache icons/images for 1 day
@@ -115,18 +130,6 @@ app.use('/api/location', require('./routes/location'));
 app.get('/:path(.*)', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
-  }
-
-  // Set auth cookie so frontend never needs to know the token
-  const secret = process.env.API_SECRET;
-  if (secret) {
-    const sessionValue = crypto.createHmac('sha256', secret).update('sunbird-session').digest('hex');
-    res.cookie('sb_session', sessionValue, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
   }
 
   res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
