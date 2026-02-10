@@ -1,20 +1,9 @@
 /**
  * API Client for Weather Backend
+ * Auth is handled via HTTP-only session cookie (set by server on page load)
  */
 
 const API_BASE = window.location.origin;
-const API_TOKEN_KEY = 'weather_api_token';
-
-// For local development, use the generated token
-// In production, this would be stored securely
-const DEFAULT_TOKEN = 'd0b9b6e482007306988fa00a263fd0950184f5f7f029f85ff7b132c06703e6d4';
-
-/**
- * Get API token from localStorage or use default
- */
-function getToken() {
-  return localStorage.getItem(API_TOKEN_KEY) || DEFAULT_TOKEN;
-}
 
 /**
  * Fetch weather forecast for given coordinates
@@ -24,20 +13,15 @@ function getToken() {
  */
 export async function getForecast(lat, lon) {
   const url = `${API_BASE}/api/forecast?lat=${lat}&lon=${lon}`;
-  const token = getToken();
 
   try {
     const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      credentials: 'same-origin',
     });
 
     if (!response.ok) {
       if (response.status === 401) {
-        throw new Error('Unauthorized: Invalid API token');
+        throw new Error('Unauthorized: Session expired — reload the page');
       }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP ${response.status}`);
@@ -69,15 +53,10 @@ export async function getBirdData(lat, lon, weather = {}) {
   if (weather.cloud_percent !== undefined) params.set('cloud', weather.cloud_percent);
 
   const url = `${API_BASE}/api/birds?${params}`;
-  const token = getToken();
 
   try {
     const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      credentials: 'same-origin',
     });
 
     if (!response.ok) {

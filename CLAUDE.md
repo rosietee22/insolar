@@ -100,6 +100,9 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
   --light-strip-mid: #F5E8B0;
   --accent-color: #2F5EEA;
   --accent-filter: brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%);
+  --bird-dormant: #2A2D52;
+  --bird-active: #A8B4FF;
+  --bird-glow: rgba(168,180,255,0.50);
   --glass-bg: rgba(0, 0, 0, 0.05);
   --glass-border: rgba(0, 0, 0, 0.08);
   --space-1: 8px;

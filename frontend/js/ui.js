@@ -600,16 +600,20 @@ export function renderBirdStrip(activity) {
 
   if (!strip || !dot) return;
 
-  // Build gradient from activity curve
+  // Build gradient from activity curve using theme-aware colours
+  const style = getComputedStyle(document.documentElement);
+  const dormant = style.getPropertyValue('--bird-dormant').trim() || '#2A2D52';
+  const active = style.getPropertyValue('--bird-active').trim() || '#A8B4FF';
+
   const stops = activity.curve.map(point => {
     const pct = Math.round((point.hour / 23) * 100);
     const intensity = point.score / 100;
     if (intensity > 0.6) {
-      return `rgba(168,180,255,${intensity}) ${pct}%`;
+      return `color-mix(in srgb, ${active} ${Math.round(intensity * 100)}%, ${dormant}) ${pct}%`;
     } else if (intensity > 0.3) {
-      return `rgba(4,16,241,${intensity * 0.8}) ${pct}%`;
+      return `color-mix(in srgb, ${active} ${Math.round(intensity * 60)}%, ${dormant}) ${pct}%`;
     } else {
-      return `rgba(20,17,21,${1 - intensity * 0.5}) ${pct}%`;
+      return `${dormant} ${pct}%`;
     }
   });
   strip.style.background = `linear-gradient(90deg, ${stops.join(', ')})`;
@@ -640,7 +644,7 @@ export function renderBirdStrip(activity) {
   if (legend) {
     legend.textContent = activity.current.level.toUpperCase();
     if (activity.current.level === 'high') {
-      legend.style.color = '#A8B4FF';
+      legend.style.color = 'var(--bird-active, #A8B4FF)';
     } else {
       legend.style.color = 'var(--text-secondary)';
     }

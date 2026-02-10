@@ -278,7 +278,7 @@
       position: relative;
       height: 10px;
       border-radius: 5px;
-      background: linear-gradient(90deg, #1E2145 0%, #1E2145 18%, #5B7DB8 28%, #BFD9F6 35%, #2A2D52 48%, #2A2D52 58%, #BFD9F6 68%, #5B7DB8 75%, #1E2145 85%, #1E2145 100%);
+      background: linear-gradient(90deg, var(--bird-dormant) 0%, var(--bird-dormant) 18%, var(--bird-active) 28%, var(--bird-active) 35%, var(--bird-dormant) 48%, var(--bird-dormant) 58%, var(--bird-active) 68%, var(--bird-active) 75%, var(--bird-dormant) 85%, var(--bird-dormant) 100%);
     }
 
     .light-dot, .bird-dot {
@@ -293,7 +293,7 @@
     .bird-dot {
       left: 30%;
       color: #E8E6F0;
-      filter: drop-shadow(0 0 6px rgba(168,180,255,0.4));
+      filter: drop-shadow(0 0 6px var(--bird-glow, rgba(168,180,255,0.4)));
     }
 
     [data-theme="overcast"] .light-dot,
@@ -545,7 +545,7 @@
       const bloom = theme.bloom || `radial-gradient(circle at 40% 25%, ${theme.glow.glow} 0%, transparent 70%)`;
       const veil = theme.veil || 'none';
 
-      const phoneStyle = `background: ${bloom}, linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%); --gradient-from: ${theme.from}; --gradient-to: ${theme.to}; --solar-color: ${theme.glow.color}; --solar-glow: ${theme.glow.glow}; --hero-bloom: ${bloom}; --veil: ${veil}; --text-primary: ${theme.text}; --text-secondary: ${theme.secondary}; --text-muted: ${theme.muted}; --rain-color: ${theme.rain}; --light-strip-edge: ${theme.strip.edge}; --light-strip-mid: ${theme.strip.mid}; --glass-bg: ${isDarkText ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}; --glass-border: ${glassB}; --icon-filter: ${isDarkText ? 'none' : 'invert(1)'}; color: ${theme.text};`;
+      const phoneStyle = `background: ${bloom}, linear-gradient(180deg, ${theme.from} 0%, ${theme.to} 100%); --gradient-from: ${theme.from}; --gradient-to: ${theme.to}; --solar-color: ${theme.glow.color}; --solar-glow: ${theme.glow.glow}; --hero-bloom: ${bloom}; --veil: ${veil}; --text-primary: ${theme.text}; --text-secondary: ${theme.secondary}; --text-muted: ${theme.muted}; --rain-color: ${theme.rain}; --light-strip-edge: ${theme.strip.edge}; --light-strip-mid: ${theme.strip.mid}; --bird-dormant: ${theme.bird.dormant}; --bird-active: ${theme.bird.active}; --bird-glow: ${theme.bird.glow}; --glass-bg: ${isDarkText ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}; --glass-border: ${glassB}; --icon-filter: ${isDarkText ? 'none' : 'invert(1)'}; color: ${theme.text};`;
 
       let bodyHTML;
 

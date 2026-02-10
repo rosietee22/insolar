@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const crypto = require('crypto');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -59,8 +60,34 @@ app.use(cors({
 // JSON parsing
 app.use(express.json());
 
+// Service worker: inject cache version from content hash
+const fs = require('fs');
+const FRONTEND_DIR = path.join(__dirname, '../frontend');
+const SW_TEMPLATE = fs.readFileSync(path.join(FRONTEND_DIR, 'service-worker.js'), 'utf-8');
+
+// Build version hash from static asset content at startup
+const STATIC_ASSETS = [
+  'index.html', 'css/styles.css', 'js/main.js', 'js/api.js',
+  'js/location.js', 'js/ui.js', 'js/theme.js', 'js/colour-picker.js', 'js/birds.js'
+];
+const assetHash = crypto.createHash('md5');
+for (const asset of STATIC_ASSETS) {
+  try {
+    const content = fs.readFileSync(path.join(FRONTEND_DIR, asset));
+    assetHash.update(content);
+  } catch (e) { /* skip missing files */ }
+}
+const CACHE_VERSION = assetHash.digest('hex').slice(0, 8);
+console.log(`Cache version: ${CACHE_VERSION}`);
+
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  res.send(SW_TEMPLATE.replace('__CACHE_VERSION__', CACHE_VERSION));
+});
+
 // Serve static frontend files with cache control
-app.use(express.static(path.join(__dirname, '../frontend'), {
+app.use(express.static(path.join(FRONTEND_DIR), {
   maxAge: '1d', // Cache icons/images for 1 day
   setHeaders: (res, filePath) => {
     // Never cache service worker, HTML, JS, CSS - always check for updates
@@ -87,10 +114,22 @@ app.use('/api/location', require('./routes/location'));
 // Catch-all: serve index.html for SPA routing (Express 5 compatible)
 app.get('/:path(.*)', (req, res) => {
   if (req.path.startsWith('/api')) {
-    res.status(404).json({ error: 'API endpoint not found' });
-  } else {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    return res.status(404).json({ error: 'API endpoint not found' });
   }
+
+  // Set auth cookie so frontend never needs to know the token
+  const secret = process.env.API_SECRET;
+  if (secret) {
+    const sessionValue = crypto.createHmac('sha256', secret).update('sunbird-session').digest('hex');
+    res.cookie('sb_session', sessionValue, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+  }
+
+  res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
 
 // Error handler

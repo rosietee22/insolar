@@ -41,16 +41,24 @@ const STRIP = {
   rain:     { edge: '#5A5750', mid: '#7A7468' },     // Dark subdued — wet conditions
 };
 
+// Bird strip: activity visualization colours per lighting condition
+const BIRD = {
+  day:      { dormant: '#2A2D52', active: '#A8B4FF', glow: 'rgba(168,180,255,0.50)' },   // Contrast on light bg
+  night:    { dormant: '#1A1D38', active: '#BFD9F6', glow: 'rgba(191,217,246,0.50)' },   // Vivid on dark bg
+  overcast: { dormant: '#2A2D3A', active: '#8898C8', glow: 'rgba(136,152,200,0.40)' },   // Muted, subdued
+  warm:     { dormant: '#3A2D28', active: '#C8A890', glow: 'rgba(200,168,144,0.40)' },   // Earthy for storm
+};
+
 export const WEATHER_THEMES = {
-  clearDay:      { from: '#FDF9F0', to: '#EDE6D6', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   muted: 'rgba(43,46,58,0.32)',   glow: GLOW.sunlight, rain: '#8898B8', strip: STRIP.sunlight, bloom: 'radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)' },
-  partlyCloudy:  { from: '#F3F4F1', to: '#DDD9CF', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.55)',   muted: 'rgba(43,46,58,0.40)',   glow: GLOW.diffused, rain: '#8898B8', strip: STRIP.sunlight, veil: 'radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)' },
-  partlyCloudyNight: { from: '#363A52', to: '#2A2D44', text: '#DAD8E0', secondary: 'rgba(218,216,224,0.50)', muted: 'rgba(218,216,224,0.38)', glow: GLOW.diffused, rain: '#9AA4C8', strip: STRIP.night, veil: 'radial-gradient(circle at 40% 30%, rgba(200,200,220,0.06), transparent 60%)' },
-  clearNight:    { from: '#2E3148', to: '#222538', text: '#DAD8E0',     secondary: 'rgba(218,216,224,0.45)', muted: 'rgba(218,216,224,0.35)', glow: GLOW.halo,     rain: '#9AA4C8', strip: STRIP.night },
-  overcast:      { from: '#918F8C', to: '#5A5860', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', muted: 'rgba(240,237,234,0.38)', glow: GLOW.fog,      rain: '#8896B4', strip: STRIP.overcast },
-  rain:          { from: '#42454F', to: '#32353F', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', muted: 'rgba(240,237,234,0.35)', glow: GLOW.fog,      rain: '#A0AACC', strip: STRIP.rain },
-  storm:         { from: '#A99890', to: '#6A5E6E', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', muted: 'rgba(240,237,234,0.38)', glow: GLOW.ember, rain: '#D4BEB0', strip: STRIP.rain },
-  snow:          { from: '#F6F8FA', to: '#DCD9D4', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   muted: 'rgba(43,46,58,0.32)',   glow: GLOW.sunlight, rain: '#7B96B8', strip: STRIP.sunlight },
-  fog:           { from: '#C8C5C0', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(43,46,58,0.40)',  muted: 'rgba(43,46,58,0.30)',   glow: GLOW.fog,      rain: '#7B96B8', strip: STRIP.sunlight },
+  clearDay:      { from: '#FDF9F0', to: '#EDE6D6', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   muted: 'rgba(43,46,58,0.32)',   glow: GLOW.sunlight, rain: '#8898B8', strip: STRIP.sunlight, bird: BIRD.day, bloom: 'radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)' },
+  partlyCloudy:  { from: '#F3F4F1', to: '#DDD9CF', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.55)',   muted: 'rgba(43,46,58,0.40)',   glow: GLOW.diffused, rain: '#8898B8', strip: STRIP.sunlight, bird: BIRD.day, veil: 'radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)' },
+  partlyCloudyNight: { from: '#363A52', to: '#2A2D44', text: '#DAD8E0', secondary: 'rgba(218,216,224,0.50)', muted: 'rgba(218,216,224,0.38)', glow: GLOW.diffused, rain: '#9AA4C8', strip: STRIP.night, bird: BIRD.night, veil: 'radial-gradient(circle at 40% 30%, rgba(200,200,220,0.06), transparent 60%)' },
+  clearNight:    { from: '#2E3148', to: '#222538', text: '#DAD8E0',     secondary: 'rgba(218,216,224,0.45)', muted: 'rgba(218,216,224,0.35)', glow: GLOW.halo,     rain: '#9AA4C8', strip: STRIP.night, bird: BIRD.night },
+  overcast:      { from: '#918F8C', to: '#5A5860', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', muted: 'rgba(240,237,234,0.38)', glow: GLOW.fog,      rain: '#8896B4', strip: STRIP.overcast, bird: BIRD.overcast },
+  rain:          { from: '#42454F', to: '#32353F', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.45)', muted: 'rgba(240,237,234,0.35)', glow: GLOW.fog,      rain: '#A0AACC', strip: STRIP.rain, bird: BIRD.overcast },
+  storm:         { from: '#A99890', to: '#6A5E6E', text: PALETTE.pearl, secondary: 'rgba(240,237,234,0.48)', muted: 'rgba(240,237,234,0.38)', glow: GLOW.ember, rain: '#D4BEB0', strip: STRIP.rain, bird: BIRD.warm },
+  snow:          { from: '#F6F8FA', to: '#DCD9D4', text: PALETTE.ink,   secondary: 'rgba(43,46,58,0.42)',   muted: 'rgba(43,46,58,0.32)',   glow: GLOW.sunlight, rain: '#7B96B8', strip: STRIP.sunlight, bird: BIRD.day },
+  fog:           { from: '#C8C5C0', to: PALETTE.pearl, text: PALETTE.ink, secondary: 'rgba(43,46,58,0.40)',  muted: 'rgba(43,46,58,0.30)',   glow: GLOW.fog,      rain: '#7B96B8', strip: STRIP.sunlight, bird: BIRD.overcast },
 };
 
 /**
@@ -121,6 +129,10 @@ export function buildTheme({ is_day, timestamp, rain_probability, cloud_percent,
     // Hero bloom and atmospheric veil
     bloom: theme.bloom || `radial-gradient(circle, ${theme.glow.glow} 0%, transparent 70%)`,
     veil: theme.veil || 'none',
+    // Bird strip
+    birdDormant: theme.bird.dormant,
+    birdActive: theme.bird.active,
+    birdGlow: theme.bird.glow,
     // For icon filter and glass
     isDarkText,
   };
@@ -155,6 +167,11 @@ export function applyTheme(theme) {
   // Hero bloom and atmospheric veil
   root.style.setProperty('--hero-bloom', theme.bloom);
   root.style.setProperty('--veil', theme.veil);
+
+  // Bird strip
+  root.style.setProperty('--bird-dormant', theme.birdDormant);
+  root.style.setProperty('--bird-active', theme.birdActive);
+  root.style.setProperty('--bird-glow', theme.birdGlow);
 
   // Glass, icon, and accent styles
   // Always use cobalt accent for brand consistency (toggle icons, hero temp)

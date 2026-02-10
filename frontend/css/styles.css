@@ -21,6 +21,9 @@
   --light-strip-mid: #F5E8B0;
   --accent-color: #2F5EEA;
   --accent-filter: brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%);
+  --bird-dormant: #2A2D52;
+  --bird-active: #A8B4FF;
+  --bird-glow: rgba(168,180,255,0.50);
   --glass-bg: rgba(0, 0, 0, 0.05);
   --glass-border: rgba(0, 0, 0, 0.08);
   --space-1: 8px;
@@ -365,16 +368,16 @@ body::after {
   border-radius: 6px;
   background: linear-gradient(
     90deg,
-    #1E2145 0%,
-    #1E2145 18%,
-    #5B7DB8 28%,
-    #BFD9F6 35%,
-    #2A2D52 48%,
-    #2A2D52 58%,
-    #BFD9F6 68%,
-    #5B7DB8 75%,
-    #1E2145 85%,
-    #1E2145 100%
+    var(--bird-dormant, #2A2D52) 0%,
+    var(--bird-dormant, #2A2D52) 18%,
+    var(--bird-active, #A8B4FF) 28%,
+    var(--bird-active, #A8B4FF) 35%,
+    var(--bird-dormant, #2A2D52) 48%,
+    var(--bird-dormant, #2A2D52) 58%,
+    var(--bird-active, #A8B4FF) 68%,
+    var(--bird-active, #A8B4FF) 75%,
+    var(--bird-dormant, #2A2D52) 85%,
+    var(--bird-dormant, #2A2D52) 100%
   );
 }
 
@@ -394,11 +397,11 @@ body::after {
 }
 
 .bird-dot.activity-high {
-  filter: drop-shadow(0 0 10px rgba(160,170,212,0.6)) drop-shadow(0 0 4px rgba(160,170,212,0.3));
+  filter: drop-shadow(0 0 10px var(--bird-glow, rgba(168,180,255,0.50))) drop-shadow(0 0 4px var(--bird-glow, rgba(168,180,255,0.50)));
 }
 
 .bird-dot.activity-moderate {
-  filter: drop-shadow(0 0 6px rgba(168,180,255,0.4));
+  filter: drop-shadow(0 0 6px var(--bird-glow, rgba(168,180,255,0.40)));
 }
 
 .bird-dot.activity-low {
