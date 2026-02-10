@@ -24,7 +24,10 @@ import {
   renderBirdStrip,
   showBirdToggle,
   renderBirdView,
-  setView
+  setView,
+  setTimezone,
+  setLocationLat,
+  locationNow
 } from './ui.js';
 import { initColourPicker, setWeatherData, applySavedOverrides } from './colour-picker.js';
 import { loadBirdData, toggleView, getCurrentView, calculateActivityCurve, isBirdFeatureAvailable, clearBirdCache } from './birds.js';
@@ -343,6 +346,11 @@ let currentBirdData = null;
  * @param {Object} forecast - Forecast data
  */
 function displayForecast(forecast) {
+  // Set location timezone and latitude before any rendering
+  if (forecast.timezone) setTimezone(forecast.timezone);
+  const loc = getCachedLocation();
+  if (loc?.lat != null) setLocationLat(loc.lat);
+
   renderApp(forecast);
   // Store weather data for colour picker live re-theming
   if (forecast.current) {
@@ -368,8 +376,11 @@ async function loadBirdsInBackground(forecast) {
     cloud_percent: forecast.current.cloud_percent,
   };
 
+  const locNow = locationNow();
+  const locTime = { hour: locNow.getHours(), month: locNow.getMonth() };
+
   try {
-    const birdData = await loadBirdData(location.lat, location.lon, weather);
+    const birdData = await loadBirdData(location.lat, location.lon, weather, locTime);
 
     if (isBirdFeatureAvailable() === false) {
       // No API key configured — hide bird UI
@@ -378,7 +389,7 @@ async function loadBirdsInBackground(forecast) {
 
     if (birdData) {
       currentBirdData = birdData;
-      const activity = birdData.activity || calculateActivityCurve(weather);
+      const activity = birdData.activity || calculateActivityCurve(weather, locTime);
 
       // Show bird toggle and pre-render bird view
       showBirdToggle();
@@ -427,11 +438,14 @@ async function refreshBirds() {
     cloud_percent: currentWeatherData.cloud_percent,
   };
 
+  const locNow = locationNow();
+  const locTime = { hour: locNow.getHours(), month: locNow.getMonth() };
+
   try {
-    const birdData = await loadBirdData(location.lat, location.lon, weather);
+    const birdData = await loadBirdData(location.lat, location.lon, weather, locTime);
     if (birdData) {
       currentBirdData = birdData;
-      const activity = birdData.activity || calculateActivityCurve(weather);
+      const activity = birdData.activity || calculateActivityCurve(weather, locTime);
       renderBirdView(birdData, activity);
     }
   } catch (error) {

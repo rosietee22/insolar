@@ -41,14 +41,14 @@ export function isBirdFeatureAvailable() {
  * @param {Object} currentWeather - Current weather conditions
  * @returns {Promise<Object|null>} Bird data or null
  */
-export async function loadBirdData(lat, lon, currentWeather = {}) {
+export async function loadBirdData(lat, lon, currentWeather = {}, locationTime = {}) {
   // Try cache first
   const cached = getCachedBirdData();
   if (cached) {
     const age = Date.now() - new Date(cached.generated_at).getTime();
     if (age < BIRD_CACHE_MAX_AGE) {
       // Recalculate activity client-side with fresh weather
-      cached.activity = calculateActivityCurve(currentWeather);
+      cached.activity = calculateActivityCurve(currentWeather, locationTime);
       featureAvailable = true;
       return cached;
     }
@@ -67,7 +67,7 @@ export async function loadBirdData(lat, lon, currentWeather = {}) {
     console.error('Bird data fetch error:', error);
     // Return stale cached data if available
     if (cached) {
-      cached.activity = calculateActivityCurve(currentWeather);
+      cached.activity = calculateActivityCurve(currentWeather, locationTime);
       return cached;
     }
     return null;
@@ -175,10 +175,10 @@ function scoreHour(hour, weather, month) {
  * @param {Object} weather - Current weather
  * @returns {Object} { curve, current, dawn_peak, dusk_peak }
  */
-export function calculateActivityCurve(weather = {}) {
+export function calculateActivityCurve(weather = {}, { hour: locHour, month: locMonth } = {}) {
   const now = new Date();
-  const month = now.getMonth();
-  const currentHour = now.getHours();
+  const month = locMonth ?? now.getMonth();
+  const currentHour = locHour ?? now.getHours();
 
   const w = {
     temp_c: weather.temp_c ?? 10,

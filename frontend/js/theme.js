@@ -198,7 +198,7 @@ export function applyTheme(theme) {
 /**
  * Generate hero sentence based on conditions
  */
-export function generateHeroSentence(current, hourly) {
+export function generateHeroSentence(current, hourly, { locationHour, locationMonth, isSouthern } = {}) {
   const { rain_probability, cloud_percent, temp_c, wind_speed_ms, is_day, condition_type } = current;
 
   const next2Hours = hourly.slice(1, 3);
@@ -211,13 +211,13 @@ export function generateHeroSentence(current, hourly) {
   const cooling = avgFutureTemp < temp_c - 3;
   const warming = avgFutureTemp > temp_c + 3;
 
-  const hour = new Date().getHours();
+  const hour = locationHour ?? new Date().getHours();
   const isEvening = hour >= 17 || hour < 5;
   const isMorning = hour >= 5 && hour < 12;
   const isAfternoon = hour >= 12 && hour < 17;
-  const month = new Date().getMonth();
-  const isSummer = month >= 5 && month <= 7;
-  const isWinter = month >= 11 || month <= 1;
+  const month = locationMonth ?? new Date().getMonth();
+  const isSummer = isSouthern ? (month >= 11 || month <= 1) : (month >= 5 && month <= 7);
+  const isWinter = isSouthern ? (month >= 5 && month <= 7) : (month >= 11 || month <= 1);
 
   // Specific API conditions first
   if (condition_type === 'THUNDERSTORM') return 'Thunder in the air.';

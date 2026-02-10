@@ -8,6 +8,55 @@ import {
   generateHeroSentence
 } from './theme.js';
 
+// ==================== TIMEZONE UTILITIES ====================
+// The API returns timezone as "UTC+11", "UTC-5", etc.
+// We shift Date objects so .getHours()/.getMonth() give location-local values.
+
+let _locationTimezone = null;
+let _tzOffsetMs = 0;
+
+/**
+ * Parse "UTC+11" or "UTC-5.5" into ms offset from browser's local time
+ */
+function parseTimezoneOffset(tz) {
+  if (!tz) return 0;
+  const m = tz.match(/UTC([+-])(\d+(?:\.\d+)?)/);
+  if (!m) return 0;
+  const sign = m[1] === '+' ? 1 : -1;
+  const locationOffsetMs = sign * parseFloat(m[2]) * 3600000;
+  const browserOffsetMs = -new Date().getTimezoneOffset() * 60000;
+  return locationOffsetMs - browserOffsetMs;
+}
+
+/**
+ * Set the location timezone for all rendering
+ */
+export function setTimezone(tz) {
+  _locationTimezone = tz;
+  _tzOffsetMs = parseTimezoneOffset(tz);
+}
+
+/**
+ * Get "now" in the searched location's timezone
+ */
+export function locationNow() {
+  return new Date(Date.now() + _tzOffsetMs);
+}
+
+/**
+ * Shift any Date to the location's timezone (so getHours/getMonth work)
+ */
+function toLocationTime(date) {
+  return new Date(date.getTime() + _tzOffsetMs);
+}
+
+/**
+ * Get latitude for hemisphere detection (set alongside timezone)
+ */
+let _locationLat = null;
+export function setLocationLat(lat) { _locationLat = lat; }
+export function isSouthernHemisphere() { return _locationLat !== null && _locationLat < 0; }
+
 /**
  * Show/hide elements
  */
@@ -86,7 +135,7 @@ export function formatRelativeTime(timestamp) {
  * @returns {string}
  */
 function formatHourShort(timestamp) {
-  const date = new Date(timestamp);
+  const date = toLocationTime(new Date(timestamp));
   const hour = date.getHours();
   if (hour === 0) return '12am';
   if (hour === 12) return '12pm';
@@ -97,7 +146,12 @@ function formatHourShort(timestamp) {
  * Format time as HH:MM
  */
 function formatTime(date) {
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+  const local = toLocationTime(date);
+  let h = local.getHours();
+  const m = local.getMinutes();
+  const ampm = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
 }
 
 /**
@@ -154,7 +208,7 @@ function estimateSunriseSunset(hourly) {
   let sunrise = null;
   let sunset = null;
   let nextSunrise = null;
-  const now = new Date();
+  const now = locationNow();
   const today = now.toDateString();
 
   // Check if currently night (first hour is_day = false)
@@ -163,7 +217,7 @@ function estimateSunriseSunset(hourly) {
   for (let i = 1; i < hourly.length; i++) {
     const prev = hourly[i - 1];
     const curr = hourly[i];
-    const currDate = new Date(curr.timestamp);
+    const currDate = toLocationTime(new Date(curr.timestamp));
     const dateStr = currDate.toDateString();
 
     // Night to day transition = sunrise
@@ -185,14 +239,11 @@ function estimateSunriseSunset(hourly) {
 
   // If currently night and no sunset found in future data, estimate it was earlier today
   if (currentlyNight && !sunset) {
-    // Sunset already happened - estimate based on typical winter time
     sunset = new Date(now);
     const hour = now.getHours();
-    // If evening (after 4pm), sunset was probably around 4-5pm
     if (hour >= 16) {
       sunset.setHours(16, 30, 0, 0);
     } else {
-      // Early morning before sunrise
       sunset.setDate(sunset.getDate() - 1);
       sunset.setHours(16, 30, 0, 0);
     }
@@ -208,11 +259,11 @@ function estimateSunriseSunset(hourly) {
     sunset.setHours(16, 30, 0, 0);
   }
   if (!nextSunrise) {
-    nextSunrise = new Date(tomorrow);
+    nextSunrise = new Date(now);
+    nextSunrise.setDate(nextSunrise.getDate() + 1);
     nextSunrise.setHours(7, 30, 0, 0);
   }
 
-  // Determine if it's currently night based on actual API data
   const isNight = currentlyNight;
 
   return { sunrise, sunset, nextSunrise, isNight };
@@ -295,7 +346,7 @@ function generateKeyMoments(hourly) {
  */
 function getMultiDayForecast(hourly, numDays = 3) {
   const days = [];
-  const now = new Date();
+  const now = locationNow();
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   for (let i = 1; i <= numDays; i++) {
@@ -368,7 +419,12 @@ export function renderApp(data) {
   updateLocationDisplay(data.location);
 
   // Render Hero Section
-  document.getElementById('hero-headline').textContent = generateHeroSentence(current, hourly);
+  const locNow = locationNow();
+  document.getElementById('hero-headline').textContent = generateHeroSentence(current, hourly, {
+    locationHour: locNow.getHours(),
+    locationMonth: locNow.getMonth(),
+    isSouthern: isSouthernHemisphere(),
+  });
   document.getElementById('hero-temp').textContent = `${Math.round(current.temp_c)}°`;
 
   // Hero meta (rain / wind on same line, centered)
@@ -618,9 +674,9 @@ export function renderBirdStrip(activity) {
   });
   strip.style.background = `linear-gradient(90deg, ${stops.join(', ')})`;
 
-  // Position dot at current hour
-  const now = new Date();
-  const currentHour = now.getHours() + now.getMinutes() / 60;
+  // Position dot at current hour (location time)
+  const birdNow = locationNow();
+  const currentHour = birdNow.getHours() + birdNow.getMinutes() / 60;
   const dotPosition = (currentHour / 24) * 100;
   dot.style.left = `${dotPosition}%`;
 
@@ -668,9 +724,10 @@ function generateBirdHeadline(activity) {
   const { level, hour, score } = activity.current;
   const dawnHour = activity.dawn_peak?.hour ?? 6;
   const duskHour = activity.dusk_peak?.hour ?? 17;
-  const month = new Date().getMonth();
-  const isSpring = month >= 2 && month <= 4;
-  const isWinter = month >= 11 || month <= 1;
+  const month = locationNow().getMonth();
+  const south = isSouthernHemisphere();
+  const isSpring = south ? (month >= 8 && month <= 10) : (month >= 2 && month <= 4);
+  const isWinter = south ? (month >= 5 && month <= 7) : (month >= 11 || month <= 1);
 
   // High activity
   if (level === 'high') {
@@ -813,8 +870,10 @@ export function renderBirdView(birdData, activity) {
         listEl.innerHTML = '';
       } else {
         const rows = display.map(s => {
-          const time = new Date(s.observed_at);
-          const timeStr = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+          const time = toLocationTime(new Date(s.observed_at));
+          const h = time.getHours();
+          const m = time.getMinutes();
+          const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
           return `
             <div class="bird-species-row">
               <span class="bird-species-name">${s.common_name}</span>
