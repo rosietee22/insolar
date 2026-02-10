@@ -10,6 +10,9 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Fly.io reverse proxy (needed for rate limiting by real IP)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: false, // Allow inline scripts for PWA
