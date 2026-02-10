@@ -66,7 +66,7 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 | Partly Cloudy Night | `#363A52` | `#2A2D44` | `#DAD8E0` | `rgba(218,216,224,0.50)` | diffused | night |
 | Clear Night | `#2E3148` | `#222538` | `#DAD8E0` | `rgba(218,216,224,0.45)` | halo | night |
 | Overcast | `#918F8C` | `#5A5860` | pearl | `rgba(240,237,234,0.48)` | fog | overcast |
-| Rain | `#42454F` | `#32353F` | pearl | `rgba(240,237,234,0.45)` | fog | rain |
+| Rain | `#74767E` | `#5E6068` | pearl | `rgba(240,237,234,0.45)` | fog | rain |
 | Storm | `#A99890` | `#6A5E6E` | pearl | `rgba(240,237,234,0.48)` | ember | rain |
 | Snow | `#F6F8FA` | `#DCD9D4` | ink | `rgba(43,46,58,0.42)` | sunlight | sunlight |
 | Fog | `#C8C5C0` | pearl | ink | `rgba(43,46,58,0.40)` | fog | sunlight |
@@ -77,7 +77,9 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 |-----------|-------------------|----------------------------|
 | Clear Day | `radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)` — warm directional sun | none |
 | Partly Cloudy | default (from glow) | `radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)` — mist veil |
-| Partly Cloudy Night | default (from glow) | `radial-gradient(circle at 40% 30%, rgba(200,200,220,0.06), transparent 60%)` — faint cloud veil |
+| Partly Cloudy Night | none | `radial-gradient(circle at 40% 30%, rgba(200,200,220,0.06), transparent 60%)` — faint cloud veil |
+| Clear Night | none | none |
+| Rain | none | none |
 | All others | default `radial-gradient(circle, <glow> 0%, transparent 70%)` | none |
 
 ## CSS Variables

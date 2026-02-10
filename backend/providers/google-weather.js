@@ -41,14 +41,14 @@ class GoogleWeatherProvider extends WeatherProvider {
     // Transform daily forecast (next 3 days, skip today)
     const dailyForecast = dailyData?.forecastDays?.slice(1, 4).map(day => this.transformDay(day)) || [];
 
-    // Extract today's sunrise/sunset from daily data
+    // Extract today's sunrise/sunset from daily data (nested under sunEvents)
     const todayData = dailyData?.forecastDays?.[0];
     const sunTimes = {};
-    if (todayData?.sunriseTime) sunTimes.sunrise = todayData.sunriseTime;
-    if (todayData?.sunsetTime) sunTimes.sunset = todayData.sunsetTime;
+    if (todayData?.sunEvents?.sunriseTime) sunTimes.sunrise = todayData.sunEvents.sunriseTime;
+    if (todayData?.sunEvents?.sunsetTime) sunTimes.sunset = todayData.sunEvents.sunsetTime;
     // Also get tomorrow's sunrise for night mode
     const tomorrowData = dailyData?.forecastDays?.[1];
-    if (tomorrowData?.sunriseTime) sunTimes.tomorrow_sunrise = tomorrowData.sunriseTime;
+    if (tomorrowData?.sunEvents?.sunriseTime) sunTimes.tomorrow_sunrise = tomorrowData.sunEvents.sunriseTime;
 
     // Get timezone from the first hour's UTC offset
     const utcOffsetSeconds = parseInt(weatherData.forecastHours[0].displayDateTime?.utcOffset?.replace('s', '') || '0');
