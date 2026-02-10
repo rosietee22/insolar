@@ -395,6 +395,10 @@ async function loadBirdsInBackground(forecast) {
       // Show bird toggle and pre-render bird view
       showBirdToggle();
       renderBirdView(birdData, activity);
+
+      // Restore saved view (e.g. if user refreshed while on birds)
+      const savedView = getCurrentView();
+      if (savedView === 'birds') setView('birds');
     }
   } catch (error) {
     console.error('Background bird load failed:', error);

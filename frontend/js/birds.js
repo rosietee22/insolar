@@ -8,7 +8,8 @@ import { getBirdData } from './api.js';
 const BIRD_CACHE_KEY = 'bird_data';
 const BIRD_CACHE_MAX_AGE = 3 * 60 * 60 * 1000; // 3 hours
 
-let currentView = 'weather';
+const VIEW_KEY = 'sunbird_view';
+let currentView = localStorage.getItem(VIEW_KEY) || 'weather';
 let featureAvailable = null; // null = unknown, true/false after first check
 
 /**
@@ -24,6 +25,7 @@ export function getCurrentView() {
  */
 export function toggleView() {
   currentView = currentView === 'weather' ? 'birds' : 'weather';
+  localStorage.setItem(VIEW_KEY, currentView);
   return currentView;
 }
 
