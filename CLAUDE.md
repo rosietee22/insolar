@@ -77,9 +77,9 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 |-----------|-------------------|----------------------------|
 | Clear Day | `radial-gradient(circle at 35% 28%, rgba(255,236,200,0.55), transparent 60%)` — warm directional sun | none |
 | Partly Cloudy | default (from glow) | `radial-gradient(circle at 40% 30%, rgba(255,255,255,0.15), transparent 60%)` — mist veil |
-| Partly Cloudy Night | none | `radial-gradient(circle at 40% 30%, rgba(200,200,220,0.06), transparent 60%)` — faint cloud veil |
-| Clear Night | none | none |
-| Rain | none | none |
+| Partly Cloudy Night | `radial-gradient(circle at 35% 30%, rgba(200,200,220,0.10), transparent 55%)` — faint atmospheric depth | `radial-gradient(circle at 40% 30%, rgba(200,200,220,0.06), transparent 60%)` — faint cloud veil |
+| Clear Night | `radial-gradient(circle at 40% 30%, rgba(232,230,240,0.12), transparent 55%)` — subtle halo depth | none |
+| Rain | `radial-gradient(circle at 30% 35%, rgba(240,237,234,0.14), transparent 55%)` — subtle pearl warmth | none |
 | All others | default `radial-gradient(circle, <glow> 0%, transparent 70%)` | none |
 
 ## CSS Variables

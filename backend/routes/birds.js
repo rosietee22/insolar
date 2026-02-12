@@ -14,9 +14,10 @@ if (provider.isAvailable()) {
 }
 
 /**
- * GET /api/birds?lat=X&lon=Y&temp_c=X&rain=X&wind=X&cloud=X
+ * GET /api/birds?lat=X&lon=Y&hour=H&temp_c=X&rain=X&wind=X&cloud=X
  *
  * Fetch bird observations and activity for given coordinates.
+ * hour = location hour (0-23), used for time-of-day relevance scoring.
  * Weather params are optional (used for activity model).
  */
 router.get('/', authMiddleware, async (req, res, next) => {
@@ -57,31 +58,36 @@ router.get('/', authMiddleware, async (req, res, next) => {
     const roundedLat = Math.round(latNum * 1000) / 1000;
     const roundedLon = Math.round(lonNum * 1000) / 1000;
 
-    // Check cache (6-hour TTL for bird data)
-    const cacheKey = `birds:${cache.makeKey(roundedLat, roundedLon)}`;
-    let birdData = cache.get(cacheKey);
+    const locationHour = req.query.hour !== undefined
+      ? Math.max(0, Math.min(23, parseInt(req.query.hour, 10) || 0))
+      : null;
 
-    if (birdData) {
-      // Recalculate activity with fresh weather params
-      const activity = calculateActivityCurve({
-        temp_c: parseFloat(req.query.temp_c) || 10,
-        rain_probability: parseFloat(req.query.rain) || 0,
-        wind_speed_ms: parseFloat(req.query.wind) || 0,
-        cloud_percent: parseFloat(req.query.cloud) || 50,
-      });
+    // Check cache for raw observations (6-hour TTL)
+    const cacheKey = `birds-raw:${cache.makeKey(roundedLat, roundedLon)}`;
+    let cached = cache.get(cacheKey);
 
-      return res.json({
-        ...birdData,
-        activity,
-        cached: true,
-      });
+    if (!cached) {
+      // Fetch from eBird: start tight (3km, 5 days), widen if sparse
+      console.log(`Fetching bird data for ${roundedLat},${roundedLon}...`);
+      let rawObs = await provider.getRecentObservations(roundedLat, roundedLon, { dist: 3 });
+      let observations = provider.transformObservations(rawObs);
+      let radius = 3;
+
+      const uniqueCount = new Set(observations.map(s => s.species_code)).size;
+      if (uniqueCount < 5) {
+        console.log(`Only ${uniqueCount} species at 3km, widening to 10km...`);
+        rawObs = await provider.getRecentObservations(roundedLat, roundedLon, { dist: 10 });
+        observations = provider.transformObservations(rawObs);
+        radius = 10;
+      }
+
+      cached = { observations, radius };
+      cache.set(cacheKey, cached, 21600); // 6 hours
     }
 
-    // Cache miss: fetch from eBird
-    console.log(`Fetching bird data for ${roundedLat},${roundedLon}...`);
-    const rawObs = await provider.getRecentObservations(roundedLat, roundedLon);
-    const allSpecies = provider.transformObservations(rawObs);
-    const notableSpecies = provider.selectNotableSpecies(allSpecies);
+    // Score and sort by time-of-day relevance (dynamic, not cached)
+    const scored = provider.deduplicateAndScore(cached.observations, locationHour);
+    const notableSpecies = provider.selectNotableSpecies(scored);
 
     const activity = calculateActivityCurve({
       temp_c: parseFloat(req.query.temp_c) || 10,
@@ -90,24 +96,15 @@ router.get('/', authMiddleware, async (req, res, next) => {
       cloud_percent: parseFloat(req.query.cloud) || 50,
     });
 
-    const uniqueCount = new Set(allSpecies.map(s => s.species_code)).size;
-
-    birdData = {
+    res.json({
       generated_at: new Date().toISOString(),
       location: { lat: roundedLat, lon: roundedLon },
       notable_species: notableSpecies,
-      all_species: allSpecies,
-      total_species_count: uniqueCount,
-      observation_radius_km: 5,
-    };
-
-    // Cache for 6 hours (21600 seconds)
-    cache.set(cacheKey, birdData, 21600);
-
-    res.json({
-      ...birdData,
+      all_species: scored,
+      total_species_count: scored.length,
+      observation_radius_km: cached.radius,
       activity,
-      cached: false,
+      cached: !!cache.get(cacheKey),
     });
 
   } catch (error) {

@@ -643,6 +643,15 @@ body::after {
   color: var(--accent-color);
 }
 
+/* Pearl accent on dark backgrounds (design rule: accent on light, pearl on dark) */
+[data-theme="overcast"] .bird-notable-name,
+[data-theme="rain"] .bird-notable-name,
+[data-theme="storm"] .bird-notable-name,
+[data-theme="partlyCloudyNight"] .bird-notable-name,
+[data-theme="clearNight"] .bird-notable-name {
+  color: var(--text-primary);
+}
+
 .bird-notable-sci {
   font-size: var(--text-xs);
   font-weight: 400;
@@ -786,21 +795,22 @@ body::after {
 
 .bird-species-name {
   flex: 1;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .bird-species-count {
   width: 30px;
   text-align: right;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-family: var(--font-data);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
+  font-weight: 500;
 }
 
 .bird-species-time {
   width: 50px;
   text-align: right;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-family: var(--font-data);
   font-size: var(--text-xs);
 }

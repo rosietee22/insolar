@@ -852,23 +852,15 @@ export function renderBirdView(birdData, activity) {
     if (!birdData.all_species || birdData.all_species.length === 0) {
       listEl.innerHTML = '';
     } else {
-      const seen = new Map();
-      for (const s of birdData.all_species) {
-        if (!seen.has(s.species_code) && !notableCodes.has(s.species_code)) {
-          seen.set(s.species_code, s);
-        }
-      }
-      const unique = Array.from(seen.values());
-      unique.sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
-
-      // Only show sightings from the last 12 hours
-      const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
-      const recent = unique.filter(s => new Date(s.observed_at) >= twelveHoursAgo);
-      const display = recent.length > 0 ? recent : unique.slice(0, 5);
+      // Backend returns species already scored by time-of-day relevance
+      const display = birdData.all_species.filter(
+        s => !notableCodes.has(s.species_code)
+      );
 
       if (display.length === 0) {
         listEl.innerHTML = '';
       } else {
+        const radius = birdData.observation_radius_km || 5;
         const rows = display.map(s => {
           const time = toLocationTime(new Date(s.observed_at));
           const h = time.getHours();
@@ -884,7 +876,7 @@ export function renderBirdView(birdData, activity) {
         }).join('');
 
         listEl.innerHTML = `
-          <div class="bird-species-header">Other sightings (${birdData.observation_radius_km || 5}km)</div>
+          <div class="bird-species-header">Other sightings (${radius}km)</div>
           ${rows}
         `;
       }

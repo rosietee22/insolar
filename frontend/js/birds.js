@@ -57,7 +57,8 @@ export async function loadBirdData(lat, lon, currentWeather = {}, locationTime =
   }
 
   try {
-    const data = await getBirdData(lat, lon, currentWeather);
+    const locationHour = locationTime?.hour ?? null;
+    const data = await getBirdData(lat, lon, currentWeather, locationHour);
     cacheBirdData(data);
     featureAvailable = true;
     return data;
