@@ -59,6 +59,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
+  overflow-x: hidden;
 }
 
 /* Atmospheric veil overlay (mist, haze — per-theme) */
@@ -78,7 +79,7 @@ body::after {
   inset: 0;
   opacity: 0.038;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 1;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
@@ -93,6 +94,7 @@ body::after {
   position: relative;
   z-index: 1;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .content {
@@ -1007,7 +1009,7 @@ body::after {
   letter-spacing: 0.04em;
   color: var(--text-secondary);
   background: linear-gradient(180deg, transparent 0%, var(--gradient-to) 40%);
-  z-index: 10000;
+  z-index: 100;
 }
 
 .freshness-dot {
@@ -1335,5 +1337,64 @@ body::after {
     padding: 5px 8px;
     gap: 4px;
     font-size: 9px;
+  }
+}
+
+/* ==================== DESKTOP ==================== */
+@media (min-width: 520px) {
+
+  /* Flat background behind the card — darkened so card edges are visible */
+  body {
+    background: color-mix(in srgb, var(--gradient-to) 70%, #000);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Phone-shaped card */
+  #app {
+    width: 420px;
+    height: 860px !important;
+    max-height: calc(100vh - 48px) !important;
+    min-height: 0px !important;
+    margin: 0;
+    padding-bottom: 36px !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    background: linear-gradient(180deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 8px 40px rgba(0, 0, 0, 0.10);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Content scrolls inside the card */
+  .content {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Footer pinned to bottom of card (mirrors mobile fixed-to-viewport) */
+  .freshness {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    border-radius: 0 0 20px 20px;
+  }
+
+  /* Scope veil and grain to the card */
+  body::before,
+  body::after {
+    position: fixed;
+    width: 420px;
+    max-height: 860px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
   }
 }
