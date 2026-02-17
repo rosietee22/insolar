@@ -65,8 +65,8 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 | Partly Cloudy | `#F3F4F1` | `#DDD9CF` | ink | `rgba(43,46,58,0.55)` | diffused | sunlight |
 | Partly Cloudy Night | `#363A52` | `#2A2D44` | `#DAD8E0` | `rgba(218,216,224,0.50)` | diffused | night |
 | Clear Night | `#2E3148` | `#222538` | `#DAD8E0` | `rgba(218,216,224,0.45)` | halo | night |
-| Overcast | `#918F8C` | `#5A5860` | pearl | `rgba(240,237,234,0.48)` | fog | overcast |
-| Rain | `#74767E` | `#5E6068` | pearl | `rgba(240,237,234,0.45)` | fog | rain |
+| Overcast | `#DDDBD6` | `#B8B5AF` | ink | `rgba(43,46,58,0.48)` | fog | overcast |
+| Rain | `#74767E` | `#787880` | pearl | `rgba(240,237,234,0.45)` | fog | rain |
 | Storm | `#A99890` | `#6A5E6E` | pearl | `rgba(240,237,234,0.48)` | ember | rain |
 | Snow | `#F6F8FA` | `#DCD9D4` | ink | `rgba(43,46,58,0.42)` | sunlight | sunlight |
 | Fog | `#C8C5C0` | pearl | ink | `rgba(43,46,58,0.40)` | fog | sunlight |

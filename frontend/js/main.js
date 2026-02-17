@@ -20,7 +20,6 @@ import {
   hideOfflineWarning,
   renderApp,
   updateFreshness,
-  initLastUpdated,
   renderBirdStrip,
   showBirdToggle,
   renderBirdView,
@@ -532,7 +531,6 @@ function handleOffline() {
 function cacheForecast(forecast) {
   try {
     localStorage.setItem(FORECAST_CACHE_KEY, JSON.stringify(forecast));
-    localStorage.setItem('last_updated', forecast.generated_at);
   } catch (error) {
     console.error('Cache storage error:', error);
   }

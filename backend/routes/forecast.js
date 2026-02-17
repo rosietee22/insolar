@@ -91,8 +91,8 @@ router.get('/', authMiddleware, async (req, res, next) => {
       });
     }
 
-    // Cache for 30 minutes
-    cache.set(cacheKey, forecast, 1800);
+    // Cache for 5 minutes (current conditions update every 15–30 min upstream)
+    cache.set(cacheKey, forecast, 300);
 
     // Return forecast
     res.json({

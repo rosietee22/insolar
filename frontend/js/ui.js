@@ -427,15 +427,23 @@ export function renderApp(data) {
   });
   document.getElementById('hero-temp').textContent = `${Math.round(current.temp_c)}°`;
 
-  // Hero meta (rain / wind on same line, centered)
+  // Hero meta: condition · wind description + direction · UV
   const heroMeta = document.getElementById('hero-meta');
   if (heroMeta) {
     const parts = [];
-    if (current.rain_probability > 0) {
-      parts.push(`${current.rain_probability}% chance of rain`);
+    // Condition type (e.g. PARTLY_CLOUDY → "Partly cloudy")
+    if (current.condition_type) {
+      parts.push(current.condition_type.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase()));
     }
-    parts.push(getWindDescription(current.wind_speed_ms));
-    heroMeta.textContent = parts.join(' / ');
+    // Wind description + cardinal direction
+    const cardinals = ['N','NE','E','SE','S','SW','W','NW'];
+    const dir = cardinals[Math.round(current.wind_direction_deg / 45) % 8];
+    parts.push(`${getWindDescription(current.wind_speed_ms)} ${dir}`);
+    // UV
+    if (current.uv_index > 0) {
+      parts.push(`UV ${current.uv_index}`);
+    }
+    heroMeta.textContent = parts.join(' · ');
   }
 
   // Render Light Window
@@ -581,14 +589,25 @@ export function renderApp(data) {
   const forecastDaysEl = document.getElementById('forecast-days');
   if (forecastDaysEl) {
     const days = data.daily && data.daily.length > 0 ? data.daily : getMultiDayForecast(hourly, 3);
-    forecastDaysEl.innerHTML = days.map(day => `
-      <div class="forecast-day">
-        <span class="forecast-day-name">${day.name}</span>
-        <img src="/icons/weather/${getForecastIcon(day.condition)}.svg" class="forecast-day-icon" alt="">
-        <span class="forecast-day-condition">${day.condition}</span>
-        <span class="forecast-day-temps"><span class="low">${day.low}°</span> / ${day.high}°</span>
-      </div>
-    `).join('');
+    forecastDaysEl.innerHTML = days.map(day => {
+      // Best window logic
+      let bestWindow;
+      if (day.maxRain > 60) bestWindow = 'Rain likely — stay in';
+      else if (day.maxRain < 30 && day.avgCloud < 50) bestWindow = 'Best: afternoon';
+      else if (day.maxRain < 30 && day.avgCloud < 80) bestWindow = 'Best: morning';
+      else bestWindow = 'Dry spells possible';
+
+      return `
+        <div class="forecast-day">
+          <div class="forecast-day-main">
+            <span class="forecast-day-name">${day.name}</span>
+            <img src="/icons/weather/${getForecastIcon(day.condition)}.svg" class="forecast-day-icon" alt="">
+            <span class="forecast-day-temps"><span class="low">${day.low}°</span> / ${day.high}°</span>
+          </div>
+          <div class="forecast-day-detail">${day.condition} · ${bestWindow}</div>
+        </div>
+      `;
+    }).join('');
   }
 
   // Update freshness indicator
@@ -621,8 +640,6 @@ export function updateFreshness(timestamp) {
     freshnessEl.classList.add('stale');
   }
 
-  // Store for refresh
-  localStorage.setItem('last_updated', timestamp);
 }
 
 /**
@@ -969,12 +986,3 @@ export function setView(view) {
   }
 }
 
-/**
- * Initialize freshness from cache
- */
-export function initLastUpdated() {
-  const cached = localStorage.getItem('last_updated');
-  if (cached) {
-    updateFreshness(cached);
-  }
-}

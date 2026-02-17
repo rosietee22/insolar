@@ -10,9 +10,9 @@ A GPS-based weather Progressive Web App with a museum-poster aesthetic focused o
 - **Bird Activity** — eBird-powered bird sighting data with weather-based activity predictions
 - GPS-based location with neighbourhood-level accuracy
 - Large typographic temperature display (128px hero)
-- 3-day forecast with daily highs/lows
+- 3-day forecast with daily highs/lows and "best window" outdoor guidance
 - Museum-poster colour system with 7-pigment palette (sky, ice, dusk, stone, clay, pearl, ink) and chalk cobalt accent
-- Weather-adaptive gradients across 8 themes (clear day, partly cloudy, clear night, overcast, rain, storm, snow, fog)
+- Weather-adaptive gradients across 9 themes (clear day, partly cloudy, partly cloudy night, clear night, overcast, rain, storm, snow, fog)
 - Editorial weather headlines ("Patches of sun.", "Grab an umbrella.")
 - Offline support with service worker caching
 - Installable as a PWA
@@ -32,7 +32,7 @@ A GPS-based weather Progressive Web App with a museum-poster aesthetic focused o
 - Google Weather API (WeatherNext AI)
 - eBird API v2 (Cornell Lab of Ornithology)
 - OpenStreetMap Nominatim for reverse geocoding
-- In-memory caching (30 min forecast, 6 hr bird data)
+- In-memory caching (5 min forecast, 6 hr bird data)
 - Bearer token authentication
 
 ## Project Structure

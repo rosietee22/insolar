@@ -191,9 +191,9 @@ body::after {
   content: '';
   position: absolute;
   top: -100px;
-  left: -80px;
-  right: -80px;
-  bottom: -100px;
+  left: -100px;
+  right: -100px;
+  bottom: -60vh;
   background: var(--hero-bloom);
   pointer-events: none;
   z-index: 0;
@@ -527,9 +527,9 @@ body::after {
   content: '';
   position: absolute;
   top: -100px;
-  left: -80px;
-  right: -80px;
-  bottom: -100px;
+  left: -100px;
+  right: -100px;
+  bottom: -60vh;
   background: var(--hero-bloom);
   pointer-events: none;
   z-index: 0;
@@ -938,15 +938,27 @@ body::after {
 }
 
 .forecast-day {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   padding: 12px 0;
   border-top: 1px solid var(--glass-border);
 }
 
 .forecast-day:first-child {
   border-top: none;
+}
+
+.forecast-day-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.forecast-day-detail {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-top: 4px;
 }
 
 .forecast-day-name {
@@ -960,16 +972,9 @@ body::after {
 .forecast-day-icon {
   width: 24px;
   height: 24px;
+  flex-shrink: 0;
+  margin-left: auto;
   filter: var(--icon-filter, none);
-}
-
-.forecast-day-condition {
-  flex: 1;
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
 }
 
 .forecast-day-temps {
