@@ -1129,6 +1129,8 @@ body::after {
 .modal-content .btn {
   width: 100%;
   margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--glass-border);
 }
 
 .modal-content .btn:last-child {
