@@ -102,9 +102,9 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
   --light-strip-mid: #F5E8B0;
   --accent-color: #2F5EEA;
   --accent-filter: brightness(0) saturate(100%) invert(32%) sepia(60%) saturate(1800%) hue-rotate(215deg) brightness(92%) contrast(90%);
-  --bird-dormant: #2A2D52;
-  --bird-active: #A8B4FF;
-  --bird-glow: rgba(168,180,255,0.50);
+  --bird-dormant: #D0CCC4;
+  --bird-active: #C4A860;
+  --bird-glow: rgba(196,168,96,0.40);
   --glass-bg: rgba(0, 0, 0, 0.05);
   --glass-border: rgba(0, 0, 0, 0.08);
   --space-1: 8px;
@@ -141,8 +141,10 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 | Hourly times | `--font-body` | 10px | 500 | Uppercase |
 | Hourly rain % | `--font-data` | 10px | 600 | Rain colour |
 | Forecast day name | `--font-body` | `--text-sm` | 600 | — |
-| Forecast condition | `--font-body` | 10px | 500 | Uppercase |
-| Forecast temps | `--font-data` | `--text-base` | 700 | — |
+| Forecast condition | `--font-body` | 10px | 500 | Uppercase, in flat row |
+| Forecast temps | `--font-data` | `--text-sm` | 700 | — |
+| Bird species name | `--font-body` | 13px | 400 | Register style, not feature style |
+| Bird notable name | `--font-body` | 15px | 600 | Accent colour |
 | Light/bird times | `--font-data` | 11px | 400 | — |
 | Freshness footer | `--font-body` | 10px | 500 | Uppercase |
 | Moment time | `--font-data` | 10px | 600 | Uppercase |
@@ -175,9 +177,12 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 - Bird hero: same left-alignment as weather hero
 - Hero bloom: directional `--hero-bloom` gradient behind temp (warm for Clear Day, diffused for others)
 - Atmospheric veil: `--veil` overlay on `body::before` (mist for Partly Cloudy, none for others)
-- Forecast days: `border-top: 1px solid var(--glass-border)` dividers, no gap
+- Forecast days: single flat row per day (name, condition label, icon, temps). No editorial advice line. `border-top` dividers, no gap
 - Moments: existing border-top dividers are correct
-- Bird species list: existing border treatment is correct
+- Bird species list: 13px/400wt register style, not feature style. Border dividers
+- Bird meta: two items only — activity level · species count
+- Bird strip labels: formatted times (`h:mm am/pm`), no "dawn"/"dusk" prefix
+- Bird strip colours: theme-harmonised warm/mineral tones via `--bird-dormant`/`--bird-active`/`--bird-glow`, not hardcoded blue-purple
 
 ## Architecture
 

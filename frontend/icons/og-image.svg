@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDF9F0"/>
+      <stop offset="100%" stop-color="#EDE6D6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <text x="600" y="280" text-anchor="middle" font-family="DM Sans, system-ui, sans-serif" font-size="72" font-weight="600" fill="#2B2E3A" letter-spacing="-0.02em">Sunbird</text>
+  <g transform="translate(548, 320) scale(4.3)" fill="#2F5EEA">
+    <path d="M1 14 C5 7, 11 5, 15 9 C17 6, 21 5, 23 6.5 C21 8, 18 10, 15 12.5 C11 11, 6 12, 1 14Z"/>
+  </g>
+  <text x="600" y="520" text-anchor="middle" font-family="DM Sans, system-ui, sans-serif" font-size="20" font-weight="500" fill="#2B2E3A" opacity="0.42" letter-spacing="0.08em" text-transform="uppercase">WEATHER &amp; BIRD ACTIVITY</text>
+</svg>

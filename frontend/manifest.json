@@ -4,7 +4,7 @@
   "description": "GPS-based weather forecast for the next 24 hours",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
+  "background_color": "#FDF9F0",
   "theme_color": "#FEFCF0",
   "orientation": "portrait",
   "icons": [

@@ -427,7 +427,7 @@ export function renderApp(data) {
   });
   document.getElementById('hero-temp').textContent = `${Math.round(current.temp_c)}°`;
 
-  // Hero meta: condition · wind description + direction · UV
+  // Hero meta: condition · wind description · UV
   const heroMeta = document.getElementById('hero-meta');
   if (heroMeta) {
     const parts = [];
@@ -435,10 +435,8 @@ export function renderApp(data) {
     if (current.condition_type) {
       parts.push(current.condition_type.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase()));
     }
-    // Wind description + cardinal direction
-    const cardinals = ['N','NE','E','SE','S','SW','W','NW'];
-    const dir = cardinals[Math.round(current.wind_direction_deg / 45) % 8];
-    parts.push(`${getWindDescription(current.wind_speed_ms)} ${dir}`);
+    // Wind description (no compass direction)
+    parts.push(getWindDescription(current.wind_speed_ms));
     // UV
     if (current.uv_index > 0) {
       parts.push(`UV ${current.uv_index}`);
@@ -585,29 +583,18 @@ export function renderApp(data) {
     }
   }
 
-  // Render 3-Day Forecast (use API daily data if available, fallback to hourly calculation)
+  // Render 3-Day Forecast
   const forecastDaysEl = document.getElementById('forecast-days');
   if (forecastDaysEl) {
     const days = data.daily && data.daily.length > 0 ? data.daily : getMultiDayForecast(hourly, 3);
-    forecastDaysEl.innerHTML = days.map(day => {
-      // Best window logic
-      let bestWindow;
-      if (day.maxRain > 60) bestWindow = 'Rain likely — stay in';
-      else if (day.maxRain < 30 && day.avgCloud < 50) bestWindow = 'Best: afternoon';
-      else if (day.maxRain < 30 && day.avgCloud < 80) bestWindow = 'Best: morning';
-      else bestWindow = 'Dry spells possible';
-
-      return `
-        <div class="forecast-day">
-          <div class="forecast-day-main">
-            <span class="forecast-day-name">${day.name}</span>
-            <img src="/icons/weather/${getForecastIcon(day.condition)}.svg" class="forecast-day-icon" alt="">
-            <span class="forecast-day-temps"><span class="low">${day.low}°</span> / ${day.high}°</span>
-          </div>
-          <div class="forecast-day-detail">${day.condition} · ${bestWindow}</div>
-        </div>
-      `;
-    }).join('');
+    forecastDaysEl.innerHTML = days.map(day => `
+      <div class="forecast-day">
+        <span class="forecast-day-name">${day.name}</span>
+        <span class="forecast-day-condition">${day.condition}</span>
+        <img src="/icons/weather/${getForecastIcon(day.condition)}.svg" class="forecast-day-icon" alt="">
+        <span class="forecast-day-temps"><span class="low">${day.low}°</span> / ${day.high}°</span>
+      </div>
+    `).join('');
   }
 
   // Update freshness indicator
@@ -707,17 +694,17 @@ export function renderBirdStrip(activity) {
     dot.classList.add('activity-low');
   }
 
-  // Labels
+  // Labels — formatted times matching light window style
   if (labelLeft) {
-    labelLeft.textContent = `dawn ${formatHourLabel(activity.dawn_peak.hour)}`;
+    labelLeft.textContent = formatHourTime(activity.dawn_peak.hour);
   }
   if (labelRight) {
-    labelRight.textContent = `dusk ${formatHourLabel(activity.dusk_peak.hour)}`;
+    labelRight.textContent = formatHourTime(activity.dusk_peak.hour);
   }
   if (legend) {
     legend.textContent = activity.current.level.toUpperCase();
     if (activity.current.level === 'high') {
-      legend.style.color = 'var(--bird-active, #A8B4FF)';
+      legend.style.color = 'var(--bird-active, #C4A860)';
     } else {
       legend.style.color = 'var(--text-secondary)';
     }
@@ -731,6 +718,15 @@ function formatHourLabel(hour) {
   if (hour === 0) return '12am';
   if (hour === 12) return '12pm';
   return hour > 12 ? `${hour - 12}pm` : `${hour}am`;
+}
+
+/**
+ * Format integer hour as time string (e.g. 6 → "6:00 am", 17 → "5:00 pm")
+ */
+function formatHourTime(hour) {
+  const ampm = hour >= 12 ? 'pm' : 'am';
+  const h = hour % 12 || 12;
+  return `${h}:00 ${ampm}`;
 }
 
 /**
@@ -787,10 +783,7 @@ function generateBirdMeta(activity, speciesCount) {
   if (speciesCount > 0) {
     parts.push(`${speciesCount} species nearby`);
   }
-  if (activity?.dawn_peak && activity?.dusk_peak) {
-    parts.push(`peaks ${formatHourLabel(activity.dawn_peak.hour)} / ${formatHourLabel(activity.dusk_peak.hour)}`);
-  }
-  return parts.join(' / ');
+  return parts.join(' · ');
 }
 
 /**

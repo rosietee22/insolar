@@ -43,10 +43,10 @@ const STRIP = {
 
 // Bird strip: activity visualization colours per lighting condition
 const BIRD = {
-  day:      { dormant: '#2A2D52', active: '#A8B4FF', glow: 'rgba(168,180,255,0.50)' },   // Contrast on light bg
-  night:    { dormant: '#1A1D38', active: '#BFD9F6', glow: 'rgba(191,217,246,0.50)' },   // Vivid on dark bg
-  overcast: { dormant: '#2A2D3A', active: '#A0B4E0', glow: 'rgba(160,180,224,0.45)' },   // Lifted, readable on grey
-  warm:     { dormant: '#3A2D28', active: '#C8A890', glow: 'rgba(200,168,144,0.40)' },   // Earthy for storm
+  day:      { dormant: '#D0CCC4', active: '#C4A860', glow: 'rgba(196,168,96,0.40)' },    // Warm stone → gold on light bg
+  night:    { dormant: '#2E2D38', active: '#7A7468', glow: 'rgba(122,116,104,0.35)' },    // Muted warm on dark bg
+  overcast: { dormant: '#8A8680', active: '#B0A488', glow: 'rgba(176,164,136,0.35)' },    // Grey stone → warm on mid bg
+  warm:     { dormant: '#4A3E38', active: '#C8A078', glow: 'rgba(200,160,120,0.40)' },    // Earthy for storm
 };
 
 export const WEATHER_THEMES = {
