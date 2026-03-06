@@ -1135,6 +1135,12 @@ body::after {
   border: 1px solid var(--glass-border);
 }
 
+.modal-content .btn-primary {
+  background: var(--text-primary);
+  color: var(--gradient-from);
+  border-color: transparent;
+}
+
 .modal-content .btn:last-child {
   margin-bottom: 0;
 }
