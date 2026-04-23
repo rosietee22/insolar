@@ -199,118 +199,66 @@ export function applyTheme(theme) {
  * Generate hero sentence based on conditions
  */
 export function generateHeroSentence(current, hourly, { locationHour, locationMonth, isSouthern } = {}) {
-  const { rain_probability, cloud_percent, temp_c, wind_speed_ms, is_day, condition_type } = current;
-
-  const next2Hours = hourly.slice(1, 3);
-  const rainComing = next2Hours.some(h => h.rain_probability > 50) && rain_probability < 30;
-  const rainStopping = rain_probability > 50 &&
-    hourly.slice(2, 4).every(h => h.rain_probability < 30);
-
-  const futureHours = hourly.slice(1, 7);
-  const avgFutureTemp = futureHours.reduce((sum, h) => sum + h.temp_c, 0) / futureHours.length;
-  const cooling = avgFutureTemp < temp_c - 3;
-  const warming = avgFutureTemp > temp_c + 3;
+  const { rain_probability, cloud_percent, wind_speed_ms, condition_type } = current;
 
   const hour = locationHour ?? new Date().getHours();
-  const isEvening = hour >= 17 || hour < 5;
-  const isMorning = hour >= 5 && hour < 12;
-  const isAfternoon = hour >= 12 && hour < 17;
   const month = locationMonth ?? new Date().getMonth();
-  const isSummer = isSouthern ? (month >= 11 || month <= 1) : (month >= 5 && month <= 7);
-  const isWinter = isSouthern ? (month >= 5 && month <= 7) : (month >= 11 || month <= 1);
 
-  // Specific API conditions first
-  if (condition_type === 'THUNDERSTORM') return 'Thunder in the air.';
-  if (condition_type === 'HAIL') return 'Hail expected. Stay indoors.';
-  if (condition_type === 'FOG') {
-    if (isMorning) return 'Foggy start. Should lift.';
-    return 'Visibility down in fog.';
-  }
-  if (condition_type === 'LIGHT_FOG') {
-    if (isMorning) return 'Mist clinging on this morning.';
-    return 'Light mist in the air.';
-  }
-  if (condition_type === 'SNOW' || condition_type === 'SNOW_SHOWERS') {
-    if (isMorning) return 'Snow falling this morning.';
-    return 'Snow on the ground.';
-  }
-  if (condition_type === 'DRIZZLE') return 'Fine drizzle. Not much else.';
+  const isMorning   = hour >= 6  && hour <= 11;
+  const isMidday    = hour >= 12 && hour <= 13;
+  const isAfternoon = hour >= 14 && hour <= 17;
+  const isDusk      = hour >= 18 && hour <= 20;
+  const isNight     = hour >= 21 || hour <= 5;
 
-  // Rain scenarios
-  if (rain_probability > 70) {
-    if (isMorning) return 'Wet start to the day.';
-    if (isAfternoon) return 'Rain set in for the afternoon.';
-    if (isEvening) return 'A rainy evening ahead.';
-    return 'Grab an umbrella.';
-  }
-  if (rainComing) {
-    if (isMorning) return 'Dry window closing. Rain by lunch.';
-    return 'Dry for now, rain on the way.';
-  }
-  if (rainStopping) {
-    if (isMorning) return 'Rain clearing through the morning.';
-    return 'Rain easing off soon.';
-  }
-  if (rain_probability > 40) return 'Keep an eye on the sky.';
+  const isSpring = isSouthern
+    ? (month >= 8 && month <= 10)
+    : (month >= 2 && month <= 4);
 
-  // Wind
-  if (wind_speed_ms > 12) {
-    if (temp_c < 5) return 'Raw and windy out there.';
-    if (temp_c < 10) return 'Biting wind out there.';
-    return 'Blustery conditions.';
-  }
-  if (wind_speed_ms > 8) {
-    if (temp_c < 8) return 'A cold breeze with some bite.';
-    return 'Hold onto your hat.';
-  }
+  const isStorm     = condition_type === 'THUNDERSTORM';
+  const isHighWind  = wind_speed_ms > 10;
+  const isHeavyRain = rain_probability > 60;
+  const isLightRain = rain_probability >= 30 && rain_probability <= 60;
+  const isSnow      = condition_type === 'SNOW' || condition_type === 'SNOW_SHOWERS';
+  const isFog       = condition_type === 'FOG' || condition_type === 'LIGHT_FOG';
+  const isClear     = cloud_percent < 50;
+  const isCloudy    = cloud_percent >= 50;
 
-  // Snow heuristic
-  if (temp_c < 2 && rain_probability > 30) {
-    if (isMorning) return 'Cold enough for snow.';
-    return 'Sleet or snow possible.';
-  }
+  const pickFallback = hour % 2 === 1;
 
-  // Overcast
-  if (cloud_percent > 80 && warming) return 'Grey skies, warming later.';
-  if (cloud_percent > 80 && temp_c < 5) {
-    if (isMorning) return 'Bitter start under heavy cloud.';
-    return 'Cold and grey. Not shifting.';
+  if (isStorm || isHighWind) return 'Windy and rough. Little flying today.';
+  if (isHeavyRain)           return 'Heavy rain. Little to see until it passes.';
+  if (isSnow)                return 'Snowy. Feeders busy if you keep them.';
+  if (isFog)                 return 'Foggy. Sound carries further than usual.';
+
+  if (isLightRain) return 'Light rain. Quieter than usual.';
+
+  if (isClear && isMorning && isSpring) return 'Spring morning. Chorus is at its best.';
+
+  if (isMorning) {
+    if (isClear)  return pickFallback ? 'Bright start. Plenty around.'
+                                      : 'Sunny morning. Good time to listen.';
+    if (isCloudy) return pickFallback ? 'Overcast morning. Still plenty around.'
+                                      : 'Mild and grey. Chorus is quieter today.';
   }
-  if (cloud_percent > 80 && temp_c < 10) {
-    if (isMorning) return 'Cold morning under thick cloud.';
-    return 'Low cloud hanging around.';
+  if (isMidday) {
+    if (isClear)  return 'Sun is high. Activity drops at midday.';
+    if (isCloudy) return 'Cloudy and still. Quieter hour.';
   }
-  if (cloud_percent > 70) {
-    if (rain_probability < 20) return 'Dry, but dull.';
-    return 'Overcast and grey.';
+  if (isAfternoon) {
+    if (isClear)  return pickFallback ? 'Bright afternoon. Activity picking up.'
+                                      : 'Clear afternoon. Watch the hedges.';
+    if (isCloudy) return 'Grey afternoon. Hedges are the best bet.';
+  }
+  if (isDusk) {
+    if (isClear)  return pickFallback ? 'Evening sun. Watch for flights at roost.'
+                                      : 'Light is fading. Final calls of the day.';
+    if (isCloudy) return 'Dull evening. Listen for the last calls.';
+    return 'Light is fading. Final calls of the day.';
+  }
+  if (isNight) {
+    if (isClear)  return 'Clear night. Listen for owls.';
+    if (isCloudy) return 'Quiet night. Little activity until dawn.';
   }
 
-  // Temperature trends
-  if (cooling && cloud_percent > 40) return 'Clouds building, cooling off.';
-  if (cooling) {
-    if (isEvening) return 'Getting cold tonight.';
-    return 'Turning cooler later.';
-  }
-  if (warming) {
-    if (isMorning && isWinter) return 'Chilly now, milder later.';
-    if (isMorning) return 'Warming up through the morning.';
-    return 'Warming up nicely.';
-  }
-
-  // Partly cloudy
-  if (cloud_percent > 30) {
-    if (is_day) return 'Patches of sun.';
-    return 'Partly cloudy tonight.';
-  }
-
-  // Clear
-  if (is_day) {
-    if (temp_c > 25 && isSummer) return 'Hot and clear.';
-    if (temp_c > 20) return 'Beautiful day ahead.';
-    if (temp_c < 5 && isWinter) return 'Cold but bright.';
-    if (isMorning) return 'Clear skies this morning.';
-    return 'Clear and bright.';
-  }
-  if (temp_c < 2) return 'Clear and frosty tonight.';
-  return 'A clear night.';
+  return 'Quiet for now. Check back later.';
 }

@@ -1,13 +1,13 @@
 # Sunbird
 
-A GPS-based weather Progressive Web App with a museum-poster aesthetic focused on sunlight and UV awareness. Built with vanilla JavaScript and Express, powered by Google Weather API.
+A GPS-based birding companion that reads the weather, light and season to tell you what's about, where, and when. Built with vanilla JavaScript and Express, powered by the eBird API and Google Weather.
 
 **Live:** https://sunbird.today
 
 ## Features
 
-- **Light Window** — Signature daylight strip with warm sunlight gradient, UV index, and sunrise/sunset times
 - **Bird Activity** — eBird-powered bird sighting data with weather-based activity predictions
+- **Light Window** — Signature daylight strip with warm sunlight gradient, UV index, and sunrise/sunset times
 - GPS-based location with neighbourhood-level accuracy
 - Large typographic temperature display (128px hero)
 - 3-day forecast with daily highs/lows and "best window" outdoor guidance
