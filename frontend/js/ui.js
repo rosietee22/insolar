@@ -351,6 +351,9 @@ export function renderApp(data) {
   hide('error');
   show('content');
 
+  // Initialize hero mode data attribute for CSS-based section visibility
+  document.documentElement.dataset.heroMode = _heroMode;
+
   const current = data.current;
   const hourly = data.hourly;
 
@@ -863,7 +866,8 @@ function buildWeatherMeta(current) {
     parts.push(current.condition_type.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase()));
   }
   parts.push(getWindDescription(current.wind_speed_ms));
-  if (current.uv_index > 0) {
+  // Only show UV if it's notable (moderate or higher)
+  if (current.uv_index >= 3) {
     parts.push(`UV ${current.uv_index}`);
   }
   return parts.join(' · ');
@@ -877,9 +881,6 @@ export function renderHero() {
   const numberEl = document.getElementById('hero-number');
   const unitEl = document.getElementById('hero-unit');
   const subtitleEl = document.getElementById('hero-subtitle');
-  const meta1El = document.getElementById('hero-meta-1');
-  const meta2El = document.getElementById('hero-meta-2');
-  const metaSepEl = document.getElementById('hero-meta-sep');
   if (!headlineEl || !numberEl || !unitEl) return;
 
   const current = _storedWeatherData;
@@ -887,19 +888,12 @@ export function renderHero() {
   const activity = _storedActivity;
   const locNow = locationNow();
 
-  const weatherMeta = buildWeatherMeta(current);
-  const speciesCount = birdData
-    ? (birdData.total_species_count || birdData.all_species?.length || 0)
-    : 0;
-  const birdMeta = generateBirdMeta(activity, speciesCount);
-
   if (_heroMode === 'birds' && birdData && activity) {
     headlineEl.textContent = generateBirdHeadline(activity);
+    const speciesCount = birdData.total_species_count || birdData.all_species?.length || 0;
     numberEl.textContent = speciesCount;
     unitEl.innerHTML = '<svg width="36" height="28" viewBox="0 0 24 16" fill="currentColor" aria-hidden="true"><path d="M1 14 C5 7,11 5,15 9 C17 6,21 5,23 6.5 C21 8,18 10,15 12.5 C11 11,6 12,1 14Z"/></svg>';
     if (subtitleEl) subtitleEl.textContent = 'species nearby';
-    if (meta1El) meta1El.textContent = activity.current.level + ' activity';
-    if (meta2El) meta2El.textContent = weatherMeta;
   } else {
     if (current) {
       headlineEl.textContent = generateHeroSentence(current, null, {
@@ -910,8 +904,6 @@ export function renderHero() {
       numberEl.textContent = `${Math.round(current.temp_c)}`;
       unitEl.innerHTML = '<span class="hero-unit-degree">°</span>';
       if (subtitleEl) subtitleEl.textContent = '';
-      if (meta1El) meta1El.textContent = weatherMeta;
-      if (meta2El) meta2El.textContent = birdMeta || '';
     }
   }
 }
@@ -934,6 +926,9 @@ export function setHeroMode(mode) {
     weatherBtn?.classList.add('active');
     birdsBtn?.classList.remove('active');
   }
+
+  // Set data attribute for CSS-based section visibility
+  document.documentElement.dataset.heroMode = mode;
 
   renderHero();
 }
