@@ -863,7 +863,8 @@ function buildWeatherMeta(current) {
   if (!current) return '';
   const parts = [];
   if (current.condition_type) {
-    parts.push(current.condition_type.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase()));
+    const condition = formatCondition(current.condition_type);
+    parts.push(condition);
   }
   parts.push(getWindDescription(current.wind_speed_ms));
   // Only show UV if it's notable (moderate or higher)
@@ -871,6 +872,27 @@ function buildWeatherMeta(current) {
     parts.push(`UV ${current.uv_index}`);
   }
   return parts.join(' · ');
+}
+
+/**
+ * Format condition type to user-friendly text
+ */
+function formatCondition(conditionType) {
+  const conditionMap = {
+    'CLEAR': 'Clear skies',
+    'PARTLY_CLOUDY': 'Partly cloudy',
+    'OVERCAST': 'Overcast',
+    'RAIN': 'Rain',
+    'HEAVY_RAIN': 'Heavy rain',
+    'DRIZZLE': 'Drizzle',
+    'THUNDERSTORM': 'Thunderstorm',
+    'HAIL': 'Hail',
+    'SNOW': 'Snow',
+    'SNOW_SHOWERS': 'Snow showers',
+    'FOG': 'Fog',
+    'LIGHT_FOG': 'Light fog',
+  };
+  return conditionMap[conditionType] || conditionType.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase());
 }
 
 /**
@@ -903,7 +925,7 @@ export function renderHero() {
       });
       numberEl.textContent = `${Math.round(current.temp_c)}`;
       unitEl.innerHTML = '<span class="hero-unit-degree">°</span>';
-      if (subtitleEl) subtitleEl.textContent = 'current temperature';
+      if (subtitleEl) subtitleEl.textContent = '';
     }
   }
 }
