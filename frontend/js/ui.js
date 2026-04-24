@@ -903,7 +903,7 @@ export function renderHero() {
       });
       numberEl.textContent = `${Math.round(current.temp_c)}`;
       unitEl.innerHTML = '<span class="hero-unit-degree">°</span>';
-      if (subtitleEl) subtitleEl.textContent = '';
+      if (subtitleEl) subtitleEl.textContent = 'current temperature';
     }
   }
 }
