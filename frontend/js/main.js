@@ -19,17 +19,15 @@ import {
   showOfflineWarning,
   hideOfflineWarning,
   renderApp,
-  updateFreshness,
-  renderBirdStrip,
-  showBirdToggle,
-  renderBirdView,
-  setView,
+  renderBirdSections,
+  setHeroMode,
+  disableBirdMode,
   setTimezone,
   setLocationLat,
   locationNow
 } from './ui.js';
 import { initColourPicker, setWeatherData, applySavedOverrides } from './colour-picker.js';
-import { loadBirdData, toggleView, getCurrentView, calculateActivityCurve, isBirdFeatureAvailable, clearBirdCache } from './birds.js';
+import { loadBirdData, calculateActivityCurve, isBirdFeatureAvailable } from './birds.js';
 
 // Cache keys
 const FORECAST_CACHE_KEY = 'weather_forecast';
@@ -73,7 +71,6 @@ async function init() {
 
   // Initialize UI event listeners
   document.getElementById('refresh-btn').addEventListener('click', refresh);
-  document.getElementById('bird-refresh-btn')?.addEventListener('click', refreshBirds);
   document.getElementById('update-location-btn').addEventListener('click', showLocationOptions);
   document.getElementById('retry-btn').addEventListener('click', retry);
   
@@ -95,9 +92,9 @@ async function init() {
   document.getElementById('fallback-search-btn')?.addEventListener('click', showCitySearch);
   document.getElementById('fallback-retry-btn')?.addEventListener('click', handleUseMyLocation);
   
-  // View toggle (weather / birds)
-  document.getElementById('view-toggle-weather').addEventListener('click', () => handleViewSwitch('weather'));
-  document.getElementById('view-toggle-birds').addEventListener('click', () => handleViewSwitch('birds'));
+  // Hero toggle (birds / weather)
+  document.getElementById('hero-toggle-birds')?.addEventListener('click', () => setHeroMode('birds'));
+  document.getElementById('hero-toggle-weather')?.addEventListener('click', () => setHeroMode('weather'));
 
   // Initialize colour picker
   initColourPicker();
@@ -383,34 +380,18 @@ async function loadBirdsInBackground(forecast) {
     const birdData = await loadBirdData(location.lat, location.lon, weather, locTime);
 
     if (isBirdFeatureAvailable() === false) {
-      // No API key configured — hide bird UI
+      disableBirdMode();
       return;
     }
 
     if (birdData) {
       currentBirdData = birdData;
       const activity = birdData.activity || calculateActivityCurve(weather, locTime);
-
-      // Show bird toggle and pre-render bird view
-      showBirdToggle();
-      renderBirdView(birdData, activity);
-
-      // Restore saved view (e.g. if user refreshed while on birds)
-      const savedView = getCurrentView();
-      if (savedView === 'birds') setView('birds');
+      renderBirdSections(birdData, activity);
     }
   } catch (error) {
     console.error('Background bird load failed:', error);
   }
-}
-
-/**
- * Handle view switch (weather / birds)
- */
-function handleViewSwitch(view) {
-  if (view === getCurrentView()) return;
-  toggleView();
-  setView(view);
 }
 
 /**
@@ -425,37 +406,6 @@ async function refresh() {
   }
 
   await loadForecast(location);
-}
-
-/**
- * Refresh bird data (clears cache and re-fetches)
- */
-async function refreshBirds() {
-  const location = getCachedLocation();
-  if (!location || !currentWeatherData) return;
-
-  clearBirdCache();
-
-  const weather = {
-    temp_c: currentWeatherData.temp_c,
-    rain_probability: currentWeatherData.rain_probability,
-    wind_speed_ms: currentWeatherData.wind_speed_ms,
-    cloud_percent: currentWeatherData.cloud_percent,
-  };
-
-  const locNow = locationNow();
-  const locTime = { hour: locNow.getHours(), month: locNow.getMonth() };
-
-  try {
-    const birdData = await loadBirdData(location.lat, location.lon, weather, locTime);
-    if (birdData) {
-      currentBirdData = birdData;
-      const activity = birdData.activity || calculateActivityCurve(weather, locTime);
-      renderBirdView(birdData, activity);
-    }
-  } catch (error) {
-    console.error('Bird refresh failed:', error);
-  }
 }
 
 /**

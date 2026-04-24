@@ -81,7 +81,7 @@
     <!-- Main content -->
     <main id="content" class="content hidden">
 
-      <!-- Top: Location -->
+      <!-- Top bar: location only -->
       <div class="hero-top">
         <button id="update-location-btn" class="location-btn" title="Update location">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.35rem; opacity: 0.7;">
@@ -89,111 +89,89 @@
           </svg>
           <span id="location-display">--</span>
         </button>
-        <div id="view-toggle" class="view-toggle hidden" role="tablist">
-          <button id="view-toggle-weather" class="view-toggle-seg active" role="tab" aria-selected="true" data-view="weather">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>
-            <span>Weather</span>
-          </button>
-          <button id="view-toggle-birds" class="view-toggle-seg" role="tab" aria-selected="false" data-view="birds">
+      </div>
+
+      <!-- Hero -->
+      <section class="hero" id="hero">
+        <h1 class="hero-headline" id="hero-headline">--</h1>
+        <div class="hero-number-row">
+          <span class="hero-number" id="hero-number">--</span>
+          <span class="hero-unit" id="hero-unit"></span>
+        </div>
+        <div class="hero-subtitle" id="hero-subtitle"></div>
+        <div class="hero-toggle" id="hero-toggle">
+          <button class="hero-toggle-seg active" id="hero-toggle-birds" data-mode="birds">
             <svg width="14" height="10" viewBox="0 0 24 16" fill="currentColor" aria-hidden="true"><path d="M1 14 C5 7,11 5,15 9 C17 6,21 5,23 6.5 C21 8,18 10,15 12.5 C11 11,6 12,1 14Z"/></svg>
             <span>Birds</span>
           </button>
-        </div>
-      </div>
-
-      <!-- Middle: vertically centered group -->
-      <div class="middle-group">
-
-        <!-- Hero Zone -->
-        <section class="hero">
-          <h1 class="hero-headline" id="hero-headline">--</h1>
-          <div class="hero-temp" id="hero-temp">--°</div>
-          <div class="hero-meta" id="hero-meta"></div>
-        </section>
-
-        <!-- Scrollable 12-hour hourly strip -->
-        <section class="hourly-section">
-          <div class="hourly-strip" id="hourly-strip"></div>
-        </section>
-
-        <!-- Light Window (signature component) -->
-        <section class="light-window" id="light-window">
-          <div class="light-window-title" id="light-window-title">DAYLIGHT & UV</div>
-          <div class="light-strip-container">
-            <div class="light-strip" id="light-strip">
-              <div class="light-dot" id="light-dot">
-                <svg class="light-dot-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
-              </div>
-            </div>
-          </div>
-          <div class="light-labels">
-            <span class="light-label-left" id="light-label-left">--:--</span>
-            <span class="light-legend" id="light-legend">UV: --</span>
-            <span class="light-label-right" id="light-label-right">--:--</span>
-          </div>
-        </section>
-
-        <!-- Key Moments (only shown when unusual weather) -->
-        <section class="moments" id="moments"></section>
-
-      </div>
-
-      <!-- Bird View (toggled, replaces weather content) -->
-      <div id="bird-view" class="bird-view hidden">
-
-        <!-- Bird hero (matches weather hero layout) -->
-        <div class="bird-middle-group">
-          <section class="bird-hero">
-            <h1 class="bird-hero-headline" id="bird-hero-headline">--</h1>
-            <div class="bird-hero-icon" role="img" aria-label="Bird"></div>
-            <div class="bird-hero-meta" id="bird-hero-meta"></div>
-          </section>
-
-          <!-- Bird activity strip -->
-          <section class="bird-view-strip-section">
-            <div class="bird-strip-title" id="bird-strip-title">BIRD ACTIVITY</div>
-            <div class="bird-strip-container">
-              <div class="bird-strip" id="bird-strip">
-                <div class="bird-dot" id="bird-dot">
-                  <svg class="bird-dot-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
-                </div>
-              </div>
-            </div>
-            <div class="bird-labels">
-              <span class="bird-label-left" id="bird-label-left">--</span>
-              <span class="bird-legend" id="bird-legend">--</span>
-              <span class="bird-label-right" id="bird-label-right">--</span>
-            </div>
-          </section>
-
-          <!-- Notable species -->
-          <div class="bird-notable" id="bird-notable"></div>
-        </div>
-
-        <!-- Scrollable species list -->
-        <div class="bird-bottom-group">
-          <div class="bird-species-list" id="bird-species-list"></div>
-        </div>
-
-        <footer class="freshness hidden" id="bird-freshness">
-          <span class="freshness-dot"></span>
-          <span id="bird-freshness-text">Bird data</span>
-          <button id="bird-refresh-btn" class="refresh-btn" title="Refresh bird data">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M23 4v6h-6M1 20v-6h6"/>
-              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-            </svg>
+          <button class="hero-toggle-seg" id="hero-toggle-weather" data-mode="weather">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>
+            <span>Weather</span>
           </button>
-        </footer>
+        </div>
+        <div class="hero-meta-row">
+          <span class="hero-meta" id="hero-meta-1"></span>
+          <span class="hero-meta-sep" id="hero-meta-sep"></span>
+          <span class="hero-meta" id="hero-meta-2"></span>
+        </div>
+      </section>
 
-      </div>
+      <!-- Bird activity strip -->
+      <section class="bird-strip-section" id="bird-strip-section">
+        <div class="bird-strip-title">BIRD ACTIVITY</div>
+        <div class="bird-strip-container">
+          <div class="bird-strip" id="bird-strip">
+            <div class="bird-dot" id="bird-dot">
+              <svg class="bird-dot-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="bird-labels">
+          <span class="bird-label-left" id="bird-label-left">--</span>
+          <span class="bird-legend" id="bird-legend">--</span>
+          <span class="bird-label-right" id="bird-label-right">--</span>
+        </div>
+      </section>
 
-      <!-- Bottom: forecast -->
-      <div class="bottom-group">
+      <!-- Daylight & UV -->
+      <section class="light-window" id="light-window">
+        <div class="light-window-title" id="light-window-title">DAYLIGHT & UV</div>
+        <div class="light-strip-container">
+          <div class="light-strip" id="light-strip">
+            <div class="light-dot" id="light-dot">
+              <svg class="light-dot-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="light-labels">
+          <span class="light-label-left" id="light-label-left">--:--</span>
+          <span class="light-legend" id="light-legend">UV: --</span>
+          <span class="light-label-right" id="light-label-right">--:--</span>
+        </div>
+      </section>
+
+      <!-- Scrollable 12-hour hourly strip -->
+      <section class="hourly-section">
+        <div class="hourly-strip" id="hourly-strip"></div>
+      </section>
+
+      <!-- Notable species -->
+      <div class="bird-notable" id="bird-notable"></div>
+
+      <!-- Other sightings -->
+      <div class="bird-species-list" id="bird-species-list"></div>
+
+      <!-- 3-day forecast accordion -->
+      <details class="forecast-accordion" id="forecast-accordion">
+        <summary class="forecast-summary">
+          <span class="forecast-summary-title">NEXT 3 DAYS</span>
+          <span class="forecast-summary-conditions" id="forecast-summary-conditions"></span>
+          <svg class="forecast-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1l4 4-4 4"/></svg>
+        </summary>
         <section class="forecast-days" id="forecast-days"></section>
-      </div>
+      </details>
 
-      <!-- Freshness (outside bottom-group so position: fixed works reliably on mobile) -->
+      <!-- Unified footer -->
       <footer class="freshness" id="freshness">
         <span class="freshness-dot"></span>
         <span id="freshness-text">Updated just now</span>

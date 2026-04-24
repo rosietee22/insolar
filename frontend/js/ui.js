@@ -8,9 +8,14 @@ import {
   generateHeroSentence
 } from './theme.js';
 
+// ==================== HERO MODE STATE ====================
+
+let _heroMode = 'birds'; // 'birds' | 'weather' — never persisted
+let _storedWeatherData = null;
+let _storedBirdData = null;
+let _storedActivity = null;
+
 // ==================== TIMEZONE UTILITIES ====================
-// The API returns timezone as "UTC+11", "UTC-5", etc.
-// We shift Date objects so .getHours()/.getMonth() give location-local values.
 
 let _locationTimezone = null;
 let _tzOffsetMs = 0;
@@ -286,57 +291,6 @@ function calculateSolarProgress(sunrise, sunset) {
   return Math.round((elapsed / dayLength) * 100);
 }
 
-/**
- * Generate Key Moments - only for UNUSUAL weather events
- * @param {Array} hourly - Hourly forecast data
- * @returns {Array} Array of moment objects (empty if nothing unusual)
- */
-function generateKeyMoments(hourly) {
-  const moments = [];
-
-  // Look for significant weather events in next 12 hours
-  const next12 = hourly.slice(0, 12);
-
-  // 1. Heavy rain starting (>60% probability)
-  let currentlyRaining = next12[0]?.rain_probability > 50;
-  
-  for (let i = 1; i < next12.length; i++) {
-    const hour = next12[i];
-    const isHeavyRain = hour.rain_probability >= 60;
-
-    if (!currentlyRaining && isHeavyRain) {
-      moments.push({
-        time: formatHourShort(hour.timestamp),
-        text: `Heavy rain expected`,
-        detail: `${hour.rain_probability}% chance`
-      });
-      break;
-    }
-  }
-
-  // 2. Strong wind warning (>10 m/s)
-  const strongWindHour = next12.find((h, i) => i > 0 && h.wind_speed_ms > 10 && next12[i - 1].wind_speed_ms <= 10);
-  if (strongWindHour) {
-    moments.push({
-      time: formatHourShort(strongWindHour.timestamp),
-      text: `Strong winds expected`,
-      detail: `${Math.round(strongWindHour.wind_speed_ms)} m/s`
-    });
-  }
-
-  // 3. Rapid temperature drop (>8° in next few hours)
-  const currentTemp = next12[0]?.temp_c || 0;
-  const coldestHour = next12.slice(1).find(h => currentTemp - h.temp_c >= 8);
-  if (coldestHour) {
-    moments.push({
-      time: formatHourShort(coldestHour.timestamp),
-      text: `Temperature dropping sharply`,
-      detail: `Down to ${Math.round(coldestHour.temp_c)}°`
-    });
-  }
-
-  return moments.slice(0, 2);
-}
 
 /**
  * Get multi-day forecast data
@@ -418,31 +372,11 @@ export function renderApp(data) {
   // Update location display
   updateLocationDisplay(data.location);
 
-  // Render Hero Section
-  const locNow = locationNow();
-  document.getElementById('hero-headline').textContent = generateHeroSentence(current, hourly, {
-    locationHour: locNow.getHours(),
-    locationMonth: locNow.getMonth(),
-    isSouthern: isSouthernHemisphere(),
-  });
-  document.getElementById('hero-temp').textContent = `${Math.round(current.temp_c)}°`;
+  // Store weather data for hero rendering
+  _storedWeatherData = current;
 
-  // Hero meta: condition · wind description · UV
-  const heroMeta = document.getElementById('hero-meta');
-  if (heroMeta) {
-    const parts = [];
-    // Condition type (e.g. PARTLY_CLOUDY → "Partly cloudy")
-    if (current.condition_type) {
-      parts.push(current.condition_type.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase()));
-    }
-    // Wind description (no compass direction)
-    parts.push(getWindDescription(current.wind_speed_ms));
-    // UV
-    if (current.uv_index > 0) {
-      parts.push(`UV ${current.uv_index}`);
-    }
-    heroMeta.textContent = parts.join(' · ');
-  }
+  // Render hero (bird data may not be loaded yet — that's fine)
+  renderHero();
 
   // Render Light Window
   // Use API-provided sun times if available, fall back to hourly estimation
@@ -564,25 +498,6 @@ export function renderApp(data) {
     if (lightDot) lightDot.style.left = `${progress}%`;
   }
 
-  // Render Key Moments (only if unusual weather)
-  const momentsEl = document.getElementById('moments');
-  if (momentsEl) {
-    const moments = generateKeyMoments(hourly);
-    if (moments.length > 0) {
-      momentsEl.innerHTML = moments.map(m => `
-        <div class="moment">
-          <div class="moment-time">${m.time}</div>
-          <div class="moment-text">${m.text}</div>
-          ${m.detail ? `<div class="moment-detail">${m.detail}</div>` : ''}
-        </div>
-      `).join('');
-      momentsEl.style.display = '';
-    } else {
-      momentsEl.innerHTML = '';
-      momentsEl.style.display = 'none';
-    }
-  }
-
   // Render 3-Day Forecast
   const forecastDaysEl = document.getElementById('forecast-days');
   if (forecastDaysEl) {
@@ -595,6 +510,12 @@ export function renderApp(data) {
         <span class="forecast-day-temps"><span class="low">${day.low}°</span> / ${day.high}°</span>
       </div>
     `).join('');
+
+    // Summary conditions on accordion header
+    const summaryCondEl = document.getElementById('forecast-summary-conditions');
+    if (summaryCondEl && days.length > 0) {
+      summaryCondEl.textContent = days.map(d => `${d.name}: ${d.condition}`).join(' · ');
+    }
   }
 
   // Update freshness indicator
@@ -649,7 +570,7 @@ export function updateLocationDisplay(location) {
  * Render bird activity strip
  * @param {Object} activity - { curve, current, dawn_peak, dusk_peak }
  */
-export function renderBirdStrip(activity) {
+function renderBirdStrip(activity) {
   if (!activity) return;
 
   const strip = document.getElementById('bird-strip');
@@ -787,34 +708,25 @@ function generateBirdMeta(activity, speciesCount) {
 }
 
 /**
- * Show bird toggle button
- */
-export function showBirdToggle() {
-  const toggle = document.getElementById('view-toggle');
-  if (toggle) toggle.classList.remove('hidden');
-}
-
-/**
- * Render the full bird view content
+ * Render bird sections (strip, notable, species list) — NOT the hero
  * @param {Object} birdData - Full bird data from API
  * @param {Object} activity - Activity curve data
  */
-export function renderBirdView(birdData, activity) {
+export function renderBirdSections(birdData, activity) {
   if (!birdData) return;
+
+  _storedBirdData = birdData;
+  _storedActivity = activity;
+
+  // Enable bird toggle
+  const birdsBtn = document.getElementById('hero-toggle-birds');
+  if (birdsBtn) birdsBtn.classList.remove('disabled');
 
   // Render activity strip
   renderBirdStrip(activity);
 
-  // Hero section
-  const headlineEl = document.getElementById('bird-hero-headline');
-  const metaEl = document.getElementById('bird-hero-meta');
-  if (headlineEl && activity) {
-    headlineEl.textContent = generateBirdHeadline(activity);
-  }
-  if (metaEl) {
-    const speciesCount = birdData.total_species_count || birdData.all_species?.length || 0;
-    metaEl.textContent = generateBirdMeta(activity, speciesCount);
-  }
+  // Re-render hero now that bird data is available
+  renderHero();
 
   // Notable species (with thumbnails from Macaulay Library)
   const notableEl = document.getElementById('bird-notable');
@@ -842,7 +754,6 @@ export function renderBirdView(birdData, activity) {
       <div class="bird-notable-list">${items}</div>
     `;
 
-    // Attach click handlers for image expansion
     notableEl.querySelectorAll('.bird-notable-thumb').forEach(thumb => {
       thumb.addEventListener('click', () => {
         const code = thumb.dataset.species;
@@ -862,7 +773,6 @@ export function renderBirdView(birdData, activity) {
     if (!birdData.all_species || birdData.all_species.length === 0) {
       listEl.innerHTML = '';
     } else {
-      // Backend returns species already scored by time-of-day relevance
       const display = birdData.all_species.filter(
         s => !notableCodes.has(s.species_code)
       );
@@ -891,12 +801,6 @@ export function renderBirdView(birdData, activity) {
         `;
       }
     }
-  }
-
-  // Freshness
-  const freshnessText = document.getElementById('bird-freshness-text');
-  if (freshnessText && birdData.generated_at) {
-    freshnessText.textContent = `Bird data · ${formatRelativeTime(birdData.generated_at)}`;
   }
 }
 
@@ -947,35 +851,100 @@ function handleModalEscape(e) {
   if (e.key === 'Escape') closeBirdImageModal();
 }
 
-/**
- * Toggle between weather and bird views
- * @param {string} view - 'weather' or 'birds'
- */
-export function setView(view) {
-  const middleGroup = document.querySelector('.middle-group');
-  const bottomGroup = document.querySelector('.bottom-group');
-  const birdView = document.getElementById('bird-view');
-  const weatherFooter = document.getElementById('freshness');
-  const birdFooter = document.getElementById('bird-freshness');
-  const weatherTab = document.getElementById('view-toggle-weather');
-  const birdsTab = document.getElementById('view-toggle-birds');
+// ==================== HERO MODE ====================
 
-  if (view === 'birds') {
-    if (middleGroup) middleGroup.classList.add('hidden');
-    if (bottomGroup) bottomGroup.classList.add('hidden');
-    if (weatherFooter) weatherFooter.classList.add('hidden');
-    if (birdView) birdView.classList.remove('hidden');
-    if (birdFooter) birdFooter.classList.remove('hidden');
-    if (weatherTab) { weatherTab.classList.remove('active'); weatherTab.setAttribute('aria-selected', 'false'); }
-    if (birdsTab) { birdsTab.classList.add('active'); birdsTab.setAttribute('aria-selected', 'true'); }
-  } else {
-    if (middleGroup) middleGroup.classList.remove('hidden');
-    if (bottomGroup) bottomGroup.classList.remove('hidden');
-    if (weatherFooter) weatherFooter.classList.remove('hidden');
-    if (birdView) birdView.classList.add('hidden');
-    if (birdFooter) birdFooter.classList.add('hidden');
-    if (weatherTab) { weatherTab.classList.add('active'); weatherTab.setAttribute('aria-selected', 'true'); }
-    if (birdsTab) { birdsTab.classList.remove('active'); birdsTab.setAttribute('aria-selected', 'false'); }
+/**
+ * Build weather meta string: condition · wind · UV
+ */
+function buildWeatherMeta(current) {
+  if (!current) return '';
+  const parts = [];
+  if (current.condition_type) {
+    parts.push(current.condition_type.replace(/_/g, ' ').toLowerCase().replace(/^\w/, c => c.toUpperCase()));
   }
+  parts.push(getWindDescription(current.wind_speed_ms));
+  if (current.uv_index > 0) {
+    parts.push(`UV ${current.uv_index}`);
+  }
+  return parts.join(' · ');
+}
+
+/**
+ * Render the hero section based on current _heroMode
+ */
+export function renderHero() {
+  const headlineEl = document.getElementById('hero-headline');
+  const numberEl = document.getElementById('hero-number');
+  const unitEl = document.getElementById('hero-unit');
+  const subtitleEl = document.getElementById('hero-subtitle');
+  const meta1El = document.getElementById('hero-meta-1');
+  const meta2El = document.getElementById('hero-meta-2');
+  const metaSepEl = document.getElementById('hero-meta-sep');
+  if (!headlineEl || !numberEl || !unitEl) return;
+
+  const current = _storedWeatherData;
+  const birdData = _storedBirdData;
+  const activity = _storedActivity;
+  const locNow = locationNow();
+
+  const weatherMeta = buildWeatherMeta(current);
+  const speciesCount = birdData
+    ? (birdData.total_species_count || birdData.all_species?.length || 0)
+    : 0;
+  const birdMeta = generateBirdMeta(activity, speciesCount);
+
+  if (_heroMode === 'birds' && birdData && activity) {
+    headlineEl.textContent = generateBirdHeadline(activity);
+    numberEl.textContent = speciesCount;
+    unitEl.innerHTML = '<svg width="36" height="28" viewBox="0 0 24 16" fill="currentColor" aria-hidden="true"><path d="M1 14 C5 7,11 5,15 9 C17 6,21 5,23 6.5 C21 8,18 10,15 12.5 C11 11,6 12,1 14Z"/></svg>';
+    if (subtitleEl) subtitleEl.textContent = 'species nearby';
+    if (meta1El) meta1El.textContent = activity.current.level + ' activity';
+    if (meta2El) meta2El.textContent = weatherMeta;
+  } else {
+    if (current) {
+      headlineEl.textContent = generateHeroSentence(current, null, {
+        locationHour: locNow.getHours(),
+        locationMonth: locNow.getMonth(),
+        isSouthern: isSouthernHemisphere(),
+      });
+      numberEl.textContent = `${Math.round(current.temp_c)}`;
+      unitEl.innerHTML = '<span class="hero-unit-degree">°</span>';
+      if (subtitleEl) subtitleEl.textContent = '';
+      if (meta1El) meta1El.textContent = weatherMeta;
+      if (meta2El) meta2El.textContent = birdMeta || '';
+    }
+  }
+}
+
+/**
+ * Switch hero mode and re-render
+ * @param {string} mode - 'birds' | 'weather'
+ */
+export function setHeroMode(mode) {
+  if (mode === _heroMode) return;
+  _heroMode = mode;
+
+  // Update toggle active state
+  const birdsBtn = document.getElementById('hero-toggle-birds');
+  const weatherBtn = document.getElementById('hero-toggle-weather');
+  if (mode === 'birds') {
+    birdsBtn?.classList.add('active');
+    weatherBtn?.classList.remove('active');
+  } else {
+    weatherBtn?.classList.add('active');
+    birdsBtn?.classList.remove('active');
+  }
+
+  renderHero();
+}
+
+/**
+ * Disable bird mode (no API key / no data)
+ * Forces weather mode and greys out the bird toggle segment
+ */
+export function disableBirdMode() {
+  const birdsBtn = document.getElementById('hero-toggle-birds');
+  if (birdsBtn) birdsBtn.classList.add('disabled');
+  if (_heroMode === 'birds') setHeroMode('weather');
 }
 

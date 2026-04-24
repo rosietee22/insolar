@@ -1,6 +1,6 @@
 /**
  * Bird Activity Module
- * Handles bird data fetching, caching, view toggling, and client-side activity model.
+ * Handles bird data fetching, caching, and client-side activity model.
  */
 
 import { getBirdData } from './api.js';
@@ -8,26 +8,7 @@ import { getBirdData } from './api.js';
 const BIRD_CACHE_KEY = 'bird_data';
 const BIRD_CACHE_MAX_AGE = 3 * 60 * 60 * 1000; // 3 hours
 
-const VIEW_KEY = 'sunbird_view';
-let currentView = localStorage.getItem(VIEW_KEY) || 'weather';
 let featureAvailable = null; // null = unknown, true/false after first check
-
-/**
- * Get current view state
- */
-export function getCurrentView() {
-  return currentView;
-}
-
-/**
- * Toggle between weather and birds view
- * @returns {string} New view name
- */
-export function toggleView() {
-  currentView = currentView === 'weather' ? 'birds' : 'weather';
-  localStorage.setItem(VIEW_KEY, currentView);
-  return currentView;
-}
 
 /**
  * Check if bird feature is available (API key configured)
