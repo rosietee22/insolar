@@ -778,7 +778,7 @@ export function renderBirdSections(birdData, activity) {
     } else {
       const display = birdData.all_species.filter(
         s => !notableCodes.has(s.species_code)
-      );
+      ).sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
 
       if (display.length === 0) {
         listEl.innerHTML = '';
