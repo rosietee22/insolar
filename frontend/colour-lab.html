@@ -176,7 +176,7 @@
       flex-direction: column;
       align-items: flex-start;
       text-align: left;
-      padding: var(--space-2) 0;
+      padding: var(--space-3) 0 var(--space-1) 0;
       position: relative;
       z-index: 2;
     }
@@ -197,12 +197,65 @@
       letter-spacing: -0.06em;
     }
 
-    .hero-meta {
+    /* Hero toggle */
+    .hero-toggle {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: transparent;
+      margin: var(--space-1) 0;
+    }
+
+    .hero-toggle-seg {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-body);
       font-size: 10px;
       font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-top: var(--space-1);
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      transition: color 0.2s, background 0.2s, font-weight 0.2s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .hero-toggle-seg:first-child::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 1px;
+      background: var(--glass-border);
+      transition: opacity 0.2s;
+    }
+
+    .hero-toggle-seg.active {
+      color: var(--text-primary);
+      background: var(--glass-bg);
+      font-weight: 600;
+      cursor: default;
+    }
+
+    .hero-toggle-seg.active:first-child::after {
+      opacity: 0;
+    }
+
+    .hero-toggle-seg svg {
+      flex-shrink: 0;
+      opacity: 0.35;
+    }
+
+    .hero-toggle-seg.active svg {
+      opacity: 1;
     }
 
     /* Bird hero */
@@ -225,13 +278,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      min-width: 36px;
+      justify-content: center;
+      gap: 6px;
+      min-width: 52px;
     }
 
     .hourly-time {
       font-family: var(--font-body);
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -239,16 +293,18 @@
 
     .hourly-temp {
       font-family: var(--font-data);
-      font-size: 14px;
+      font-size: 17px;
       font-weight: 700;
       line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
     }
 
     .hourly-rain {
       font-family: var(--font-data);
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 600;
-      min-height: 11px;
+      min-height: 13px;
     }
 
     /* Light window & bird strip */
@@ -554,12 +610,17 @@
         bodyHTML = `
           <div class="hero">
             <h1 class="hero-headline" style="color: ${theme.secondary}">${bird.headline}</h1>
-            <div class="bird-hero-icon">
-              <svg viewBox="0 4.5 24 10" width="100" height="50" style="color: ${ACCENT}">
-                <path d="M1 14 C5 7, 11 5, 15 9 C17 6, 21 5, 23 6.5 C21 8, 18 10, 15 12.5 C11 11, 6 12, 1 14Z" fill="currentColor"/>
-              </svg>
+            <div class="hero-temp" style="color: ${ACCENT}">42</div>
+            <div class="hero-toggle">
+              <button class="hero-toggle-seg active">
+                <svg width="14" height="10" viewBox="0 0 24 16" fill="currentColor"><path d="M1 14 C5 7,11 5,15 9 C17 6,21 5,23 6.5 C21 8,18 10,15 12.5 C11 11,6 12,1 14Z"/></svg>
+                <span>Birds</span>
+              </button>
+              <button class="hero-toggle-seg">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="5"/></svg>
+                <span>Weather</span>
+              </button>
             </div>
-            <div class="hero-meta" style="color: ${theme.secondary}">${bird.meta}</div>
           </div>
 
           <div class="bird-strip-section" style="border-top: 1px solid ${glassB}; padding-top: 8px;">
@@ -614,7 +675,16 @@
           <div class="hero">
             <h1 class="hero-headline" style="color: ${theme.secondary}">${content.headline}</h1>
             <div class="hero-temp" style="color: ${ACCENT}">${content.temp}&deg;</div>
-            <div class="hero-meta" style="color: ${theme.secondary}">${content.meta}</div>
+            <div class="hero-toggle">
+              <button class="hero-toggle-seg">
+                <svg width="14" height="10" viewBox="0 0 24 16" fill="currentColor"><path d="M1 14 C5 7,11 5,15 9 C17 6,21 5,23 6.5 C21 8,18 10,15 12.5 C11 11,6 12,1 14Z"/></svg>
+                <span>Birds</span>
+              </button>
+              <button class="hero-toggle-seg active">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="5"/></svg>
+                <span>Weather</span>
+              </button>
+            </div>
           </div>
 
           <div class="hourly-strip">
