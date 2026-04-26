@@ -96,6 +96,14 @@ async function init() {
   document.getElementById('hero-toggle-birds')?.addEventListener('click', () => setHeroMode('birds'));
   document.getElementById('hero-toggle-weather')?.addEventListener('click', () => setHeroMode('weather'));
 
+  // About modal
+  document.getElementById('info-btn')?.addEventListener('click', () => {
+    document.getElementById('about-modal').classList.remove('hidden');
+  });
+  document.getElementById('close-about-btn')?.addEventListener('click', () => {
+    document.getElementById('about-modal').classList.add('hidden');
+  });
+
   // Initialize colour picker
   initColourPicker();
 

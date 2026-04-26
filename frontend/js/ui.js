@@ -655,17 +655,11 @@ function formatObsTime(obsDt, now) {
   const diffMs = now - date;
   const diffMins = Math.floor(diffMs / 60000);
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffMins < 1) return 'Now';
+  if (diffMins < 60) return `${diffMins}m`;
 
   const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24 && date.getDate() === now.getDate()) return `${diffHours}h ago`;
-
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth()) {
-    return 'Yesterday';
-  }
+  if (diffHours < 24) return `${diffHours}h`;
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return days[date.getDay()];
@@ -891,6 +885,35 @@ function handleModalEscape(e) {
 // ==================== HERO MODE ====================
 
 /**
+ * Build 2-3 word weather subtitle: condition + temperature feel or wind
+ */
+function buildWeatherSubtitle(current) {
+  if (!current) return '';
+  const temp = current.temp_c;
+  const wind = current.wind_speed_ms;
+  const ct = current.condition_type;
+
+  const feel = temp >= 30 ? 'hot'
+    : temp >= 20 ? 'warm'
+    : temp >= 10 ? 'mild'
+    : temp >= 3 ? 'cold'
+    : 'freezing';
+
+  const windy = wind >= 10 ? 'wind' : wind >= 6 ? 'breezy' : null;
+
+  if (ct === 'THUNDERSTORM' || ct === 'HAIL') return windy ? 'Stormy and ' + windy : 'Stormy and ' + feel;
+  if (ct === 'HEAVY_RAIN') return windy ? 'Rain and wind' : 'Rain, ' + feel;
+  if (ct === 'RAIN' || ct === 'DRIZZLE') return windy ? 'Rain and ' + windy : 'Rain, ' + feel;
+  if (ct === 'SNOW' || ct === 'SNOW_SHOWERS') return 'Snow, ' + feel;
+  if (ct === 'FOG' || ct === 'LIGHT_FOG') return 'Fog, ' + feel;
+
+  const sky = current.cloud_percent > 70 ? 'Grey' : current.cloud_percent > 30 ? 'Cloudy' : 'Clear';
+  if (windy) return sky + ' and ' + windy;
+  const join = sky === 'Grey' ? ' and ' : ' and ';
+  return sky + join + feel;
+}
+
+/**
  * Build weather meta string: condition · wind · UV
  */
 function buildWeatherMeta(current) {
@@ -959,7 +982,7 @@ export function renderHero() {
       });
       numberEl.textContent = `${Math.round(current.temp_c)}`;
       unitEl.innerHTML = '<span class="hero-unit-degree">°</span>';
-      if (subtitleEl) subtitleEl.textContent = 'current temperature';
+      if (subtitleEl) subtitleEl.textContent = buildWeatherSubtitle(current);
     }
   }
 }

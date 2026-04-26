@@ -226,6 +226,27 @@ body::after {
   color: var(--text-primary);
 }
 
+.info-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.info-btn:hover {
+  opacity: 1;
+}
+
+.about-content p {
+  text-align: left;
+}
+
+
 .hero-headline {
   font-size: var(--text-xl);
   font-weight: 400;
@@ -247,7 +268,7 @@ body::after {
   font-weight: 700;
   color: var(--accent-color);
   line-height: 0.85;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
   margin: 0;
 }
 
@@ -289,10 +310,8 @@ body::after {
 .hero-toggle {
   display: flex;
   align-items: center;
-  border: 1px solid var(--glass-border);
   border-radius: 12px;
-  overflow: hidden;
-  background: transparent;
+  background: var(--glass-bg);
   margin-top: var(--space-2);
   margin-bottom: var(--space-2);
 }
@@ -303,6 +322,7 @@ body::after {
   gap: 5px;
   padding: 5px 10px;
   border: none;
+  border-radius: 12px;
   background: transparent;
   cursor: pointer;
   font-family: var(--font-body);
@@ -314,18 +334,6 @@ body::after {
   transition: color 0.2s, background 0.2s, font-weight 0.2s;
   white-space: nowrap;
   line-height: 1;
-  position: relative;
-}
-
-.hero-toggle-seg:first-child::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 4px;
-  bottom: 4px;
-  width: 1px;
-  background: var(--glass-border);
-  transition: opacity 0.2s;
 }
 
 .hero-toggle-seg.active {
@@ -333,10 +341,6 @@ body::after {
   background: var(--glass-bg);
   font-weight: 600;
   cursor: default;
-}
-
-.hero-toggle-seg.active:first-child::after {
-  opacity: 0;
 }
 
 .hero-toggle-seg:not(.active):hover {
@@ -810,7 +814,7 @@ body::after {
 }
 
 .bird-species-time {
-  width: 46px;
+  width: 54px;
   text-align: right;
   color: var(--text-muted);
   font-family: var(--font-data);

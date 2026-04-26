@@ -36,16 +36,16 @@ const ACCENT_FILTER = 'brightness(0) saturate(100%) invert(32%) sepia(60%) satur
 // Light strip: symmetric gradient (edge → mid → edge)
 const STRIP = {
   sunlight: { edge: '#C4B899', mid: '#F5E8B0' },   // Warm gold — clear/sunny
-  night:    { edge: '#2A2D52', mid: '#5D5A7A' },    // Deep blue — after dark
-  overcast: { edge: '#7A7670', mid: '#A8A090' },    // Muted stone — diffused daylight
-  rain:     { edge: '#5A5750', mid: '#7A7468' },     // Dark subdued — wet conditions
+  night:    { edge: '#3A3D62', mid: '#7A78A0' },    // Lifted blue-violet — visible on dark bg
+  overcast: { edge: '#7A7670', mid: '#C8B888' },    // Grey edge → warm gold mid on mid bg
+  rain:     { edge: '#5A5750', mid: '#9A9080' },    // Dark edge → warm stone mid on dark bg
 };
 
 // Bird strip: activity visualization colours per lighting condition
 const BIRD = {
   day:      { dormant: '#D0CCC4', active: '#C4A860', glow: 'rgba(196,168,96,0.40)' },    // Warm stone → gold on light bg
-  night:    { dormant: '#2E2D38', active: '#7A7468', glow: 'rgba(122,116,104,0.35)' },    // Muted warm on dark bg
-  overcast: { dormant: '#8A8680', active: '#B0A488', glow: 'rgba(176,164,136,0.35)' },    // Grey stone → warm on mid bg
+  night:    { dormant: '#3E3D4A', active: '#8A8070', glow: 'rgba(138,128,112,0.35)' },    // Lifted grey → warm stone on dark bg
+  overcast: { dormant: '#8A8680', active: '#C4A060', glow: 'rgba(196,160,96,0.35)' },     // Grey stone → amber on mid bg
   warm:     { dormant: '#4A3E38', active: '#C8A078', glow: 'rgba(200,160,120,0.40)' },    // Earthy for storm
 };
 

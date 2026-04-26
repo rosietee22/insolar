@@ -81,13 +81,20 @@
     <!-- Main content -->
     <main id="content" class="content hidden">
 
-      <!-- Top bar: location only -->
+      <!-- Top bar: location + info -->
       <div class="hero-top">
         <button id="update-location-btn" class="location-btn" title="Update location">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.35rem; opacity: 0.7;">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
           </svg>
           <span id="location-display">--</span>
+        </button>
+        <button id="info-btn" class="info-btn" title="About Sunbird">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>
+          </svg>
         </button>
       </div>
 
@@ -243,6 +250,15 @@
         <input type="text" id="city-input" class="input" placeholder="Try: Hackney, London, Manchester...">
         <button id="search-city-btn" class="btn btn-primary">Search</button>
         <button id="cancel-search-btn" class="btn">Cancel</button>
+      </div>
+    </div>
+
+    <!-- About modal -->
+    <div id="about-modal" class="modal hidden">
+      <div class="modal-content about-content">
+        <h2>Sunbird</h2>
+        <p>Bird activity near you, shaped by the light, weather and season. Sightings from eBird. Activity scored hourly from conditions at your location.</p>
+        <button id="close-about-btn" class="btn">Close</button>
       </div>
     </div>
   </div>
