@@ -618,12 +618,12 @@ function renderBirdStrip(activity) {
     dot.classList.add('activity-low');
   }
 
-  // Labels — formatted times matching light window style
+  // Labels — strip runs midnight to midnight
   if (labelLeft) {
-    labelLeft.textContent = formatHourTime(activity.dawn_peak.hour);
+    labelLeft.textContent = '12:00 am';
   }
   if (labelRight) {
-    labelRight.textContent = formatHourTime(activity.dusk_peak.hour);
+    labelRight.textContent = '11:00 pm';
   }
   if (legend) {
     legend.textContent = activity.current.level.toUpperCase();
@@ -633,6 +633,42 @@ function renderBirdStrip(activity) {
       legend.style.color = 'var(--text-secondary)';
     }
   }
+}
+
+/**
+ * Parse eBird observed_at string ("YYYY-MM-DD HH:mm") into a Date.
+ * Adds the T separator so it parses reliably in all browsers.
+ */
+function parseObsDate(obsDt) {
+  if (!obsDt) return new Date(0);
+  return new Date(obsDt.replace(' ', 'T'));
+}
+
+/**
+ * Format an observation time relative to now.
+ * Today → "2h ago", "35m ago"; yesterday → "Yesterday"; older → "Mon", "Tue" etc.
+ */
+function formatObsTime(obsDt, now) {
+  const date = parseObsDate(obsDt);
+  if (isNaN(date.getTime())) return '';
+
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24 && date.getDate() === now.getDate()) return `${diffHours}h ago`;
+
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth()) {
+    return 'Yesterday';
+  }
+
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return days[date.getDay()];
 }
 
 /**
@@ -778,17 +814,15 @@ export function renderBirdSections(birdData, activity) {
     } else {
       const display = birdData.all_species.filter(
         s => !notableCodes.has(s.species_code)
-      ).sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
+      ).sort((a, b) => parseObsDate(b.observed_at) - parseObsDate(a.observed_at));
 
       if (display.length === 0) {
         listEl.innerHTML = '';
       } else {
         const radius = birdData.observation_radius_km || 5;
+        const now = locationNow();
         const rows = display.map(s => {
-          const time = toLocationTime(new Date(s.observed_at));
-          const h = time.getHours();
-          const m = time.getMinutes();
-          const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+          const timeStr = formatObsTime(s.observed_at, now);
           return `
             <div class="bird-species-row">
               <span class="bird-species-name">${s.common_name}</span>

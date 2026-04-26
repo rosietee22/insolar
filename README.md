@@ -1,39 +1,44 @@
 # Sunbird
 
-A GPS-based birding companion that reads the weather, light and season to tell you what's about, where, and when. Built with vanilla JavaScript and Express, powered by the eBird API and Google Weather.
+A bird activity forecast that reads the weather, light and season to tell you what's about, where, and when. Built with vanilla JavaScript and Express, powered by the eBird API and Google Weather.
 
 **Live:** https://sunbird.today
 
 ## Features
 
-- **Bird Activity** — eBird-powered bird sighting data with weather-based activity predictions
-- **Light Window** — Signature daylight strip with warm sunlight gradient, UV index, and sunrise/sunset times
-- GPS-based location with neighbourhood-level accuracy
-- Large typographic temperature display (128px hero)
-- 3-day forecast with daily highs/lows and "best window" outdoor guidance
-- Museum-poster colour system with 7-pigment palette (sky, ice, dusk, stone, clay, pearl, ink) and chalk cobalt accent
-- Weather-adaptive gradients across 9 themes (clear day, partly cloudy, partly cloudy night, clear night, overcast, rain, storm, snow, fog)
-- Editorial weather headlines ("Patches of sun.", "Grab an umbrella.")
-- Offline support with service worker caching
-- Installable as a PWA
-- City search fallback with approximate location option
+- **Bird-first hero** — Species count and activity headline as the default view, with a segmented toggle to switch to weather
+- **Bird activity strip** — 24-hour gradient showing dawn/dusk peaks, scored hourly by time of day, season, temperature, rain, wind, and cloud cover
+- **Notable species** — "What to look for" section with photos from the Macaulay Library (Cornell Lab), tappable for full-size images
+- **Sightings list** — All recent observations within 3–10 km, sorted by most recent, with observation times
+- **Daylight & UV strip** — Sunrise/sunset tracker with UV index and contextual labels (night mode shows "Until sunrise")
+- **12-hour hourly forecast** — Scrollable strip with weather icons, temperatures, and rain probability
+- **3-day forecast** — Collapsible accordion with conditions summary
+- **9 weather themes** — Adaptive gradients, text colours, glow, bloom, and atmospheric veil per condition
+- **Editorial headlines** — Observational bird-activity sentences ("Dawn chorus underway.", "Midday lull.") and weather sentences for the weather view
+- **Location options** — GPS, IP-based approximate location, and city search
+- **Offline support** — Service worker caching with auto-update detection
+- **Installable PWA** — Standalone app with Open Graph and Twitter card meta
+- **SEO** — Structured data, sitemap, robots.txt, OG image
 
 ## Tech Stack
 
 **Frontend:**
-- Vanilla JavaScript (ES6 modules)
-- Custom SVG icons (bird, sun, favicon)
-- Service Worker for offline functionality
+- Vanilla JavaScript (ES6 modules), no build step
+- Custom SVG weather icons (clear, cloudy, rain, drizzle, partly cloudy day/night, clear night)
+- Service Worker with content-hash versioning (auto-invalidates on deploy)
 - PWA manifest for installability
-- 8pt spacing grid, DM Sans + IBM Plex Mono typefaces, restrained typography
+- DM Sans + IBM Plex Mono typefaces, 8pt spacing grid
 
 **Backend:**
-- Express.js (Node.js)
+- Express.js (Node.js 18+)
 - Google Weather API (WeatherNext AI)
 - eBird API v2 (Cornell Lab of Ornithology)
+- Macaulay Library image proxy with 30-day cache
 - OpenStreetMap Nominatim for reverse geocoding
-- In-memory caching (5 min forecast, 6 hr bird data)
-- Bearer token authentication
+- IP-based approximate location (ip-api.com)
+- In-memory caching (5 min forecast, 6 hr bird data, 30 day bird images)
+- HTTP-only session cookie authentication
+- Helmet, CORS, compression, rate limiting
 
 ## Project Structure
 
@@ -44,33 +49,34 @@ sunbird/
 │   ├── colour-lab.html    # Theme preview tool
 │   ├── manifest.json
 │   ├── service-worker.js
+│   ├── robots.txt
+│   ├── sitemap.xml
 │   ├── css/styles.css
 │   ├── js/
-│   │   ├── main.js        # App initialization
+│   │   ├── main.js        # App init, location flow, bird loading
 │   │   ├── api.js         # API client
-│   │   ├── location.js    # GPS & geocoding
-│   │   ├── ui.js          # UI rendering
-│   │   ├── theme.js       # Palette, gradients & headlines
-│   │   ├── birds.js       # Bird data & activity model
+│   │   ├── location.js    # GPS, approximate & city search
+│   │   ├── ui.js          # UI rendering, hero mode toggle, bird sections
+│   │   ├── theme.js       # Palette, gradients, weather themes & headlines
+│   │   ├── birds.js       # Bird data & client-side activity model
 │   │   └── colour-picker.js # Live palette editor
-│   └── icons/             # SVG icons (bird, sun, favicon)
+│   └── icons/             # SVG icons, OG image, PWA icons
 ├── backend/               # Express API
-│   ├── server.js
+│   ├── server.js          # Server setup, middleware, static serving
 │   ├── routes/
 │   │   ├── forecast.js    # Weather forecast endpoint
-│   │   └── birds.js       # Bird activity endpoint
+│   │   ├── birds.js       # Bird observations & activity endpoint
+│   │   ├── bird-image.js  # Macaulay Library image proxy
+│   │   └── location.js    # IP-based approximate location
 │   ├── providers/
 │   │   ├── base.js        # Provider interface
 │   │   ├── google-weather.js  # Google Weather API
-│   │   ├── ebird.js       # eBird API client
+│   │   ├── ebird.js       # eBird API client (with time-of-day scoring)
 │   │   └── mock.js        # Dev/testing fallback
 │   ├── bird-activity.js   # Activity scoring model
 │   ├── cache.js
 │   ├── auth.js
 │   └── schema.js
-├── docs/
-│   ├── COLOUR-SYSTEM.md   # Colour palette specification
-│   └── LIGHT-WINDOW-UX.md # UX specification
 ├── fly.toml               # Fly.io config
 ├── Dockerfile
 ├── package.json
@@ -106,11 +112,11 @@ sunbird/
    ```
    Note: GPS requires HTTPS in production (works on localhost for dev)
 
-## API Token
+## Authentication
 
-For local development, the API token is hardcoded in [frontend/js/api.js](frontend/js/api.js:12) as `DEFAULT_TOKEN`.
+The app uses HTTP-only session cookies set automatically when the page loads. No tokens are needed in frontend JavaScript. The backend auth middleware checks the session cookie first and falls back to a Bearer token header for direct API use and development.
 
-Update this with your own `.env` `API_SECRET` value, or store it in localStorage with key `weather_api_token`.
+For local development, the API token is hardcoded in `frontend/js/api.js` as `DEFAULT_TOKEN`. Update this with your `.env` `API_SECRET` value, or store it in localStorage with key `weather_api_token`.
 
 ## Deployment (Fly.io)
 
@@ -136,19 +142,20 @@ Add `FLY_API_TOKEN` as a repository secret (generate with `flyctl tokens create 
 
 ## Bird Activity
 
-Sunbird includes an optional bird activity feature powered by the eBird API. When an `EBIRD_API_KEY` is configured, a bird icon toggle appears in the top-right corner, switching between the weather view and a dedicated birding page.
+Bird activity is the primary feature, powered by the eBird API. When `EBIRD_API_KEY` is configured, the app opens in bird mode by default showing a species count hero, activity strip, notable species with photos, and a full sightings list. A segmented toggle switches to the weather view.
 
 **How it works:**
-- Recent bird observations are fetched from eBird (today's sightings, 5km radius)
-- A weather-based activity model scores each hour (0-100) based on time of day, season, temperature, rain, wind, and cloud cover
-- The bird view shows an activity strip (matching the daylight tracker style), notable species, and a full sightings list
+- Recent bird observations are fetched from eBird (last 5 days, 3–10 km adaptive radius)
+- Species are deduplicated and scored by time-of-day relevance to the user's current hour
+- A weather-based activity model scores each hour (0–100) based on time of day, season, temperature, rain, wind, and cloud cover
+- Notable species show top-rated photos from the Macaulay Library (proxied and cached for 30 days)
 
 **Caching strategy:**
-- Backend: 6-hour cache for eBird data (observations don't change fast)
+- Backend: 6-hour cache for eBird observations, 30-day cache for bird image asset IDs
 - Frontend: 3-hour localStorage cache
-- Activity scores recalculate instantly client-side using current weather — no API call needed
+- Activity scores recalculate instantly client-side using current weather
 
-**Without an eBird API key**, the bird UI is entirely hidden and the weather app works as normal.
+**Without an eBird API key**, the bird toggle is disabled and the app defaults to weather mode.
 
 To get an eBird API key, register at https://ebird.org/api/keygen
 
@@ -191,7 +198,7 @@ Authorization: Bearer <your_api_secret>
 }
 ```
 
-### `GET /api/birds?lat=X&lon=Y&temp_c=X&rain=X&wind=X&cloud=X`
+### `GET /api/birds?lat=X&lon=Y&hour=H&temp_c=X&rain=X&wind=X&cloud=X`
 
 Returns bird observations and activity predictions. Returns 503 if `EBIRD_API_KEY` is not configured.
 
@@ -203,10 +210,11 @@ Authorization: Bearer <your_api_secret>
 **Query Parameters:**
 - `lat`: Latitude (-90 to 90)
 - `lon`: Longitude (-180 to 180)
+- `hour`: Current hour at location, 0–23 (optional, for time-of-day relevance scoring)
 - `temp_c`: Current temperature in Celsius (optional, for activity model)
-- `rain`: Rain probability 0-100 (optional)
+- `rain`: Rain probability 0–100 (optional)
 - `wind`: Wind speed in m/s (optional)
-- `cloud`: Cloud cover 0-100 (optional)
+- `cloud`: Cloud cover 0–100 (optional)
 
 **Response:**
 ```json
@@ -227,6 +235,14 @@ Authorization: Bearer <your_api_secret>
   }
 }
 ```
+
+### `GET /api/bird-image/:speciesCode?size=320|1200`
+
+Proxies bird photos from the Macaulay Library. Returns the top-rated photo for a given eBird species code. Images are cached for 30 days.
+
+### `GET /api/location/approximate`
+
+Returns approximate location based on IP address (no authentication required). Falls back to London for private IPs in development.
 
 ## Testing
 
@@ -249,16 +265,16 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 ## Design Philosophy
 
-Sunbird follows a museum-poster aesthetic — luminous, scientific, restrained:
+Sunbird follows a museum-poster aesthetic — documentary, scientific, restrained:
 
-- **Scrollable layout** — Content flows naturally, with a sticky footer for freshness status
-- **Museum-poster palette** — 7-pigment colour system (sky, ice, dusk, stone, clay, pearl, ink) with chalk cobalt accent and max 2 pigments + glow per screen
-- **8 weather themes** — Each condition maps to a unique gradient pair with matched text, glow, and rain colours
-- **Light Window** — Signature component showing daylight strip with UV index
-- **Bird Activity** — eBird integration with weather-based activity predictions, matching the daylight tracker style
-- **Editorial headlines** — Weather described in narrative style ("Patches of sun.", "Grab an umbrella.")
-- **Typography-first** — Large temperature display, DM Sans + IBM Plex Mono, restrained type scale
-- **Graceful degradation** — Bird features hidden without API key, offline mode shows cached data
+- **Bird-first** — Species count and activity as the default hero, weather one tap away
+- **Single-page layout** — Everything on one scrollable page with a segmented toggle, not separate views
+- **Museum-poster palette** — 7-pigment colour system (sky, ice, dusk, stone, clay, pearl, ink) with chalk cobalt accent and max 2 hues + glow per screen
+- **9 weather themes** — Each condition maps to a unique gradient, text colour, glow, bloom, veil, and bird strip palette
+- **Light Window** — Daylight/night strip with UV index, sunrise/sunset times
+- **Editorial headlines** — Observational notes ("Dawn chorus underway.", "Midday lull.", "Clear night. Listen for owls.")
+- **Typography-first** — 128px hero number, DM Sans + IBM Plex Mono, restrained type scale
+- **Graceful degradation** — Bird toggle disabled without API key, offline mode shows cached data
 
 See [CLAUDE.md](CLAUDE.md) for the full design system specification.
 
