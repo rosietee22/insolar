@@ -24,7 +24,7 @@ router.get('/approximate', async (req, res) => {
                         clientIP === '::1' || 
                         clientIP.startsWith('192.168.') ||
                         clientIP.startsWith('10.') ||
-                        clientIP.startsWith('172.');
+                        /^172\.(1[6-9]|2\d|3[01])\./.test(clientIP);
     
     if (isPrivateIP) {
       // Development fallback - London

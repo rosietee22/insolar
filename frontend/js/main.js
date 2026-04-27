@@ -53,12 +53,14 @@ async function init() {
         const newWorker = registration.installing;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New version available - auto-refresh
-            console.log('New version available, refreshing...');
+            console.log('New version available, activating...');
             newWorker.postMessage({ type: 'SKIP_WAITING' });
-            window.location.reload();
           }
         });
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('New service worker active, refreshing...');
+        window.location.reload();
       });
     } catch (error) {
       console.error('Service Worker registration failed:', error);
@@ -79,6 +81,9 @@ async function init() {
   document.getElementById('use-approximate-btn')?.addEventListener('click', handleUseApproximate);
   document.getElementById('use-city-btn').addEventListener('click', showCitySearch);
   document.getElementById('search-city-btn').addEventListener('click', handleCitySearch);
+  document.getElementById('city-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleCitySearch();
+  });
   document.getElementById('cancel-search-btn').addEventListener('click', hideCitySearch);
   
   // Location options popup

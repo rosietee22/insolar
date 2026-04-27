@@ -8,6 +8,10 @@ import {
   generateHeroSentence
 } from './theme.js';
 
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // ==================== HERO MODE STATE ====================
 
 let _heroMode = 'birds'; // 'birds' | 'weather' — never persisted
@@ -764,18 +768,18 @@ export function renderBirdSections(birdData, activity) {
     const items = birdData.notable_species.map((s, i) =>
       `<div class="bird-notable-item">
         <div class="bird-notable-thumb"
-             data-species="${s.species_code}"
-             data-name="${s.common_name}">
-          <img src="/api/bird-image/${s.species_code}"
-               alt="${s.common_name}"
+             data-species="${esc(s.species_code)}"
+             data-name="${esc(s.common_name)}">
+          <img src="/api/bird-image/${encodeURIComponent(s.species_code)}"
+               alt="${esc(s.common_name)}"
                width="42" height="42"
                ${i >= 3 ? 'loading="lazy"' : ''}
                class="bird-notable-img"
                onerror="this.parentElement.classList.add('no-image')">
         </div>
         <div class="bird-notable-text">
-          <span class="bird-notable-name">${s.common_name}</span>
-          <span class="bird-notable-sci">${s.scientific_name}</span>
+          <span class="bird-notable-name">${esc(s.common_name)}</span>
+          <span class="bird-notable-sci">${esc(s.scientific_name)}</span>
         </div>
       </div>`
     ).join('');
@@ -816,9 +820,9 @@ export function renderBirdSections(birdData, activity) {
           const timeStr = formatObsTime(s.observed_at, now);
           return `
             <div class="bird-species-row">
-              <span class="bird-species-name">${s.common_name}</span>
-              <span class="bird-species-count">${s.how_many}</span>
-              <span class="bird-species-time">${timeStr}</span>
+              <span class="bird-species-name">${esc(s.common_name)}</span>
+              <span class="bird-species-count">${esc(s.how_many)}</span>
+              <span class="bird-species-time">${esc(timeStr)}</span>
             </div>
           `;
         }).join('');
@@ -846,13 +850,13 @@ function openBirdImageModal(speciesCode, commonName) {
     <div class="bird-image-modal-backdrop"></div>
     <div class="bird-image-modal-content">
       <div class="bird-image-modal-loading">Loading</div>
-      <img src="/api/bird-image/${speciesCode}?size=1200"
-           alt="${commonName}"
+      <img src="/api/bird-image/${encodeURIComponent(speciesCode)}?size=1200"
+           alt="${esc(commonName)}"
            class="bird-image-modal-img"
            onload="this.previousElementSibling.style.display='none'; this.style.opacity='1';"
            onerror="this.previousElementSibling.textContent='Image unavailable';">
       <div class="bird-image-modal-caption">
-        <span class="bird-image-modal-name">${commonName}</span>
+        <span class="bird-image-modal-name">${esc(commonName)}</span>
         <span class="bird-image-modal-credit">Macaulay Library</span>
       </div>
     </div>
@@ -906,8 +910,7 @@ function buildWeatherSubtitle(current) {
 
   const sky = current.cloud_percent > 70 ? 'Grey' : current.cloud_percent > 30 ? 'Cloudy' : 'Clear';
   if (windy) return sky + ' and ' + windy;
-  const join = sky === 'Grey' ? ' and ' : ' and ';
-  return sky + join + feel;
+  return sky + ', ' + feel;
 }
 
 /**
