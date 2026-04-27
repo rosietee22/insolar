@@ -24,7 +24,7 @@ A bird activity forecast that reads the weather, light and season to tell you wh
 
 **Frontend:**
 - Vanilla JavaScript (ES6 modules), no build step
-- Custom SVG weather icons (clear, cloudy, rain, drizzle, partly cloudy day/night, clear night)
+- Custom SVG weather icons (clear day/night, partly cloudy day/night, cloudy, drizzle, rain, heavy rain, fog, snow, storm)
 - Service Worker with content-hash versioning (auto-invalidates on deploy)
 - PWA manifest for installability
 - DM Sans + IBM Plex Mono typefaces, 8pt spacing grid

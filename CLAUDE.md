@@ -53,23 +53,23 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
 | Name | Edge | Mid | Used by |
 |------|------|-----|---------|
 | sunlight | `#C4B899` | `#F5E8B0` | Clear day, partly cloudy, snow, fog |
-| night | `#2A2D52` | `#5D5A7A` | Clear night |
-| overcast | `#7A7670` | `#A8A090` | Overcast |
-| rain | `#5A5750` | `#7A7468` | Rain, storm |
+| night | `#3A3D62` | `#7A78A0` | Clear night |
+| overcast | `#7A7670` | `#C8B888` | Overcast |
+| rain | `#5A5750` | `#9A9080` | Rain, storm |
 
 ### Weather Themes
 
 | Condition | from | to | Text | Secondary | Glow | Strip |
 |-----------|------|----|------|-----------|------|-------|
-| Clear Day | `#FDF9F0` | `#EDE6D6` | ink | `rgba(43,46,58,0.42)` | sunlight | sunlight |
-| Partly Cloudy | `#F3F4F1` | `#DDD9CF` | ink | `rgba(43,46,58,0.55)` | diffused | sunlight |
+| Clear Day | `#FDF9F0` | `#EDE6D6` | ink | `#9B9994` | sunlight | sunlight |
+| Partly Cloudy | `#F3F4F1` | `#DDD9CF` | ink | `#9B9994` | diffused | sunlight |
 | Partly Cloudy Night | `#363A52` | `#2A2D44` | `#DAD8E0` | `rgba(218,216,224,0.50)` | diffused | night |
 | Clear Night | `#2E3148` | `#222538` | `#DAD8E0` | `rgba(218,216,224,0.45)` | halo | night |
-| Overcast | `#DDDBD6` | `#B8B5AF` | ink | `rgba(43,46,58,0.48)` | fog | overcast |
+| Overcast | `#DDDBD6` | `#B8B5AF` | ink | `#9B9994` | fog | overcast |
 | Rain | `#74767E` | `#787880` | pearl | `rgba(240,237,234,0.45)` | fog | rain |
 | Storm | `#A99890` | `#6A5E6E` | pearl | `rgba(240,237,234,0.48)` | ember | rain |
-| Snow | `#F6F8FA` | `#DCD9D4` | ink | `rgba(43,46,58,0.42)` | sunlight | sunlight |
-| Fog | `#C8C5C0` | pearl | ink | `rgba(43,46,58,0.40)` | fog | sunlight |
+| Snow | `#F6F8FA` | `#DCD9D4` | ink | `#9B9994` | sunlight | sunlight |
+| Fog | `#C8C5C0` | pearl | ink | `#9B9994` | fog | sunlight |
 
 ### Bloom & Veil (per-theme atmosphere)
 
@@ -160,6 +160,24 @@ Documentary. Scientific. Editorial. Field-guide / atlas-like. Restrained and mod
   <path d="M1 14 C5 7, 11 5, 15 9 C17 6, 21 5, 23 6.5 C21 8, 18 10, 15 12.5 C11 11, 6 12, 1 14Z"/>
 </svg>
 ```
+
+### Weather Icons — `/icons/weather/*.svg`
+
+All weather icons use a `300×300` viewBox, `stroke="currentColor"`, `stroke-width="15"`, and `fill="none"` (except storm which is filled). Icons are rendered at 22×22px via CSS (`object-fit: contain`).
+
+| File | Condition |
+|------|-----------|
+| `clear-day.svg` | Clear daytime |
+| `clear-night.svg` | Clear nighttime |
+| `partly-cloudy-day.svg` | Partly cloudy day |
+| `partly-cloudy-night.svg` | Partly cloudy night |
+| `cloudy.svg` | Overcast |
+| `drizzle.svg` | Light rain (10–30%) |
+| `rain.svg` | Rain (30–60%) |
+| `rain-heavy.svg` | Heavy rain (>60%) |
+| `fog.svg` | Fog/mist/haze |
+| `snow.svg` | Snow/sleet/ice |
+| `storm.svg` | Thunderstorm |
 
 ### Favicon — `/icons/favicon.svg`
 
