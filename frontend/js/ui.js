@@ -205,19 +205,31 @@ function getForecastIcon(condition) {
 }
 
 /**
- * Estimate sunrise/sunset times from hourly is_day transitions
+ * Create a Date representing a location-local hour as a correct absolute timestamp.
+ * locationNow() produces a shifted Date whose .getHours() returns the location's
+ * local hour, but whose internal ms is offset. setHours() on that Date sets the
+ * browser-local interpretation, then we subtract _tzOffsetMs to get the real UTC instant.
+ */
+function makeLocationDate(hours, minutes = 0, dayOffset = 0) {
+  const loc = new Date(locationNow());
+  loc.setHours(hours, minutes, 0, 0);
+  if (dayOffset) loc.setDate(loc.getDate() + dayOffset);
+  return new Date(loc.getTime() - _tzOffsetMs);
+}
+
+/**
+ * Estimate sunrise/sunset times from hourly is_day transitions.
+ * Returns absolute Date objects (correct UTC instants) for use in
+ * progress calculations and formatTime().
  * @param {Array} hourly - Hourly forecast data
- * @returns {Object} { sunrise: Date, sunset: Date, nextSunrise: Date, isNight: boolean }
+ * @returns {Object} { sunrise: Date, sunset: Date, nextSunrise: Date }
  */
 function estimateSunriseSunset(hourly) {
   let sunrise = null;
   let sunset = null;
   let nextSunrise = null;
-  const now = locationNow();
-  const today = now.toDateString();
-
-  // Check if currently night (first hour is_day = false)
-  const currentlyNight = hourly[0] && !hourly[0].is_day;
+  const locNow = locationNow();
+  const today = locNow.toDateString();
 
   for (let i = 1; i < hourly.length; i++) {
     const prev = hourly[i - 1];
@@ -225,7 +237,6 @@ function estimateSunriseSunset(hourly) {
     const currDate = toLocationTime(new Date(curr.timestamp));
     const dateStr = currDate.toDateString();
 
-    // Night to day transition = sunrise
     if (!prev.is_day && curr.is_day) {
       if (!nextSunrise) {
         nextSunrise = new Date(curr.timestamp);
@@ -234,7 +245,6 @@ function estimateSunriseSunset(hourly) {
         sunrise = new Date(curr.timestamp);
       }
     }
-    // Day to night transition = sunset
     if (prev.is_day && !curr.is_day) {
       if (!sunset) {
         sunset = new Date(curr.timestamp);
@@ -242,36 +252,18 @@ function estimateSunriseSunset(hourly) {
     }
   }
 
-  // If currently night and no sunset found in future data, estimate it was earlier today
-  if (currentlyNight && !sunset) {
-    sunset = new Date(now);
-    const hour = now.getHours();
-    if (hour >= 16) {
-      sunset.setHours(16, 30, 0, 0);
-    } else {
-      sunset.setDate(sunset.getDate() - 1);
-      sunset.setHours(16, 30, 0, 0);
-    }
+  // If it's currently night, the sunset that already passed can't be in the future.
+  // The loop may have found tomorrow's sunset — pull it back 24h.
+  const currentlyNight = hourly[0] && !hourly[0].is_day;
+  if (currentlyNight && sunset && sunset > new Date()) {
+    sunset = new Date(sunset.getTime() - 86400000);
   }
 
-  // Fallback defaults
-  if (!sunrise) {
-    sunrise = new Date(now);
-    sunrise.setHours(7, 30, 0, 0);
-  }
-  if (!sunset) {
-    sunset = new Date(now);
-    sunset.setHours(16, 30, 0, 0);
-  }
-  if (!nextSunrise) {
-    nextSunrise = new Date(now);
-    nextSunrise.setDate(nextSunrise.getDate() + 1);
-    nextSunrise.setHours(7, 30, 0, 0);
-  }
+  if (!sunrise)     sunrise     = makeLocationDate(7, 30);
+  if (!sunset)      sunset      = makeLocationDate(16, 30);
+  if (!nextSunrise) nextSunrise = makeLocationDate(7, 30, 1);
 
-  const isNight = currentlyNight;
-
-  return { sunrise, sunset, nextSunrise, isNight };
+  return { sunrise, sunset, nextSunrise };
 }
 
 /**
@@ -311,7 +303,7 @@ function getMultiDayForecast(hourly, numDays = 3) {
     nextDate.setDate(nextDate.getDate() + 1);
     
     const dayHours = hourly.filter(h => {
-      const d = new Date(h.timestamp);
+      const d = toLocationTime(new Date(h.timestamp));
       return d >= targetDate && d < nextDate;
     });
     
@@ -387,23 +379,10 @@ export function renderApp(data) {
   const sunrise = data.sun?.sunrise ? new Date(data.sun.sunrise) : estimated.sunrise;
   const sunset = data.sun?.sunset ? new Date(data.sun.sunset) : estimated.sunset;
   const nextSunrise = data.sun?.tomorrow_sunrise ? new Date(data.sun.tomorrow_sunrise) : estimated.nextSunrise;
-  const isNight = estimated.isNight;
   const now = new Date();
 
-  // Adjust sunset/sunrise for edge cases
-  let adjustedSunset = sunset;
-  if (isNight && sunset > now) {
-    // Sunset already passed - use today's sunset time
-    adjustedSunset = new Date(sunset);
-    if (adjustedSunset > now) {
-      adjustedSunset.setDate(adjustedSunset.getDate() - 1);
-    }
-  }
-  let adjustedNextSunrise = nextSunrise;
-  if (adjustedNextSunrise <= adjustedSunset) {
-    adjustedNextSunrise = new Date(nextSunrise);
-    adjustedNextSunrise.setDate(adjustedNextSunrise.getDate() + 1);
-  }
+  // Determine night/day from actual sun times, not hourly is_day granularity
+  const isNight = now < sunrise || now >= sunset;
 
   // Light Window elements
   const lightWindowTitle = document.getElementById('light-window-title');
@@ -439,22 +418,30 @@ export function renderApp(data) {
 
   // Light strip and dot
   if (isNight) {
-    // Night mode
+    // Night mode — two cases: post-sunset or pre-dawn
+    let nightStart, nightEnd;
+    if (now >= sunset) {
+      nightStart = sunset;
+      nightEnd = nextSunrise;
+    } else {
+      // Pre-dawn: approximate last night's sunset as today's minus 24h
+      nightStart = new Date(sunset.getTime() - 86400000);
+      nightEnd = sunrise;
+    }
+
     if (lightWindowTitle) lightWindowTitle.textContent = 'UNTIL SUNRISE';
     if (lightStrip) lightStrip.classList.add('night');
     if (lightDot) {
-      lightDot.classList.add('night');
       lightDot.className = 'light-dot night';
     }
-    if (lightLabelLeft) lightLabelLeft.textContent = formatTime(adjustedSunset);
-    if (lightLabelRight) lightLabelRight.textContent = formatTime(adjustedNextSunrise);
+    if (lightLabelLeft) lightLabelLeft.textContent = formatTime(nightStart);
+    if (lightLabelRight) lightLabelRight.textContent = formatTime(nightEnd);
     if (lightLegend) {
       lightLegend.textContent = '';
     }
 
-    // Calculate night progress
-    const nightLength = adjustedNextSunrise.getTime() - adjustedSunset.getTime();
-    const elapsed = now.getTime() - adjustedSunset.getTime();
+    const nightLength = nightEnd.getTime() - nightStart.getTime();
+    const elapsed = now.getTime() - nightStart.getTime();
     const progress = Math.min(100, Math.max(0, Math.round((elapsed / nightLength) * 100)));
     if (lightDot) lightDot.style.left = `${progress}%`;
   } else {
