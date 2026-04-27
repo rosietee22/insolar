@@ -1030,6 +1030,7 @@ body::after {
   text-align: right;
   flex-shrink: 0;
   white-space: nowrap;
+  width: 80px;
 }
 
 .forecast-day-temps .low {

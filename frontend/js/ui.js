@@ -180,9 +180,13 @@ function getWindDescription(speedMs) {
  * @param {boolean} is_day - From API (based on actual sunrise/sunset)
  * @returns {string} Icon filename (without path)
  */
-function getWeatherIconName(rain_probability, cloud_percent, is_day) {
+function getWeatherIconName(rain_probability, cloud_percent, is_day, condition_type) {
   const isNight = !is_day;
+  const ct = (condition_type || '').toLowerCase();
 
+  if (ct.includes('thunder') || ct.includes('storm')) return 'storm';
+  if (ct.includes('snow') || ct.includes('sleet') || ct.includes('ice')) return 'snow';
+  if (ct.includes('fog') || ct.includes('mist') || ct.includes('haze')) return 'fog';
   if (rain_probability > 60) return 'rain-heavy';
   if (rain_probability > 30) return 'rain';
   if (rain_probability > 10) return 'drizzle';
@@ -196,6 +200,9 @@ function getWeatherIconName(rain_probability, cloud_percent, is_day) {
  */
 function getForecastIcon(condition) {
   const c = condition.toLowerCase();
+  if (c.includes('storm') || c.includes('thunder')) return 'storm';
+  if (c.includes('snow') || c.includes('sleet') || c.includes('ice')) return 'snow';
+  if (c.includes('fog') || c.includes('mist') || c.includes('haze')) return 'fog';
   if (c.includes('rain likely') || c.includes('rain expected')) return 'rain';
   if (c.includes('chance of rain')) return 'drizzle';
   if (c.includes('cloudy') && !c.includes('partly')) return 'cloudy';
@@ -407,7 +414,7 @@ export function renderApp(data) {
       return `
         <div class="hourly-item${isNow ? ' now' : ''}">
           <span class="hourly-time">${isNow ? 'Now' : formatHourShort(hour.timestamp)}</span>
-          <img src="/icons/weather/${getWeatherIconName(hour.rain_probability, hour.cloud_percent, hour.is_day)}.svg"
+          <img src="/icons/weather/${getWeatherIconName(hour.rain_probability, hour.cloud_percent, hour.is_day, hour.condition_type)}.svg"
                class="hourly-icon" alt="">
           <span class="hourly-temp">${Math.round(hour.temp_c)}°</span>
           <span class="hourly-rain">${showRain ? `${hour.rain_probability}%` : ''}</span>
@@ -576,16 +583,19 @@ function renderBirdStrip(activity) {
   const dormant = style.getPropertyValue('--bird-dormant').trim() || '#2A2D52';
   const active = style.getPropertyValue('--bird-active').trim() || '#A8B4FF';
 
+  const scores = activity.curve.map(p => p.score);
+  const maxScore = Math.max(...scores);
+  const minScore = Math.min(...scores);
+  const range = maxScore - minScore || 1;
+
   const stops = activity.curve.map(point => {
     const pct = Math.round((point.hour / 23) * 100);
-    const intensity = point.score / 100;
-    if (intensity > 0.6) {
-      return `color-mix(in srgb, ${active} ${Math.round(intensity * 100)}%, ${dormant}) ${pct}%`;
-    } else if (intensity > 0.3) {
-      return `color-mix(in srgb, ${active} ${Math.round(intensity * 60)}%, ${dormant}) ${pct}%`;
-    } else {
+    const normalized = (point.score - minScore) / range;
+    const mix = Math.round(Math.pow(normalized, 1.4) * 100);
+    if (mix < 10) {
       return `${dormant} ${pct}%`;
     }
+    return `color-mix(in srgb, ${active} ${mix}%, ${dormant}) ${pct}%`;
   });
   strip.style.background = `linear-gradient(90deg, ${stops.join(', ')})`;
 
