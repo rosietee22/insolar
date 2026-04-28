@@ -765,10 +765,8 @@ export function renderBirdSections(birdData, activity) {
   // Notable species (with thumbnails from Macaulay Library)
   const notableEl = document.getElementById('bird-notable');
   if (notableEl && birdData.notable_species && birdData.notable_species.length > 0) {
-    const now = locationNow();
-    const items = birdData.notable_species.map((s, i) => {
-      const timeStr = formatObsTime(s.observed_at, now);
-      return `<div class="bird-notable-item">
+    const items = birdData.notable_species.map((s, i) =>
+      `<div class="bird-notable-item">
         <div class="bird-notable-thumb"
              data-species="${esc(s.species_code)}"
              data-name="${esc(s.common_name)}">
@@ -781,10 +779,10 @@ export function renderBirdSections(birdData, activity) {
         </div>
         <div class="bird-notable-text">
           <span class="bird-notable-name">${esc(s.common_name)}</span>
-          <span class="bird-notable-sci">${esc(s.scientific_name)}${timeStr ? ` · ${timeStr}` : ''}</span>
+          <span class="bird-notable-sci">${esc(s.scientific_name)}</span>
         </div>
-      </div>`;
-    }).join('');
+      </div>`
+    ).join('');
     notableEl.innerHTML = `
       <div class="bird-notable-title">What to look for</div>
       <div class="bird-notable-list">${items}</div>
