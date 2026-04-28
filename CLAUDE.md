@@ -204,7 +204,9 @@ All weather icons use a `300×300` viewBox, `stroke="currentColor"`, `stroke-wid
 
 ## Architecture
 
-- **Single source of truth**: All theme data lives in `frontend/js/theme.js` — palette, glow presets, strip presets, weather themes
+- **Single source of truth**: All theme data lives in `frontend/js/theme.js` -- palette, glow presets, strip presets, weather themes
 - **CSS variables bridge**: `applyTheme()` sets CSS custom properties on `document.documentElement`, so CSS never needs hardcoded theme colours
-- **Theme Lab**: `frontend/colour-lab.html` imports directly from `theme.js` — no duplicated data
+- **Theme Lab**: `frontend/colour-lab.html` imports directly from `theme.js` -- no duplicated data
 - **9 themes**: clearDay, partlyCloudy, partlyCloudyNight, clearNight, overcast, rain, storm, snow, fog
+- **Progressive GPS**: `getGPSLocation()` uses `watchPosition` to resolve on the first fix <= 100m, then silently refines via an `onRefine` callback for up to 15s or until accuracy <= 30m. GPS coordinates round to 4 decimals (~11m). IP and city-search paths keep 3-decimal rounding. GPS location objects include an `accuracy` field (metres); other sources omit it.
+- **Silent refresh**: `loadForecast()` accepts `{ silent: true }` to skip the loading spinner, used by the GPS refinement path so the UI updates quietly without flicker.

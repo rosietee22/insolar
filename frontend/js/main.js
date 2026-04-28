@@ -203,7 +203,9 @@ async function handleUseMyLocation() {
   clearGPSDenied();
 
   try {
-    const location = await getGPSLocation();
+    const location = await getGPSLocation({
+      onRefine: (refined) => loadForecast(refined, { silent: true })
+    });
     console.log('Got GPS location:', location);
     await loadForecast(location);
   } catch (error) {
@@ -317,9 +319,11 @@ async function handleCitySearch() {
 /**
  * Load forecast for given location
  * @param {Object} location - {lat, lon}
+ * @param {Object} [opts]
+ * @param {boolean} [opts.silent] - Skip loading spinner (for background refinements)
  */
-async function loadForecast(location) {
-  showLoading();
+async function loadForecast(location, { silent = false } = {}) {
+  if (!silent) showLoading();
   hideOfflineWarning();
 
   try {

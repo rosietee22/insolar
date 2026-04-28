@@ -96,11 +96,16 @@ function logLocationEvent(event, data = {}) {
 }
 
 /**
- * Request GPS location from browser
- * Short timeout, coarse accuracy for speed
- * @returns {Promise<Object>} {lat, lon, source: 'gps'}
+ * Request GPS location via progressive watch.
+ * Resolves with the first acceptable fix (<= 100m), then continues
+ * watching for up to 15s, calling onRefine with better positions.
+ * @param {Object} options
+ * @param {Function} [options.onRefine] - Called with a refined location object
+ * @returns {Promise<Object>} {lat, lon, accuracy, source: 'gps'}
  */
-export function getGPSLocation() {
+export function getGPSLocation(options = {}) {
+  const { onRefine } = options;
+
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       logLocationEvent('gps_not_supported');
@@ -110,53 +115,99 @@ export function getGPSLocation() {
 
     logLocationEvent('gps_requesting');
 
-    navigator.geolocation.getCurrentPosition(
+    let watchId = null;
+    let hardTimeoutId = null;
+    let resolved = false;
+    let bestAccuracy = Infinity;
+    const watchStartedAt = Date.now();
+
+    function cleanup() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      if (hardTimeoutId !== null) {
+        clearTimeout(hardTimeoutId);
+        hardTimeoutId = null;
+      }
+    }
+
+    function buildLocation(position) {
+      return {
+        lat: roundCoord(position.coords.latitude, 4),
+        lon: roundCoord(position.coords.longitude, 4),
+        accuracy: position.coords.accuracy,
+        source: 'gps',
+        timestamp: Date.now()
+      };
+    }
+
+    watchId = navigator.geolocation.watchPosition(
       (position) => {
-        const lat = roundCoord(position.coords.latitude);
-        const lon = roundCoord(position.coords.longitude);
+        const accuracy = position.coords.accuracy;
+        const elapsed = Date.now() - watchStartedAt;
 
-        const location = {
-          lat,
-          lon,
-          source: 'gps',
-          timestamp: Date.now()
-        };
+        if (!resolved && accuracy <= 100) {
+          resolved = true;
+          bestAccuracy = accuracy;
+          const location = buildLocation(position);
+          localStorage.setItem(LOCATION_KEY, JSON.stringify(location));
+          logLocationEvent('gps_success', { lat: location.lat, lon: location.lon, accuracy });
+          resolve(location);
+        } else if (resolved && accuracy < bestAccuracy && accuracy <= 100) {
+          bestAccuracy = accuracy;
+          const location = buildLocation(position);
+          localStorage.setItem(LOCATION_KEY, JSON.stringify(location));
+          logLocationEvent('gps_refined', { lat: location.lat, lon: location.lon, accuracy });
+          if (typeof onRefine === 'function') {
+            onRefine(location);
+          }
+        }
 
-        // Cache location
-        localStorage.setItem(LOCATION_KEY, JSON.stringify(location));
-        logLocationEvent('gps_success', { lat, lon });
-
-        resolve(location);
+        if (accuracy <= 30 || elapsed >= 15000) {
+          cleanup();
+        }
       },
       (error) => {
-        let message = 'Location unavailable';
-        let errorCode = 'unknown';
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            message = 'GPS permission denied';
-            errorCode = 'denied';
-            markGPSDenied(); // Remember denial to avoid repeated prompts
-            break;
-          case error.POSITION_UNAVAILABLE:
-            message = 'Location unavailable';
-            errorCode = 'unavailable';
-            break;
-          case error.TIMEOUT:
-            message = 'Location timed out';
-            errorCode = 'timeout';
-            break;
+        cleanup();
+        if (!resolved) {
+          let message = 'Location unavailable';
+          let errorCode = 'unknown';
+
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              message = 'GPS permission denied';
+              errorCode = 'denied';
+              markGPSDenied();
+              break;
+            case error.POSITION_UNAVAILABLE:
+              message = 'Location unavailable';
+              errorCode = 'unavailable';
+              break;
+            case error.TIMEOUT:
+              message = 'Location timed out';
+              errorCode = 'timeout';
+              break;
+          }
+
+          logLocationEvent('gps_failed', { errorCode, message });
+          reject(new Error(message));
         }
-        
-        logLocationEvent('gps_failed', { errorCode, message });
-        reject(new Error(message));
       },
       {
-        enableHighAccuracy: false, // Coarse is faster
-        timeout: 5000, // 5 seconds (shorter for better UX)
-        maximumAge: 60000 // Accept 1 minute old position
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 600000
       }
     );
+
+    hardTimeoutId = setTimeout(() => {
+      if (!resolved) {
+        cleanup();
+        logLocationEvent('gps_failed', { errorCode: 'timeout', message: 'Location timed out' });
+        reject(new Error('Location timed out'));
+      }
+    }, 15000);
   });
 }
 

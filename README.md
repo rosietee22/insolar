@@ -15,7 +15,7 @@ A bird activity forecast that reads the weather, light and season to tell you wh
 - **3-day forecast** — Collapsible accordion with conditions summary
 - **9 weather themes** — Adaptive gradients, text colours, glow, bloom, and atmospheric veil per condition
 - **Editorial headlines** — Observational bird-activity sentences ("Dawn chorus underway.", "Midday lull.") and weather sentences for the weather view
-- **Location options** — GPS, IP-based approximate location, and city search
+- **Location options** — Progressive GPS (resolves fast, refines silently), IP-based approximate location, and city search
 - **Offline support** — Service worker caching with auto-update detection
 - **Installable PWA** — Standalone app with Open Graph and Twitter card meta
 - **SEO** — Structured data, sitemap, robots.txt, OG image
@@ -36,7 +36,7 @@ A bird activity forecast that reads the weather, light and season to tell you wh
 - Macaulay Library image proxy with 30-day cache
 - OpenStreetMap Nominatim for reverse geocoding
 - IP-based approximate location (ip-api.com)
-- In-memory caching (5 min forecast, 6 hr bird data, 30 day bird images)
+- In-memory caching (5 min forecast, 2 hr bird data, 30 day bird images)
 - HTTP-only session cookie authentication
 - Helmet, CORS, compression, rate limiting
 
