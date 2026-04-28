@@ -47,6 +47,10 @@
   box-sizing: border-box;
 }
 
+html {
+  background: var(--gradient-to);
+}
+
 body {
   font-family: var(--font-body);
   background: linear-gradient(180deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
@@ -1121,7 +1125,7 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  padding: var(--space-1) 0 6px 0;
+  padding: var(--space-3) 0 6px 0;
   padding-bottom: calc(6px + env(safe-area-inset-bottom));
   font-size: 10px;
   font-weight: 500;
