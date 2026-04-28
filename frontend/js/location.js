@@ -105,8 +105,10 @@ function logLocationEvent(event, data = {}) {
  */
 export function getGPSLocation(options = {}) {
   const { onRefine } = options;
+  if (window.debugLog) window.debugLog('getGPSLocation entered');
 
   return new Promise((resolve, reject) => {
+    if (window.debugLog) window.debugLog('navigator.geolocation exists: ' + !!navigator.geolocation);
     if (!navigator.geolocation) {
       logLocationEvent('gps_not_supported');
       reject(new Error('Geolocation not supported'));
@@ -142,10 +144,12 @@ export function getGPSLocation(options = {}) {
       };
     }
 
+    if (window.debugLog) window.debugLog('calling watchPosition with options: enableHighAccuracy=true, timeout=15000');
     watchId = navigator.geolocation.watchPosition(
       (position) => {
         const accuracy = position.coords.accuracy;
         const elapsed = Date.now() - watchStartedAt;
+        if (window.debugLog) window.debugLog('position received: accuracy=' + accuracy + 'm, lat=' + position.coords.latitude.toFixed(4) + ', lon=' + position.coords.longitude.toFixed(4));
 
         if (!resolved && accuracy <= 100) {
           resolved = true;
@@ -169,6 +173,7 @@ export function getGPSLocation(options = {}) {
         }
       },
       (error) => {
+        if (window.debugLog) window.debugLog('geolocation error: code=' + error.code + ', message=' + error.message + ', PERMISSION_DENIED=' + error.PERMISSION_DENIED);
         cleanup();
         if (!resolved) {
           let message = 'Location unavailable';

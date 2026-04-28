@@ -29,6 +29,18 @@ import {
 import { initColourPicker, setWeatherData, applySavedOverrides } from './colour-picker.js';
 import { loadBirdData, calculateActivityCurve, isBirdFeatureAvailable } from './birds.js';
 
+// Temporary debug overlay logger (remove after location diagnosis)
+function debugLog(message) {
+  const overlay = document.getElementById('debug-overlay');
+  if (!overlay) return;
+  const time = new Date().toISOString().split('T')[1].split('.')[0];
+  const line = document.createElement('div');
+  line.textContent = `[${time}] ${message}`;
+  overlay.appendChild(line);
+  overlay.scrollTop = overlay.scrollHeight;
+}
+window.debugLog = debugLog;
+
 // Cache keys
 const FORECAST_CACHE_KEY = 'weather_forecast';
 const CACHE_MAX_AGE = 60 * 60 * 1000; // 60 minutes
@@ -37,6 +49,10 @@ const CACHE_MAX_AGE = 60 * 60 * 1000; // 60 minutes
  * Initialize app
  */
 async function init() {
+  debugLog('init started');
+  debugLog('secure context: ' + isSecureContext());
+  debugLog('in-app browser: ' + JSON.stringify(detectInAppBrowser()));
+  debugLog('cached location: ' + JSON.stringify(getCachedLocation()));
   console.log('Sunbird initializing...');
 
   // Register service worker with auto-update checking
@@ -141,6 +157,7 @@ async function init() {
  * Request location (GPS or city search)
  */
 async function requestLocation() {
+  debugLog('requestLocation called');
   console.log('Requesting location...');
 
   const cachedLocation = getCachedLocation();
@@ -149,7 +166,7 @@ async function requestLocation() {
     console.log('Using cached location:', cachedLocation);
     await loadForecast(cachedLocation);
   } else {
-    // Show location permission prompt
+    debugLog('showing location prompt');
     showLocationPrompt();
   }
 }
@@ -195,22 +212,27 @@ function checkLocationContext() {
  * Handle "Use my location" button - tries GPS first, falls back gracefully
  */
 async function handleUseMyLocation() {
+  debugLog('handleUseMyLocation tapped');
   hideLocationPrompt();
   hideLocationOptions();
   showLoading();
-  
+
   // Clear previous denial flag when user explicitly taps
   clearGPSDenied();
+  debugLog('cleared denial flag');
 
   try {
+    debugLog('about to call getGPSLocation');
     const location = await getGPSLocation({
       onRefine: (refined) => loadForecast(refined, { silent: true })
     });
+    debugLog('GPS resolved: ' + JSON.stringify(location));
     console.log('Got GPS location:', location);
     await loadForecast(location);
   } catch (error) {
+    debugLog('GPS error caught: ' + error.message + ' (code: ' + (error.code || 'none') + ')');
     console.error('GPS error:', error.message);
-    
+
     // GPS failed - show fallback options instead of error
     showLocationFallback(error.message);
   }
