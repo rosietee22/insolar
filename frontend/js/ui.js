@@ -825,6 +825,8 @@ export function renderBirdSections(birdData, activity) {
             <div class="bird-species-row"
                  data-species="${esc(s.species_code)}"
                  data-name="${esc(s.common_name)}"
+                 data-sci="${esc(s.scientific_name || '')}"
+                 data-count="${esc(s.how_many)}"
                  data-location="${esc(s.location_name || '')}"
                  data-observed="${esc(s.observed_at || '')}">
               <span class="bird-species-name">${esc(s.common_name)}</span>
@@ -840,7 +842,8 @@ export function renderBirdSections(birdData, activity) {
         `;
 
         listEl.querySelectorAll('.bird-species-row').forEach(row => {
-          row.addEventListener('click', () => {
+          row.addEventListener('click', (e) => {
+            if (e.target.closest('.bird-species-detail-img-wrap')) return;
             const expanded = row.querySelector('.bird-species-detail');
             if (expanded) {
               expanded.remove();
@@ -855,8 +858,13 @@ export function renderBirdSections(birdData, activity) {
             detail.className = 'bird-species-detail';
             const loc = row.dataset.location;
             const obs = row.dataset.observed;
+            const count = row.dataset.count;
+            const sci = row.dataset.sci;
             const timeDetail = obs ? formatObsTime(obs, locationNow()) : '';
-            const metaParts = [loc, timeDetail].filter(Boolean);
+            const infoParts = [];
+            if (count && count !== '1') infoParts.push(count + ' seen');
+            if (loc) infoParts.push(loc);
+            if (timeDetail) infoParts.push(timeDetail);
             detail.innerHTML = `
               <div class="bird-species-detail-img-wrap">
                 <img src="/api/bird-image/${encodeURIComponent(row.dataset.species)}"
@@ -865,8 +873,18 @@ export function renderBirdSections(birdData, activity) {
                      loading="lazy"
                      onerror="this.parentElement.classList.add('no-image')">
               </div>
-              ${metaParts.length ? `<span class="bird-species-detail-meta">${esc(metaParts.join(' · '))}</span>` : ''}
+              <div class="bird-species-detail-info">
+                ${sci ? `<span class="bird-species-detail-sci">${esc(sci)}</span>` : ''}
+                ${infoParts.length ? `<span class="bird-species-detail-meta">${esc(infoParts.join(' · '))}</span>` : ''}
+              </div>
             `;
+            detail.querySelector('.bird-species-detail-img-wrap').addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              openBirdImageModal(row.dataset.species, row.dataset.name, {
+                locationName: loc,
+                observedAt: obs
+              });
+            });
             row.appendChild(detail);
             row.classList.add('expanded');
           });
