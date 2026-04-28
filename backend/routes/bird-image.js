@@ -55,21 +55,28 @@ router.get('/:speciesCode', async (req, res) => {
       return res.status(404).json({ error: 'No image found' });
     }
 
-    // Step 2: Fetch image from CDN and proxy
-    const imageUrl = `${ML_CDN_URL}/${assetId}/${size}`;
-    const imageRes = await fetch(imageUrl);
+    // Step 2: Fetch image from CDN and proxy (cached 30 days)
+    const imgCacheKey = `bird-img:${assetId}:${size}`;
+    let imgCached = cache.get(imgCacheKey);
 
-    if (!imageRes.ok) {
-      console.error(`CDN fetch failed for asset ${assetId}: ${imageRes.status}`);
-      return res.status(502).json({ error: 'Image fetch failed' });
+    if (!imgCached) {
+      const imageUrl = `${ML_CDN_URL}/${assetId}/${size}`;
+      const imageRes = await fetch(imageUrl);
+
+      if (!imageRes.ok) {
+        console.error(`CDN fetch failed for asset ${assetId}: ${imageRes.status}`);
+        return res.status(502).json({ error: 'Image fetch failed' });
+      }
+
+      const contentType = imageRes.headers.get('content-type') || 'image/jpeg';
+      const buffer = Buffer.from(await imageRes.arrayBuffer());
+      imgCached = { contentType, buffer };
+      cache.set(imgCacheKey, imgCached, 2592000); // 30 days
     }
 
-    const contentType = imageRes.headers.get('content-type') || 'image/jpeg';
-    res.set('Content-Type', contentType);
-    res.set('Cache-Control', 'public, max-age=2592000'); // 30 days
-
-    const buffer = await imageRes.arrayBuffer();
-    res.send(Buffer.from(buffer));
+    res.set('Content-Type', imgCached.contentType);
+    res.set('Cache-Control', 'public, max-age=2592000');
+    res.send(imgCached.buffer);
 
   } catch (error) {
     console.error('Bird image proxy error:', error.message);

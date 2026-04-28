@@ -774,7 +774,7 @@ export function renderBirdSections(birdData, activity) {
         <div class="bird-notable-thumb">
           <img src="/api/bird-image/${encodeURIComponent(s.species_code)}"
                alt="${esc(s.common_name)}"
-               width="42" height="42"
+               width="64" height="64"
                ${i >= 3 ? 'loading="lazy"' : ''}
                class="bird-notable-img"
                onerror="this.parentElement.classList.add('no-image')">
@@ -862,7 +862,7 @@ export function renderBirdSections(birdData, activity) {
             const sci = row.dataset.sci;
             const timeDetail = obs ? formatObsTime(obs, locationNow()) : '';
             const infoParts = [];
-            if (count && count !== '1') infoParts.push(count + ' seen');
+            if (count) infoParts.push(count + ' seen');
             if (loc) infoParts.push(loc);
             if (timeDetail) infoParts.push(timeDetail);
             detail.innerHTML = `
