@@ -62,12 +62,12 @@ router.get('/', authMiddleware, async (req, res, next) => {
       ? Math.max(0, Math.min(23, parseInt(req.query.hour, 10) || 0))
       : null;
 
-    // Check cache for raw observations (6-hour TTL)
+    // Check cache for raw observations (2-hour TTL)
     const cacheKey = `birds-raw:${cache.makeKey(roundedLat, roundedLon)}`;
     let cached = cache.get(cacheKey);
 
     if (!cached) {
-      // Fetch from eBird: start tight (3km, 5 days), widen if sparse
+      // Fetch from eBird: start tight (3km, 2 days), widen if sparse
       console.log(`Fetching bird data for ${roundedLat},${roundedLon}...`);
       let rawObs = await provider.getRecentObservations(roundedLat, roundedLon, { dist: 3 });
       let observations = provider.transformObservations(rawObs);
@@ -82,7 +82,7 @@ router.get('/', authMiddleware, async (req, res, next) => {
       }
 
       cached = { observations, radius };
-      cache.set(cacheKey, cached, 21600); // 6 hours
+      cache.set(cacheKey, cached, 7200); // 2 hours
     }
 
     // Score and sort by time-of-day relevance (dynamic, not cached)

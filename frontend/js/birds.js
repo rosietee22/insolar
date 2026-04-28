@@ -6,7 +6,7 @@
 import { getBirdData } from './api.js';
 
 const BIRD_CACHE_KEY = 'bird_data';
-const BIRD_CACHE_MAX_AGE = 3 * 60 * 60 * 1000; // 3 hours
+const BIRD_CACHE_MAX_AGE = 1 * 60 * 60 * 1000; // 1 hour
 
 let featureAvailable = null; // null = unknown, true/false after first check
 

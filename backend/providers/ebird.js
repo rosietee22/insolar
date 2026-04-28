@@ -23,7 +23,7 @@ class EBirdProvider {
    * @param {Object} opts - { dist, back, maxResults }
    * @returns {Promise<Array>} Raw eBird observations
    */
-  async getRecentObservations(lat, lon, { dist = 3, back = 5, maxResults = 100 } = {}) {
+  async getRecentObservations(lat, lon, { dist = 3, back = 2, maxResults = 100 } = {}) {
     if (!this.isAvailable()) {
       throw new Error('eBird API key not configured');
     }
