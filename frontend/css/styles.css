@@ -811,6 +811,16 @@ body::after {
   flex-shrink: 0;
 }
 
+.bird-image-modal-credit a {
+  color: rgba(240, 237, 234, 0.55);
+  text-decoration: none;
+}
+
+.bird-image-modal-credit a:hover {
+  color: rgba(240, 237, 234, 0.75);
+  text-decoration: underline;
+}
+
 .bird-species-list {
   border-top: 1px solid var(--glass-border);
   padding-top: var(--space-2);
@@ -1189,6 +1199,25 @@ body::after {
 
 #palette-btn {
   display: flex;
+}
+
+.page-credits {
+  text-align: center;
+  padding: 4px 0 var(--space-1);
+}
+
+.page-credits a {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.page-credits a:hover {
+  color: var(--text-secondary);
 }
 
 /* ==================== BUTTONS ==================== */

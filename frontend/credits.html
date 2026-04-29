@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FEFCF0">
+  <title>Sunbird - Image Credits</title>
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+      --font-data: 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+      --text-primary: #2B2E3A;
+      --text-secondary: rgba(43,46,58,0.42);
+      --text-muted: rgba(43,46,58,0.32);
+      --accent-color: #2F5EEA;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      background: #FDF9F0;
+      padding: 40px 24px;
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    .back {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 32px;
+    }
+
+    .back:hover { color: var(--text-primary); }
+
+    h1 {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 28px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .source {
+      border-top: 1px solid rgba(0,0,0,0.08);
+      padding: 16px 0;
+    }
+
+    .source-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .source-detail {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .source-license {
+      font-family: var(--font-data);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back">&larr; Back to Sunbird</a>
+
+  <h1>Image Credits</h1>
+
+  <p>Bird photographs on Sunbird are sourced from openly licensed collections. Each image is attributed to its photographer with the applicable license displayed alongside it.</p>
+
+  <div class="source">
+    <div class="source-name"><a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a></div>
+    <div class="source-detail">Primary source. Images are retrieved via the MediaWiki API using the species' scientific name. Only images with open licenses (CC BY, CC BY-SA, CC0, or Public Domain) are used.</div>
+    <div class="source-license">Licenses vary per image and are displayed individually.</div>
+  </div>
+
+  <div class="source">
+    <div class="source-name"><a href="https://www.inaturalist.org/" target="_blank" rel="noopener">iNaturalist</a></div>
+    <div class="source-detail">Fallback source when no suitable Wikimedia image is available. Only research-grade observations with CC0, CC BY, or CC BY-SA licensed photos are used.</div>
+    <div class="source-license">Licenses vary per image and are displayed individually.</div>
+  </div>
+
+  <h2>Bird observation data</h2>
+  <p>Species sightings are provided by the <a href="https://ebird.org/" target="_blank" rel="noopener">eBird</a> API (Cornell Lab of Ornithology), used under their API terms of use.</p>
+
+  <h2>License requirements</h2>
+  <p>Creative Commons licenses require attribution. Each bird image on Sunbird displays the photographer's name and the applicable license. If you believe an image is incorrectly attributed, please contact us.</p>
+</body>
+</html>

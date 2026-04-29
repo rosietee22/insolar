@@ -8,7 +8,7 @@ A bird activity forecast that reads the weather, light and season to tell you wh
 
 - **Bird-first hero** — Species count and activity headline as the default view, with a segmented toggle to switch to weather
 - **Bird activity strip** — 24-hour gradient showing dawn/dusk peaks, scored hourly by time of day, season, temperature, rain, wind, and cloud cover
-- **Notable species** — "What to look for" section with photos from the Macaulay Library (Cornell Lab), tappable for full-size images
+- **Notable species** — "What to look for" section with CC-licensed photos (Wikimedia Commons / iNaturalist), tappable for full-size images with attribution
 - **Sightings list** — All recent observations within 3–10 km, sorted by most recent, with observation times
 - **Daylight & UV strip** — Sunrise/sunset tracker with UV index and contextual labels (night mode shows "Until sunrise")
 - **12-hour hourly forecast** — Scrollable strip with weather icons, temperatures, and rain probability
@@ -33,7 +33,7 @@ A bird activity forecast that reads the weather, light and season to tell you wh
 - Express.js (Node.js 18+)
 - Google Weather API (WeatherNext AI)
 - eBird API v2 (Cornell Lab of Ornithology)
-- Macaulay Library image proxy with 30-day cache
+- Bird image proxy (Wikimedia Commons / iNaturalist fallback) with 30-day cache
 - OpenStreetMap Nominatim for reverse geocoding
 - IP-based approximate location (ip-api.com)
 - In-memory caching (5 min forecast, 2 hr bird data, 30 day bird images)
@@ -66,7 +66,7 @@ sunbird/
 │   ├── routes/
 │   │   ├── forecast.js    # Weather forecast endpoint
 │   │   ├── birds.js       # Bird observations & activity endpoint
-│   │   ├── bird-image.js  # Macaulay Library image proxy
+│   │   ├── bird-image.js  # CC-licensed bird image proxy
 │   │   └── location.js    # IP-based approximate location
 │   ├── providers/
 │   │   ├── base.js        # Provider interface
@@ -148,7 +148,7 @@ Bird activity is the primary feature, powered by the eBird API. When `EBIRD_API_
 - Recent bird observations are fetched from eBird (last 5 days, 3–10 km adaptive radius)
 - Species are deduplicated and scored by time-of-day relevance to the user's current hour
 - A weather-based activity model scores each hour (0–100) based on time of day, season, temperature, rain, wind, and cloud cover
-- Notable species show top-rated photos from the Macaulay Library (proxied and cached for 30 days)
+- Notable species show CC-licensed photos from Wikimedia Commons or iNaturalist (proxied and cached for 30 days)
 
 **Caching strategy:**
 - Backend: 6-hour cache for eBird observations, 30-day cache for bird image asset IDs
@@ -236,9 +236,13 @@ Authorization: Bearer <your_api_secret>
 }
 ```
 
-### `GET /api/bird-image/:speciesCode?size=320|1200`
+### `GET /api/bird-image/:speciesCode?sci=Scientific+Name&size=320|1200`
 
-Proxies bird photos from the Macaulay Library. Returns the top-rated photo for a given eBird species code. Images are cached for 30 days.
+Proxies CC-licensed bird photos (Wikimedia Commons → iNaturalist → placeholder fallback). Returns an openly licensed photo for the given eBird species code with 30-day caching. The `sci` parameter provides the scientific name for image lookup.
+
+### `GET /api/bird-image/:speciesCode/info?sci=Scientific+Name`
+
+Returns attribution metadata (photographer, license, source URL) for the species image.
 
 ### `GET /api/location/approximate`
 

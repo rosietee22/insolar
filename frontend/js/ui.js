@@ -762,17 +762,18 @@ export function renderBirdSections(birdData, activity) {
   // Re-render hero now that bird data is available
   renderHero();
 
-  // Notable species (with thumbnails from Macaulay Library)
+  // Notable species
   const notableEl = document.getElementById('bird-notable');
   if (notableEl && birdData.notable_species && birdData.notable_species.length > 0) {
     const items = birdData.notable_species.map((s, i) =>
       `<div class="bird-notable-item"
             data-species="${esc(s.species_code)}"
             data-name="${esc(s.common_name)}"
+            data-sci="${esc(s.scientific_name || '')}"
             data-location="${esc(s.location_name || '')}"
             data-observed="${esc(s.observed_at || '')}">
         <div class="bird-notable-thumb">
-          <img src="/api/bird-image/${encodeURIComponent(s.species_code)}"
+          <img src="/api/bird-image/${encodeURIComponent(s.species_code)}?sci=${encodeURIComponent(s.scientific_name || '')}"
                alt="${esc(s.common_name)}"
                width="64" height="64"
                ${i >= 3 ? 'loading="lazy"' : ''}
@@ -793,6 +794,7 @@ export function renderBirdSections(birdData, activity) {
     notableEl.querySelectorAll('.bird-notable-item').forEach(item => {
       item.addEventListener('click', () => {
         openBirdImageModal(item.dataset.species, item.dataset.name, {
+          scientificName: item.dataset.sci,
           locationName: item.dataset.location,
           observedAt: item.dataset.observed
         });
@@ -867,7 +869,7 @@ export function renderBirdSections(birdData, activity) {
             if (timeDetail) infoParts.push(timeDetail);
             detail.innerHTML = `
               <div class="bird-species-detail-img-wrap">
-                <img src="/api/bird-image/${encodeURIComponent(row.dataset.species)}"
+                <img src="/api/bird-image/${encodeURIComponent(row.dataset.species)}?sci=${encodeURIComponent(sci || '')}"
                      alt="${esc(row.dataset.name)}"
                      class="bird-species-detail-img"
                      loading="lazy"
@@ -881,6 +883,7 @@ export function renderBirdSections(birdData, activity) {
             detail.querySelector('.bird-species-detail-img-wrap').addEventListener('click', (ev) => {
               ev.stopPropagation();
               openBirdImageModal(row.dataset.species, row.dataset.name, {
+                scientificName: sci,
                 locationName: loc,
                 observedAt: obs
               });
@@ -895,9 +898,9 @@ export function renderBirdSections(birdData, activity) {
 }
 
 /**
- * Open bird image modal with larger photo
+ * Open bird image modal with larger photo and attribution
  */
-function openBirdImageModal(speciesCode, commonName, { locationName, observedAt } = {}) {
+function openBirdImageModal(speciesCode, commonName, { scientificName, locationName, observedAt } = {}) {
   let modal = document.getElementById('bird-image-modal');
   if (modal) modal.remove();
 
@@ -908,6 +911,8 @@ function openBirdImageModal(speciesCode, commonName, { locationName, observedAt 
     ? `<span class="bird-image-modal-detail">${esc(detailParts.join(' · '))}</span>`
     : '';
 
+  const sciParam = scientificName ? `&sci=${encodeURIComponent(scientificName)}` : '';
+
   modal = document.createElement('div');
   modal.id = 'bird-image-modal';
   modal.className = 'bird-image-modal';
@@ -916,7 +921,7 @@ function openBirdImageModal(speciesCode, commonName, { locationName, observedAt 
     <div class="bird-image-modal-content">
       <button class="bird-image-modal-close" aria-label="Close">&times;</button>
       <div class="bird-image-modal-loading">Loading</div>
-      <img src="/api/bird-image/${encodeURIComponent(speciesCode)}?size=1200"
+      <img src="/api/bird-image/${encodeURIComponent(speciesCode)}?size=1200${sciParam}"
            alt="${esc(commonName)}"
            class="bird-image-modal-img"
            onload="this.previousElementSibling.style.display='none'; this.style.opacity='1';"
@@ -926,7 +931,7 @@ function openBirdImageModal(speciesCode, commonName, { locationName, observedAt 
           <span class="bird-image-modal-name">${esc(commonName)}</span>
           ${detailLine}
         </div>
-        <span class="bird-image-modal-credit">Macaulay Library</span>
+        <span class="bird-image-modal-credit" id="bird-image-modal-credit"></span>
       </div>
     </div>
   `;
@@ -938,6 +943,23 @@ function openBirdImageModal(speciesCode, commonName, { locationName, observedAt 
   document.addEventListener('keydown', handleModalEscape);
 
   requestAnimationFrame(() => modal.classList.add('visible'));
+
+  fetch(`/api/bird-image/${encodeURIComponent(speciesCode)}/info?sci=${encodeURIComponent(scientificName || '')}`)
+    .then(r => r.json())
+    .then(info => {
+      const creditEl = document.getElementById('bird-image-modal-credit');
+      if (!creditEl) return;
+      if (info.photographer && info.license) {
+        const licenseLink = info.licenseUrl
+          ? `<a href="${esc(info.licenseUrl)}" target="_blank" rel="noopener">${esc(info.license)}</a>`
+          : esc(info.license);
+        const sourceLink = info.sourceUrl
+          ? `<a href="${esc(info.sourceUrl)}" target="_blank" rel="noopener">${esc(info.photographer)}</a>`
+          : esc(info.photographer);
+        creditEl.innerHTML = `${sourceLink} · ${licenseLink}`;
+      }
+    })
+    .catch(() => {});
 }
 
 function closeBirdImageModal() {
