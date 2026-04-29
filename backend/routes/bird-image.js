@@ -39,103 +39,174 @@ function normalizeLicense(raw) {
 }
 
 /**
- * Try Wikimedia Commons via the Wikipedia article's main image.
+ * Score a Commons image candidate. Returns -1 to reject.
+ */
+function scoreCommonsImage(info, ext) {
+  if (!info.mime?.startsWith('image/jpeg')) return -1;
+  if (info.width < 800 || info.height < 600) return -1;
+
+  const ratio = info.width / info.height;
+  if (ratio < 0.5 || ratio > 3) return -1;
+
+  const licenseRaw = ext.LicenseShortName?.value || '';
+  if (!isOpenLicense(licenseRaw)) return -1;
+
+  let score = 0;
+
+  const assessments = (ext.Assessments?.value || '').toLowerCase();
+  if (assessments.includes('featured')) score += 10;
+  if (assessments.includes('quality')) score += 5;
+  if (assessments.includes('valued')) score += 3;
+
+  score += Math.min(info.width, 4000) / 1000;
+
+  if (ratio >= 1.0 && ratio <= 1.8) score += 2;
+
+  return score;
+}
+
+function buildWikimediaMeta(info, ext) {
+  const fullUrl = info.thumburl || info.url;
+  const thumbUrl = fullUrl.replace(/\/\d+px-/, '/320px-');
+  return {
+    source: 'wikimedia',
+    thumbUrl,
+    fullUrl,
+    photographer: stripHtml(ext.Artist?.value) || 'Unknown',
+    license: normalizeLicense(ext.LicenseShortName?.value || ''),
+    licenseUrl: ext.LicenseUrl?.value || '',
+    sourceUrl: info.descriptionurl || '',
+  };
+}
+
+/**
+ * Search Commons directly for quality photos of the species.
+ */
+async function searchCommonsPhotos(scientificName) {
+  const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent('"' + scientificName + '"')}&gsrlimit=10&prop=imageinfo&iiprop=url|extmetadata|mime|size&iiurlwidth=1200&format=json`;
+
+  const res = await fetch(searchUrl, { headers: { 'Api-User-Agent': USER_AGENT } });
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const pages = data.query?.pages;
+  if (!pages) return null;
+
+  const candidates = Object.values(pages)
+    .map(page => {
+      const info = page.imageinfo?.[0];
+      if (!info) return null;
+      const ext = info.extmetadata || {};
+      const score = scoreCommonsImage(info, ext);
+      if (score < 0) return null;
+      return { info, ext, score };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score);
+
+  if (candidates.length === 0) return null;
+  return buildWikimediaMeta(candidates[0].info, candidates[0].ext);
+}
+
+/**
+ * Fallback: get the Wikipedia article's main image from Commons.
+ */
+async function tryWikipediaArticleImage(scientificName) {
+  const wikiTitle = scientificName.replace(/ /g, '_');
+  const pageUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&piprop=original&format=json&redirects=1`;
+
+  const pageRes = await fetch(pageUrl, { headers: { 'Api-User-Agent': USER_AGENT } });
+  if (!pageRes.ok) return null;
+
+  const pageData = await pageRes.json();
+  const page = Object.values(pageData.query?.pages || {})[0];
+  if (!page || page.missing !== undefined || !page.pageimage) return null;
+
+  const filename = page.pageimage;
+  if (/\.(svg|gif|png)$/i.test(filename)) return null;
+
+  const commonsUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(filename)}&prop=imageinfo&iiprop=url|extmetadata|mime|size&iiurlwidth=1200&format=json`;
+
+  const commonsRes = await fetch(commonsUrl, { headers: { 'Api-User-Agent': USER_AGENT } });
+  if (!commonsRes.ok) return null;
+
+  const commonsPage = Object.values((await commonsRes.json()).query?.pages || {})[0];
+  const info = commonsPage?.imageinfo?.[0];
+  if (!info) return null;
+
+  const ext = info.extmetadata || {};
+  if (scoreCommonsImage(info, ext) < 0) return null;
+
+  return buildWikimediaMeta(info, ext);
+}
+
+/**
+ * Try Wikimedia Commons: direct search first, then Wikipedia article image.
  */
 async function tryWikimedia(scientificName) {
   try {
-    const wikiTitle = scientificName.replace(/ /g, '_');
-    const pageUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wikiTitle)}&prop=pageimages&piprop=original&format=json&redirects=1`;
-
-    const pageRes = await fetch(pageUrl, { headers: { 'Api-User-Agent': USER_AGENT } });
-    if (!pageRes.ok) return null;
-
-    const pageData = await pageRes.json();
-    const pages = pageData.query?.pages;
-    if (!pages) return null;
-
-    const page = Object.values(pages)[0];
-    if (!page || page.missing !== undefined || !page.pageimage) return null;
-
-    const filename = page.pageimage;
-
-    const commonsUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(filename)}&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1200&format=json`;
-
-    const commonsRes = await fetch(commonsUrl, { headers: { 'Api-User-Agent': USER_AGENT } });
-    if (!commonsRes.ok) return null;
-
-    const commonsData = await commonsRes.json();
-    const commonsPages = commonsData.query?.pages;
-    if (!commonsPages) return null;
-
-    const commonsPage = Object.values(commonsPages)[0];
-    if (!commonsPage || commonsPage.missing !== undefined) return null;
-
-    const info = commonsPage.imageinfo?.[0];
-    if (!info) return null;
-
-    const ext = info.extmetadata || {};
-    const licenseRaw = ext.LicenseShortName?.value || '';
-
-    if (!isOpenLicense(licenseRaw)) return null;
-
-    const fullUrl = info.thumburl || info.url;
-    const thumbUrl = fullUrl.replace(/\/\d+px-/, '/320px-');
-
-    return {
-      source: 'wikimedia',
-      thumbUrl,
-      fullUrl,
-      photographer: stripHtml(ext.Artist?.value) || 'Unknown',
-      license: normalizeLicense(licenseRaw),
-      licenseUrl: ext.LicenseUrl?.value || '',
-      sourceUrl: info.descriptionurl || `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(filename)}`,
-    };
+    const result = await searchCommonsPhotos(scientificName);
+    if (result) return result;
   } catch (err) {
-    console.error('Wikimedia lookup failed:', err.message);
-    return null;
+    console.error('Commons search failed:', err.message);
   }
+
+  try {
+    const result = await tryWikipediaArticleImage(scientificName);
+    if (result) return result;
+  } catch (err) {
+    console.error('Wikipedia image lookup failed:', err.message);
+  }
+
+  return null;
 }
 
 /**
  * Try iNaturalist for a research-grade, openly-licensed photo.
+ * Fetches multiple candidates and picks the most-voted.
  */
 async function tryINaturalist(scientificName) {
   try {
-    const searchUrl = `https://api.inaturalist.org/v1/observations?taxon_name=${encodeURIComponent(scientificName)}&quality_grade=research&photos=true&photo_license=cc0,cc-by,cc-by-sa&per_page=1&order_by=votes`;
+    const searchUrl = `https://api.inaturalist.org/v1/observations?taxon_name=${encodeURIComponent(scientificName)}&quality_grade=research&photos=true&photo_license=cc0,cc-by,cc-by-sa&per_page=5&order_by=votes`;
 
     const res = await fetch(searchUrl, { headers: { 'User-Agent': USER_AGENT } });
     if (!res.ok) return null;
 
     const data = await res.json();
-    const obs = data.results?.[0];
-    if (!obs?.photos?.length) return null;
-
-    const photo = obs.photos[0];
-    if (!photo.url) return null;
-
-    const thumbUrl = photo.url.replace('square', 'medium');
-    const fullUrl = photo.url.replace('square', 'large');
-
-    const attribution = photo.attribution || '';
-    const nameMatch = attribution.match(/\(c\)\s*(.+?),/i) || attribution.match(/©\s*(.+?),/i);
-    const photographer = nameMatch ? nameMatch[1].trim() : 'Unknown';
+    if (!data.results?.length) return null;
 
     const licenseMap = {
       'cc0': { name: 'CC0 1.0', url: 'https://creativecommons.org/publicdomain/zero/1.0/' },
       'cc-by': { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
       'cc-by-sa': { name: 'CC BY-SA 4.0', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
     };
-    const licenseInfo = licenseMap[photo.license_code] || { name: photo.license_code || 'CC', url: '' };
 
-    return {
-      source: 'inaturalist',
-      thumbUrl,
-      fullUrl,
-      photographer,
-      license: licenseInfo.name,
-      licenseUrl: licenseInfo.url,
-      sourceUrl: obs.uri || `https://www.inaturalist.org/observations/${obs.id}`,
-    };
+    for (const obs of data.results) {
+      const photo = obs.photos?.[0];
+      if (!photo?.url) continue;
+
+      const licenseInfo = licenseMap[photo.license_code];
+      if (!licenseInfo) continue;
+
+      const thumbUrl = photo.url.replace('square', 'medium');
+      const fullUrl = photo.url.replace('square', 'large');
+
+      const attribution = photo.attribution || '';
+      const nameMatch = attribution.match(/\(c\)\s*(.+?),/i) || attribution.match(/©\s*(.+?),/i);
+      const photographer = nameMatch ? nameMatch[1].trim() : 'Unknown';
+
+      return {
+        source: 'inaturalist',
+        thumbUrl,
+        fullUrl,
+        photographer,
+        license: licenseInfo.name,
+        licenseUrl: licenseInfo.url,
+        sourceUrl: obs.uri || `https://www.inaturalist.org/observations/${obs.id}`,
+      };
+    }
+
+    return null;
   } catch (err) {
     console.error('iNaturalist lookup failed:', err.message);
     return null;
