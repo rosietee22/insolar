@@ -71,7 +71,7 @@ const SW_TEMPLATE = fs.readFileSync(path.join(FRONTEND_DIR, 'service-worker.js')
 
 // Build version hash from static asset content at startup
 const STATIC_ASSETS = [
-  'index.html', 'css/styles.css', 'js/main.js', 'js/api.js',
+  'service-worker.js', 'index.html', 'css/styles.css', 'js/main.js', 'js/api.js',
   'js/location.js', 'js/ui.js', 'js/theme.js', 'js/colour-picker.js', 'js/birds.js'
 ];
 const assetHash = crypto.createHash('md5');

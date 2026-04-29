@@ -91,9 +91,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Bird images and attribution: Cache-first (change very rarely)
+  // Bird images and attribution: Network-first (server handles caching)
   if (url.pathname.startsWith('/api/bird-image/')) {
-    event.respondWith(cacheFirstStrategy(request));
+    event.respondWith(networkFirstStrategy(request));
     return;
   }
 

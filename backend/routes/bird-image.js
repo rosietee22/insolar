@@ -38,6 +38,8 @@ function normalizeLicense(raw) {
   return raw.replace(/^cc\s/i, 'CC ');
 }
 
+const ILLUSTRATION_PATTERNS = /\b(illustration|drawing|sketch|painting|cartoon|diagram|map|range map|stamp|engraving|plate|lithograph|art\b)/i;
+
 /**
  * Score a Commons image candidate. Returns -1 to reject.
  */
@@ -51,12 +53,20 @@ function scoreCommonsImage(info, ext) {
   const licenseRaw = ext.LicenseShortName?.value || '';
   if (!isOpenLicense(licenseRaw)) return -1;
 
+  const desc = (ext.ImageDescription?.value || '').toLowerCase();
+  const cats = (ext.Categories?.value || '').toLowerCase();
+  const title = (info.descriptionurl || '').toLowerCase();
+  const combined = `${desc} ${cats} ${title}`;
+  if (ILLUSTRATION_PATTERNS.test(combined)) return -1;
+
   let score = 0;
 
   const assessments = (ext.Assessments?.value || '').toLowerCase();
   if (assessments.includes('featured')) score += 10;
   if (assessments.includes('quality')) score += 5;
   if (assessments.includes('valued')) score += 3;
+
+  if (cats.includes('photograph')) score += 2;
 
   score += Math.min(info.width, 4000) / 1000;
 
@@ -181,7 +191,11 @@ async function tryINaturalist(scientificName) {
       'cc-by-sa': { name: 'CC BY-SA 4.0', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
     };
 
+    const target = scientificName.toLowerCase();
     for (const obs of data.results) {
+      const taxon = (obs.taxon?.name || '').toLowerCase();
+      if (taxon !== target && !taxon.startsWith(target + ' ')) continue;
+
       const photo = obs.photos?.[0];
       if (!photo?.url) continue;
 
@@ -215,6 +229,7 @@ async function tryINaturalist(scientificName) {
 
 /**
  * Resolve speciesCode + scientificName → image metadata.
+ * Runs iNaturalist and Wikimedia in parallel; prefers iNaturalist (real photos).
  * Results are cached for 30 days (or 1 day for misses).
  */
 async function resolveImageMeta(speciesCode, scientificName) {
@@ -227,8 +242,15 @@ async function resolveImageMeta(speciesCode, scientificName) {
     return null;
   }
 
-  let meta = await tryWikimedia(scientificName);
-  if (!meta) meta = await tryINaturalist(scientificName);
+  const [inatResult, commonsResult] = await Promise.allSettled([
+    tryINaturalist(scientificName),
+    tryWikimedia(scientificName),
+  ]);
+
+  const inat = inatResult.status === 'fulfilled' ? inatResult.value : null;
+  const commons = commonsResult.status === 'fulfilled' ? commonsResult.value : null;
+
+  const meta = inat || commons;
 
   if (meta) {
     cache.set(cacheKey, meta, META_TTL);
