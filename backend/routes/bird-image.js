@@ -150,25 +150,11 @@ async function tryWikipediaArticleImage(scientificName) {
   return buildWikimediaMeta(info, ext);
 }
 
-/**
- * Try Wikimedia Commons: direct search first, then Wikipedia article image.
- */
-async function tryWikimedia(scientificName) {
-  try {
-    const result = await searchCommonsPhotos(scientificName);
-    if (result) return result;
-  } catch (err) {
-    console.error('Commons search failed:', err.message);
+async function safeCall(fn, label) {
+  try { return await fn(); } catch (err) {
+    console.error(`${label} failed:`, err.message);
+    return null;
   }
-
-  try {
-    const result = await tryWikipediaArticleImage(scientificName);
-    if (result) return result;
-  } catch (err) {
-    console.error('Wikipedia image lookup failed:', err.message);
-  }
-
-  return null;
 }
 
 /**
@@ -229,7 +215,8 @@ async function tryINaturalist(scientificName) {
 
 /**
  * Resolve speciesCode + scientificName → image metadata.
- * Runs iNaturalist and Wikimedia in parallel; prefers iNaturalist (real photos).
+ * Runs all sources in parallel; prefers Wikipedia article image (curated),
+ * then Commons search, then iNaturalist as last resort.
  * Results are cached for 30 days (or 1 day for misses).
  */
 async function resolveImageMeta(speciesCode, scientificName) {
@@ -242,15 +229,17 @@ async function resolveImageMeta(speciesCode, scientificName) {
     return null;
   }
 
-  const [inatResult, commonsResult] = await Promise.allSettled([
-    tryINaturalist(scientificName),
-    tryWikimedia(scientificName),
+  const [wikiResult, commonsResult, inatResult] = await Promise.allSettled([
+    safeCall(() => tryWikipediaArticleImage(scientificName), 'Wikipedia image'),
+    safeCall(() => searchCommonsPhotos(scientificName), 'Commons search'),
+    safeCall(() => tryINaturalist(scientificName), 'iNaturalist'),
   ]);
 
-  const inat = inatResult.status === 'fulfilled' ? inatResult.value : null;
+  const wiki = wikiResult.status === 'fulfilled' ? wikiResult.value : null;
   const commons = commonsResult.status === 'fulfilled' ? commonsResult.value : null;
+  const inat = inatResult.status === 'fulfilled' ? inatResult.value : null;
 
-  const meta = inat || commons;
+  const meta = wiki || commons || inat;
 
   if (meta) {
     cache.set(cacheKey, meta, META_TTL);
