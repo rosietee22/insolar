@@ -4,6 +4,7 @@ const authMiddleware = require('../auth');
 const cache = require('../cache');
 const EBirdProvider = require('../providers/ebird');
 const { calculateActivityCurve } = require('../bird-activity');
+const { resolveImageMeta } = require('./bird-image');
 
 const provider = new EBirdProvider();
 
@@ -96,6 +97,38 @@ router.get('/', authMiddleware, async (req, res, next) => {
       cloud_percent: parseFloat(req.query.cloud) || 50,
     });
 
+    // Resolve image URLs for notable + visible species in parallel
+    const speciesNeedingImages = [
+      ...notableSpecies,
+      ...scored.slice(0, 20),
+    ];
+    const seen = new Set();
+    const unique = speciesNeedingImages.filter(s => {
+      if (seen.has(s.species_code)) return false;
+      seen.add(s.species_code);
+      return true;
+    });
+
+    const imageMetas = await Promise.allSettled(
+      unique.map(s => resolveImageMeta(s.species_code, s.scientific_name))
+    );
+
+    const imageMap = {};
+    unique.forEach((s, i) => {
+      const result = imageMetas[i];
+      if (result.status === 'fulfilled' && result.value) {
+        imageMap[s.species_code] = {
+          thumb: result.value.thumbUrl,
+          full: result.value.fullUrl,
+          photographer: result.value.photographer,
+          license: result.value.license,
+          licenseUrl: result.value.licenseUrl,
+          source: result.value.source,
+          sourceUrl: result.value.sourceUrl,
+        };
+      }
+    });
+
     res.json({
       generated_at: new Date().toISOString(),
       location: { lat: roundedLat, lon: roundedLon },
@@ -104,6 +137,7 @@ router.get('/', authMiddleware, async (req, res, next) => {
       total_species_count: scored.length,
       observation_radius_km: cached.radius,
       activity,
+      images: imageMap,
       cached: !!cache.get(cacheKey),
     });
 

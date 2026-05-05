@@ -352,3 +352,4 @@ router.get('/:speciesCode/info', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.resolveImageMeta = resolveImageMeta;

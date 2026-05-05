@@ -741,6 +741,20 @@ function generateBirdMeta(activity, speciesCount) {
   return parts.join(' · ');
 }
 
+let _birdImages = {};
+
+function birdThumbUrl(speciesCode, scientificName) {
+  const img = _birdImages[speciesCode];
+  if (img) return img.thumb;
+  return `/api/bird-image/${encodeURIComponent(speciesCode)}?sci=${encodeURIComponent(scientificName || '')}`;
+}
+
+function birdFullUrl(speciesCode, scientificName) {
+  const img = _birdImages[speciesCode];
+  if (img) return img.full;
+  return `/api/bird-image/${encodeURIComponent(speciesCode)}?size=1200&sci=${encodeURIComponent(scientificName || '')}`;
+}
+
 /**
  * Render bird sections (strip, notable, species list) — NOT the hero
  * @param {Object} birdData - Full bird data from API
@@ -751,6 +765,7 @@ export function renderBirdSections(birdData, activity) {
 
   _storedBirdData = birdData;
   _storedActivity = activity;
+  if (birdData.images) _birdImages = birdData.images;
 
   // Enable bird toggle
   const birdsBtn = document.getElementById('hero-toggle-birds');
@@ -773,10 +788,11 @@ export function renderBirdSections(birdData, activity) {
             data-location="${esc(s.location_name || '')}"
             data-observed="${esc(s.observed_at || '')}">
         <div class="bird-notable-thumb">
-          <img src="/api/bird-image/${encodeURIComponent(s.species_code)}?sci=${encodeURIComponent(s.scientific_name || '')}"
+          <img src="${birdThumbUrl(s.species_code, s.scientific_name)}"
                alt="${esc(s.common_name)}"
                width="64" height="64"
                ${i >= 3 ? 'loading="lazy"' : ''}
+               crossorigin="anonymous"
                class="bird-notable-img"
                onerror="this.parentElement.classList.add('no-image')">
         </div>
@@ -869,10 +885,11 @@ export function renderBirdSections(birdData, activity) {
             if (timeDetail) infoParts.push(timeDetail);
             detail.innerHTML = `
               <div class="bird-species-detail-img-wrap">
-                <img src="/api/bird-image/${encodeURIComponent(row.dataset.species)}?sci=${encodeURIComponent(sci || '')}"
+                <img src="${birdThumbUrl(row.dataset.species, sci)}"
                      alt="${esc(row.dataset.name)}"
                      class="bird-species-detail-img"
                      loading="lazy"
+                     crossorigin="anonymous"
                      onerror="this.parentElement.classList.add('no-image')">
               </div>
               <div class="bird-species-detail-info">
@@ -911,7 +928,19 @@ function openBirdImageModal(speciesCode, commonName, { scientificName, locationN
     ? `<span class="bird-image-modal-detail">${esc(detailParts.join(' · '))}</span>`
     : '';
 
-  const sciParam = scientificName ? `&sci=${encodeURIComponent(scientificName)}` : '';
+  const imgData = _birdImages[speciesCode];
+  const fullSrc = birdFullUrl(speciesCode, scientificName);
+
+  let creditHtml = '';
+  if (imgData?.photographer && imgData?.license) {
+    const licenseLink = imgData.licenseUrl
+      ? `<a href="${esc(imgData.licenseUrl)}" target="_blank" rel="noopener">${esc(imgData.license)}</a>`
+      : esc(imgData.license);
+    const sourceLink = imgData.sourceUrl
+      ? `<a href="${esc(imgData.sourceUrl)}" target="_blank" rel="noopener">${esc(imgData.photographer)}</a>`
+      : esc(imgData.photographer);
+    creditHtml = `${sourceLink} · ${licenseLink}`;
+  }
 
   modal = document.createElement('div');
   modal.id = 'bird-image-modal';
@@ -921,9 +950,10 @@ function openBirdImageModal(speciesCode, commonName, { scientificName, locationN
     <div class="bird-image-modal-content">
       <button class="bird-image-modal-close" aria-label="Close">&times;</button>
       <div class="bird-image-modal-loading">Loading</div>
-      <img src="/api/bird-image/${encodeURIComponent(speciesCode)}?size=1200${sciParam}"
+      <img src="${fullSrc}"
            alt="${esc(commonName)}"
            class="bird-image-modal-img"
+           crossorigin="anonymous"
            onload="this.previousElementSibling.style.display='none'; this.style.opacity='1';"
            onerror="this.previousElementSibling.textContent='Image unavailable';">
       <div class="bird-image-modal-caption">
@@ -931,7 +961,7 @@ function openBirdImageModal(speciesCode, commonName, { scientificName, locationN
           <span class="bird-image-modal-name">${esc(commonName)}</span>
           ${detailLine}
         </div>
-        <span class="bird-image-modal-credit" id="bird-image-modal-credit"></span>
+        <span class="bird-image-modal-credit" id="bird-image-modal-credit">${creditHtml}</span>
       </div>
     </div>
   `;
@@ -944,22 +974,24 @@ function openBirdImageModal(speciesCode, commonName, { scientificName, locationN
 
   requestAnimationFrame(() => modal.classList.add('visible'));
 
-  fetch(`/api/bird-image/${encodeURIComponent(speciesCode)}/info?sci=${encodeURIComponent(scientificName || '')}`)
-    .then(r => r.json())
-    .then(info => {
-      const creditEl = document.getElementById('bird-image-modal-credit');
-      if (!creditEl) return;
-      if (info.photographer && info.license) {
-        const licenseLink = info.licenseUrl
-          ? `<a href="${esc(info.licenseUrl)}" target="_blank" rel="noopener">${esc(info.license)}</a>`
-          : esc(info.license);
-        const sourceLink = info.sourceUrl
-          ? `<a href="${esc(info.sourceUrl)}" target="_blank" rel="noopener">${esc(info.photographer)}</a>`
-          : esc(info.photographer);
-        creditEl.innerHTML = `${sourceLink} · ${licenseLink}`;
-      }
-    })
-    .catch(() => {});
+  if (!imgData) {
+    fetch(`/api/bird-image/${encodeURIComponent(speciesCode)}/info?sci=${encodeURIComponent(scientificName || '')}`)
+      .then(r => r.json())
+      .then(info => {
+        const creditEl = document.getElementById('bird-image-modal-credit');
+        if (!creditEl) return;
+        if (info.photographer && info.license) {
+          const licenseLink = info.licenseUrl
+            ? `<a href="${esc(info.licenseUrl)}" target="_blank" rel="noopener">${esc(info.license)}</a>`
+            : esc(info.license);
+          const sourceLink = info.sourceUrl
+            ? `<a href="${esc(info.sourceUrl)}" target="_blank" rel="noopener">${esc(info.photographer)}</a>`
+            : esc(info.photographer);
+          creditEl.innerHTML = `${sourceLink} · ${licenseLink}`;
+        }
+      })
+      .catch(() => {});
+  }
 }
 
 function closeBirdImageModal() {
