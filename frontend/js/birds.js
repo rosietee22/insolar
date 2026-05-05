@@ -6,7 +6,8 @@
 import { getBirdData } from './api.js';
 
 const BIRD_CACHE_KEY = 'bird_data';
-const BIRD_CACHE_MAX_AGE = 1 * 60 * 60 * 1000; // 1 hour
+const BIRD_CACHE_LOC_KEY = 'bird_data_loc';
+const BIRD_CACHE_MAX_AGE = 30 * 60 * 1000; // 30 minutes
 
 let featureAvailable = null; // null = unknown, true/false after first check
 
@@ -25,12 +26,13 @@ export function isBirdFeatureAvailable() {
  * @returns {Promise<Object|null>} Bird data or null
  */
 export async function loadBirdData(lat, lon, currentWeather = {}, locationTime = {}) {
-  // Try cache first
-  const cached = getCachedBirdData();
+  const locKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+  const sameLocation = localStorage.getItem(BIRD_CACHE_LOC_KEY) === locKey;
+
+  const cached = sameLocation ? getCachedBirdData() : null;
   if (cached) {
     const age = Date.now() - new Date(cached.generated_at).getTime();
     if (age < BIRD_CACHE_MAX_AGE) {
-      // Recalculate activity client-side with fresh weather
       cached.activity = calculateActivityCurve(currentWeather, locationTime);
       featureAvailable = true;
       return cached;
@@ -40,7 +42,7 @@ export async function loadBirdData(lat, lon, currentWeather = {}, locationTime =
   try {
     const locationHour = locationTime?.hour ?? null;
     const data = await getBirdData(lat, lon, currentWeather, locationHour);
-    cacheBirdData(data);
+    cacheBirdData(data, locKey);
     featureAvailable = true;
     return data;
   } catch (error) {
@@ -49,7 +51,6 @@ export async function loadBirdData(lat, lon, currentWeather = {}, locationTime =
       return null;
     }
     console.error('Bird data fetch error:', error);
-    // Return stale cached data if available
     if (cached) {
       cached.activity = calculateActivityCurve(currentWeather, locationTime);
       return cached;
@@ -61,9 +62,10 @@ export async function loadBirdData(lat, lon, currentWeather = {}, locationTime =
 /**
  * Cache bird data to localStorage
  */
-function cacheBirdData(data) {
+function cacheBirdData(data, locKey) {
   try {
     localStorage.setItem(BIRD_CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(BIRD_CACHE_LOC_KEY, locKey);
   } catch (e) {
     console.error('Bird cache write error:', e);
   }
@@ -74,6 +76,7 @@ function cacheBirdData(data) {
  */
 export function clearBirdCache() {
   localStorage.removeItem(BIRD_CACHE_KEY);
+  localStorage.removeItem(BIRD_CACHE_LOC_KEY);
 }
 
 /**
