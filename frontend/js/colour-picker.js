@@ -7,17 +7,6 @@ import { PALETTE, applyTheme, buildTheme } from './theme.js';
 
 const STORAGE_KEY = 'insolar_palette_overrides';
 
-// Labels for each palette key
-const LABELS = {
-  sky: 'Sky',
-  ice: 'Ice',
-  dusk: 'Dusk',
-  stone: 'Stone',
-  clay: 'Clay',
-  pearl: 'Pearl',
-  ink: 'Ink',
-};
-
 let currentOverrides = {};
 let lastWeatherData = null;
 
@@ -109,72 +98,6 @@ function hexToRgb(hex) {
 }
 
 /**
- * Render swatches into the picker panel
- */
-function renderSwatches() {
-  const container = document.getElementById('colour-swatches');
-  if (!container) return;
-
-  const palette = getEffectivePalette();
-
-  container.innerHTML = Object.entries(LABELS).map(([key, label]) => {
-    const color = palette[key];
-    return `
-      <div class="colour-swatch" data-key="${key}">
-        <div class="colour-swatch-circle" style="background: ${color}"></div>
-        <span class="colour-swatch-label">${label}</span>
-        <input type="color" value="${color}" data-key="${key}">
-      </div>
-    `;
-  }).join('');
-
-  // Attach change listeners
-  container.querySelectorAll('input[type="color"]').forEach(input => {
-    input.addEventListener('input', (e) => {
-      const key = e.target.dataset.key;
-      const value = e.target.value;
-      currentOverrides[key] = value;
-      saveOverrides();
-
-      // Update swatch circle
-      const circle = e.target.parentElement.querySelector('.colour-swatch-circle');
-      if (circle) circle.style.background = value;
-
-      applyOverrides();
-    });
-  });
-}
-
-/**
- * Reset overrides
- */
-function resetOverrides() {
-  currentOverrides = {};
-  saveOverrides();
-  renderSwatches();
-  applyOverrides();
-}
-
-/**
- * Toggle picker visibility
- */
-function togglePicker() {
-  const picker = document.getElementById('colour-picker');
-  if (!picker) return;
-
-  if (picker.classList.contains('visible')) {
-    picker.classList.remove('visible');
-    picker.classList.add('hidden');
-  } else {
-    picker.classList.remove('hidden');
-    // Force reflow before adding visible class for transition
-    picker.offsetHeight;
-    picker.classList.add('visible');
-    renderSwatches();
-  }
-}
-
-/**
  * Store weather data for live re-theming
  */
 export function setWeatherData(data) {
@@ -188,14 +111,9 @@ export function initColourPicker() {
   loadOverrides();
 
   const paletteBtn = document.getElementById('palette-btn');
-  const closeBtn = document.getElementById('colour-picker-close');
-  const resetBtn = document.getElementById('colour-picker-reset');
-
   if (paletteBtn) paletteBtn.addEventListener('click', () => {
     window.location.href = '/colour-lab.html';
   });
-  if (closeBtn) closeBtn.addEventListener('click', togglePicker);
-  if (resetBtn) resetBtn.addEventListener('click', resetOverrides);
 }
 
 /**

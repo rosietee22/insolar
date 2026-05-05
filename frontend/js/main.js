@@ -3,14 +3,13 @@
  */
 
 import { getForecast, searchCity } from './api.js';
-import { 
-  getGPSLocation, 
+import {
+  getGPSLocation,
   getApproximateLocation,
-  getCachedLocation, 
+  getCachedLocation,
   setCityLocation,
   detectInAppBrowser,
   isSecureContext,
-  wasGPSDenied,
   clearGPSDenied
 } from './location.js';
 import {

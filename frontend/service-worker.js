@@ -84,10 +84,6 @@ self.addEventListener('fetch', (event) => {
 
   // Skip cross-origin requests
   if (url.origin !== self.location.origin) {
-    // Exception: Cache Chart.js CDN
-    if (url.host === 'cdn.jsdelivr.net' && url.pathname.includes('chart.js')) {
-      event.respondWith(cacheFirstStrategy(request));
-    }
     return;
   }
 

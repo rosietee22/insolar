@@ -124,4 +124,4 @@ function calculateActivityCurve(weather = {}) {
   };
 }
 
-module.exports = { calculateActivityCurve, scoreHour };
+module.exports = { calculateActivityCurve };
