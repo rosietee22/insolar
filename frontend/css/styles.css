@@ -1356,6 +1356,44 @@ body::after {
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* ==================== AUTOCOMPLETE ==================== */
+
+.autocomplete-wrap {
+  position: relative;
+}
+
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  list-style: none;
+  margin: -12px 0 0;
+  padding: 4px 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.autocomplete-list li {
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 6px;
+  margin: 0 4px;
+}
+
+.autocomplete-list li:hover,
+.autocomplete-list li.active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
 /* ==================== RESPONSIVE ==================== */
 
 /* Short phones (under 667px height) - tighter spacing */

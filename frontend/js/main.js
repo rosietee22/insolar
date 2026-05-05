@@ -2,7 +2,7 @@
  * Main App Logic
  */
 
-import { getForecast, searchCity } from './api.js';
+import { getForecast, searchCity, getAutocompleteSuggestions, getPlaceDetails } from './api.js';
 import {
   getGPSLocation,
   getApproximateLocation,
@@ -80,9 +80,8 @@ async function init() {
   document.getElementById('use-approximate-btn')?.addEventListener('click', handleUseApproximate);
   document.getElementById('use-city-btn').addEventListener('click', showCitySearch);
   document.getElementById('search-city-btn').addEventListener('click', handleCitySearch);
-  document.getElementById('city-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleCitySearch();
-  });
+  document.getElementById('city-input').addEventListener('keydown', handleCityInputKeydown);
+  document.getElementById('city-input').addEventListener('input', handleCityInputChange);
   document.getElementById('cancel-search-btn').addEventListener('click', hideCitySearch);
   
   // Location options popup
@@ -285,10 +284,115 @@ function showCitySearch() {
 function hideCitySearch() {
   document.getElementById('city-search-modal').classList.add('hidden');
   document.getElementById('city-input').value = '';
+  hideAutocomplete();
+}
+
+// ==================== AUTOCOMPLETE ====================
+
+let _autocompleteTimer = null;
+let _activeIndex = -1;
+let _suggestions = [];
+
+function handleCityInputChange() {
+  const query = document.getElementById('city-input').value.trim();
+  clearTimeout(_autocompleteTimer);
+
+  if (query.length < 2) {
+    hideAutocomplete();
+    return;
+  }
+
+  _autocompleteTimer = setTimeout(async () => {
+    _suggestions = await getAutocompleteSuggestions(query);
+    if (_suggestions.length > 0) {
+      showAutocomplete(_suggestions);
+    } else {
+      hideAutocomplete();
+    }
+  }, 250);
+}
+
+function handleCityInputKeydown(e) {
+  const list = document.getElementById('autocomplete-list');
+  const visible = list && !list.classList.contains('hidden');
+
+  if (e.key === 'ArrowDown' && visible) {
+    e.preventDefault();
+    _activeIndex = Math.min(_activeIndex + 1, _suggestions.length - 1);
+    highlightSuggestion();
+  } else if (e.key === 'ArrowUp' && visible) {
+    e.preventDefault();
+    _activeIndex = Math.max(_activeIndex - 1, -1);
+    highlightSuggestion();
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (visible && _activeIndex >= 0) {
+      selectSuggestion(_suggestions[_activeIndex]);
+    } else {
+      handleCitySearch();
+    }
+  } else if (e.key === 'Escape') {
+    hideAutocomplete();
+  }
+}
+
+function showAutocomplete(suggestions) {
+  const list = document.getElementById('autocomplete-list');
+  if (!list) return;
+  _activeIndex = -1;
+  list.innerHTML = suggestions.map((s, i) =>
+    `<li data-index="${i}">${escText(s.description)}</li>`
+  ).join('');
+  list.classList.remove('hidden');
+
+  list.querySelectorAll('li').forEach(li => {
+    li.addEventListener('click', () => {
+      selectSuggestion(suggestions[parseInt(li.dataset.index)]);
+    });
+  });
+}
+
+function hideAutocomplete() {
+  const list = document.getElementById('autocomplete-list');
+  if (list) {
+    list.classList.add('hidden');
+    list.innerHTML = '';
+  }
+  _activeIndex = -1;
+  _suggestions = [];
+}
+
+function highlightSuggestion() {
+  const list = document.getElementById('autocomplete-list');
+  if (!list) return;
+  list.querySelectorAll('li').forEach((li, i) => {
+    li.classList.toggle('active', i === _activeIndex);
+  });
+}
+
+async function selectSuggestion(suggestion) {
+  hideAutocomplete();
+  hideCitySearch();
+  showLoading();
+
+  try {
+    const place = await getPlaceDetails(suggestion.placeId);
+    const location = setCityLocation(place.lat, place.lon, place.name, '');
+    await loadForecast(location);
+  } catch (error) {
+    console.error('Place selection error:', error.message);
+    showError(error.message);
+  }
+}
+
+function escText(str) {
+  const el = document.createElement('span');
+  el.textContent = str;
+  return el.innerHTML;
 }
 
 /**
- * Handle city search
+ * Handle city search (fallback for Enter without suggestion)
  */
 async function handleCitySearch() {
   const input = document.getElementById('city-input');
@@ -299,6 +403,7 @@ async function handleCitySearch() {
     return;
   }
 
+  hideAutocomplete();
   hideCitySearch();
   showLoading();
 

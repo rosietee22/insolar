@@ -79,7 +79,7 @@ export async function getBirdData(lat, lon, weather = {}, locationHour = null) {
 }
 
 /**
- * Search for a city by name
+ * Search for a city by name (fallback when autocomplete unavailable)
  * @param {string} query - City name
  * @returns {Promise<Object>} Location data {lat, lon, name}
  */
@@ -110,4 +110,29 @@ export async function searchCity(query) {
   } catch (error) {
     throw new Error(`City search error: ${error.message}`);
   }
+}
+
+/**
+ * Get autocomplete suggestions for a location query
+ * @param {string} query - Partial location name
+ * @returns {Promise<Array>} Suggestions [{description, placeId}]
+ */
+export async function getAutocompleteSuggestions(query) {
+  const url = `${API_BASE}/api/location/autocomplete?q=${encodeURIComponent(query)}`;
+  const response = await fetch(url, { credentials: 'same-origin' });
+  if (!response.ok) return [];
+  const data = await response.json();
+  return data.suggestions || [];
+}
+
+/**
+ * Get coordinates for a Google Place ID
+ * @param {string} placeId - Google Place ID
+ * @returns {Promise<Object>} {name, lat, lon}
+ */
+export async function getPlaceDetails(placeId) {
+  const url = `${API_BASE}/api/location/place?id=${encodeURIComponent(placeId)}`;
+  const response = await fetch(url, { credentials: 'same-origin' });
+  if (!response.ok) throw new Error('Place lookup failed');
+  return response.json();
 }
