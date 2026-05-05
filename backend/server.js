@@ -48,7 +48,6 @@ const allowedOrigins = [
   'https://www.sunbird.today',
   'https://insolar.fly.dev',
   'http://localhost:3000', // development
-  'https://60363142-1dd3-4f0c-a7ef-64b22526bc18.claudeusercontent.com', // Claude design preview
 ];
 app.use(cors({
   origin: (origin, callback) => {

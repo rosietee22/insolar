@@ -147,7 +147,7 @@ class GoogleWeatherProvider extends WeatherProvider {
 
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'WeatherPWA/1.0'  // Required by Nominatim
+          'User-Agent': 'SunbirdApp/1.0 (https://sunbird.today)'
         }
       });
 

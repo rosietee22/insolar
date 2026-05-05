@@ -47,6 +47,7 @@ sunbird/
 ├── frontend/              # PWA client
 │   ├── index.html
 │   ├── colour-lab.html    # Theme preview tool
+│   ├── credits.html       # Bird image attribution page
 │   ├── manifest.json
 │   ├── service-worker.js
 │   ├── robots.txt
@@ -151,8 +152,8 @@ Bird activity is the primary feature, powered by the eBird API. When `EBIRD_API_
 - Notable species show CC-licensed photos from Wikimedia Commons or iNaturalist (proxied and cached for 30 days)
 
 **Caching strategy:**
-- Backend: 6-hour cache for eBird observations, 30-day cache for bird image asset IDs
-- Frontend: 3-hour localStorage cache
+- Backend: 2-hour cache for eBird observations, 30-day cache for bird image asset IDs
+- Frontend: 30-minute localStorage cache
 - Activity scores recalculate instantly client-side using current weather
 
 **Without an eBird API key**, the bird toggle is disabled and the app defaults to weather mode.

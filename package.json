@@ -1,5 +1,5 @@
 {
-  "name": "insolar",
+  "name": "sunbird",
   "version": "1.0.0",
   "main": "backend/server.js",
   "engines": {
