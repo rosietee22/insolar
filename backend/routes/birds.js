@@ -66,6 +66,7 @@ router.get('/', authMiddleware, async (req, res, next) => {
     // Check cache for raw observations (2-hour TTL)
     const cacheKey = `birds-raw:${cache.makeKey(roundedLat, roundedLon)}`;
     let cached = cache.get(cacheKey);
+    const servedFromCache = !!cached;
 
     if (!cached) {
       // Fetch from eBird: start tight (3km, 2 days), widen if sparse
@@ -134,7 +135,7 @@ router.get('/', authMiddleware, async (req, res, next) => {
       total_species_count: scored.length,
       observation_radius_km: cached.radius,
       images: imageMap,
-      cached: !!cache.get(cacheKey),
+      cached: servedFromCache,
     });
 
   } catch (error) {

@@ -52,7 +52,8 @@ class MockProvider extends WeatherProvider {
         cloud_percent: Math.round(cloud_percent),
         wind_speed_ms,
         wind_direction_deg,
-        uv_index
+        uv_index,
+        is_day: hour >= 7 && hour < 19
       });
     }
 

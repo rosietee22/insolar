@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const net = require('net');
 const router = express.Router();
 
 /**
@@ -20,15 +21,18 @@ router.get('/approximate', async (req, res) => {
                      '';
     
     // Skip localhost/private IPs - use a default location
-    const isPrivateIP = clientIP === '127.0.0.1' || 
-                        clientIP === '::1' || 
+    const isPrivateIP = clientIP === '127.0.0.1' ||
+                        clientIP === '::1' ||
                         clientIP.startsWith('192.168.') ||
                         clientIP.startsWith('10.') ||
                         /^172\.(1[6-9]|2\d|3[01])\./.test(clientIP);
-    
-    if (isPrivateIP) {
-      // Development fallback - London
-      console.log('[Location] Private IP detected, using London fallback');
+
+    // x-forwarded-for is set by the client, so the value must be validated
+    // before it reaches the request URL below. net.isIP accepts only hex
+    // digits, dots and colons — no separators that could alter the path or
+    // append query parameters.
+    if (isPrivateIP || net.isIP(clientIP) === 0) {
+      console.log('[Location] No usable public IP, using London fallback');
       return res.json({
         lat: 51.51,
         lon: -0.13,
@@ -39,7 +43,7 @@ router.get('/approximate', async (req, res) => {
       });
     }
 
-    // Query ip-api.com for geolocation
+    // Plain HTTP: ip-api.com serves TLS only on its paid tier.
     const response = await fetch(`http://ip-api.com/json/${clientIP}?fields=status,message,country,city,lat,lon`);
     const data = await response.json();
 

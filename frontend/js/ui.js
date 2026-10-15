@@ -101,9 +101,15 @@ export function showError(message) {
 
 /**
  * Show offline warning with timestamp
- * @param {string} timestamp - Last updated timestamp
+ * @param {string} [timestamp] - When the cached forecast was generated
  */
-export function showOfflineWarning() {
+export function showOfflineWarning(timestamp) {
+  const el = document.getElementById('offline-warning');
+  if (el) {
+    el.textContent = timestamp
+      ? `Offline · Cached forecast from ${formatRelativeTime(timestamp)}`
+      : 'Offline · Showing cached forecast';
+  }
   show('offline-warning');
 }
 
