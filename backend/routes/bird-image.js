@@ -86,9 +86,33 @@ function scoreCommonsImage(info, ext) {
   return score;
 }
 
-function buildWikimediaMeta(info, ext) {
+/**
+ * Ask Commons for a thumbnail at the given width.
+ *
+ * Wikimedia snaps requested widths to its own buckets (320 comes back as
+ * 330px) and returns 400 for any width it has not rendered, so a thumbnail
+ * URL has to be obtained from the API rather than built by rewriting the
+ * width in another URL.
+ */
+async function commonsThumbUrl(title, width) {
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&iiurlwidth=${width}&format=json`;
+
+  const res = await fetch(url, { headers: { 'Api-User-Agent': USER_AGENT } });
+  if (!res.ok) {
+    // Falls back to the larger image, so this degrades quietly — log it so a
+    // run of these (rate limiting, usually) is visible rather than silent.
+    console.warn(`Commons thumb lookup for ${title}: HTTP ${res.status}`);
+    return null;
+  }
+
+  const page = Object.values((await res.json()).query?.pages || {})[0];
+  return page?.imageinfo?.[0]?.thumburl || null;
+}
+
+async function buildWikimediaMeta(info, ext, title) {
   const fullUrl = info.thumburl || info.url;
-  const thumbUrl = fullUrl.replace(/\/\d+px-/, '/320px-');
+  const thumbUrl = (title && await safeCall(() => commonsThumbUrl(title, 320), 'Commons thumb')) || fullUrl;
+
   return {
     source: 'wikimedia',
     thumbUrl,
@@ -120,13 +144,13 @@ async function searchCommonsPhotos(scientificName) {
       const ext = info.extmetadata || {};
       const score = scoreCommonsImage(info, ext);
       if (score < 0) return null;
-      return { info, ext, score };
+      return { info, ext, score, title: page.title };
     })
     .filter(Boolean)
     .sort((a, b) => b.score - a.score);
 
   if (candidates.length === 0) return null;
-  return buildWikimediaMeta(candidates[0].info, candidates[0].ext);
+  return buildWikimediaMeta(candidates[0].info, candidates[0].ext, candidates[0].title);
 }
 
 /**
@@ -158,7 +182,7 @@ async function tryWikipediaArticleImage(scientificName) {
   const ext = info.extmetadata || {};
   if (scoreCommonsImage(info, ext) < 0) return null;
 
-  return buildWikimediaMeta(info, ext);
+  return buildWikimediaMeta(info, ext, `File:${filename}`);
 }
 
 async function safeCall(fn, label) {
@@ -195,6 +219,11 @@ async function tryINaturalist(scientificName) {
 
       const photo = obs.photos?.[0];
       if (!photo?.url) continue;
+
+      // iNaturalist only produces resized renditions for JPEGs. For a GIF or
+      // PNG the "medium" variant is the untouched original, which has served
+      // a 20MB animated GIF as a 64px thumbnail.
+      if (!/\.jpe?g(\?|$)/i.test(photo.url)) continue;
 
       const licenseInfo = licenseMap[photo.license_code];
       if (!licenseInfo) continue;
