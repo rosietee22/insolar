@@ -42,17 +42,12 @@ export async function getForecast(lat, lon) {
  * Fetch bird observation data for given coordinates
  * @param {number} lat
  * @param {number} lon
- * @param {Object} weather - { temp_c, rain_probability, wind_speed_ms, cloud_percent }
  * @param {number|null} locationHour - Current hour at location (0-23) for time-of-day scoring
  * @returns {Promise<Object>} Bird data
  */
-export async function getBirdData(lat, lon, weather = {}, locationHour = null) {
+export async function getBirdData(lat, lon, locationHour = null) {
   const params = new URLSearchParams({ lat, lon });
   if (locationHour !== null) params.set('hour', locationHour);
-  if (weather.temp_c !== undefined) params.set('temp_c', weather.temp_c);
-  if (weather.rain_probability !== undefined) params.set('rain', weather.rain_probability);
-  if (weather.wind_speed_ms !== undefined) params.set('wind', weather.wind_speed_ms);
-  if (weather.cloud_percent !== undefined) params.set('cloud', weather.cloud_percent);
 
   const url = `${API_BASE}/api/birds?${params}`;
 

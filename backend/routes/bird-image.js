@@ -9,8 +9,19 @@ const router = express.Router();
 const cache = require('../cache');
 
 const META_TTL = 2592000;    // 30 days
-const IMG_TTL = 2592000;     // 30 days
 const NOT_FOUND_TTL = 86400; // 1 day for misses
+
+const MACAULAY_CDN = 'https://cdn.download.ams.birds.cornell.edu/api/v1/asset';
+
+// Hand-curated speciesCode → Macaulay asset overrides. Macaulay's search API
+// is behind a proof-of-work wall, so asset IDs are looked up by hand and
+// recorded here; only the asset CDN is reachable programmatically.
+let macaulayAssets = {};
+try {
+  macaulayAssets = require('../macaulay-assets.json');
+} catch {
+  // Optional file
+}
 
 const USER_AGENT = 'SunbirdApp/1.0 (https://sunbird.today; rosiethomasemail@gmail.com)';
 
@@ -214,12 +225,45 @@ async function tryINaturalist(scientificName) {
 }
 
 /**
+ * Build metadata for a hand-curated Macaulay asset, if one is listed for
+ * this species. The CDN sends no CORS header, so these must be served
+ * through this route rather than linked directly — hence `proxyOnly`.
+ */
+function macaulayMeta(speciesCode) {
+  const entry = macaulayAssets[speciesCode];
+  if (!entry) return null;
+
+  const assetId = String(typeof entry === 'string' ? entry : entry.assetId || '');
+  if (!/^\d+$/.test(assetId)) {
+    console.warn(`Ignoring invalid Macaulay assetId for ${speciesCode}`);
+    return null;
+  }
+
+  return {
+    source: 'macaulay',
+    proxyOnly: true,
+    thumbUrl: `${MACAULAY_CDN}/${assetId}/320`,
+    fullUrl: `${MACAULAY_CDN}/${assetId}/1200`,
+    photographer: (typeof entry === 'object' && entry.photographer) || 'Unknown',
+    license: 'Macaulay Library',
+    licenseUrl: 'https://www.birds.cornell.edu/home/terms-of-use/',
+    sourceUrl: `https://macaulaylibrary.org/asset/${assetId}`,
+  };
+}
+
+/**
  * Resolve speciesCode + scientificName → image metadata.
- * Runs all sources in parallel; prefers Wikipedia article image (curated),
- * then Commons search, then iNaturalist as last resort.
+ * A curated Macaulay asset wins outright. Otherwise runs all CC sources in
+ * parallel; prefers Wikipedia article image (curated), then Commons search,
+ * then iNaturalist as last resort.
  * Results are cached for 30 days (or 1 day for misses).
  */
 async function resolveImageMeta(speciesCode, scientificName) {
+  // Checked ahead of the cache so edits to macaulay-assets.json take effect
+  // on restart rather than waiting out a 30-day entry.
+  const curated = macaulayMeta(speciesCode);
+  if (curated) return curated;
+
   const cacheKey = `bird-meta:${speciesCode}`;
   const cached = cache.get(cacheKey);
   if (cached) return cached === 'none' ? null : cached;
@@ -281,27 +325,19 @@ router.get('/:speciesCode', async (req, res) => {
     }
 
     const imageUrl = size === 'full' ? meta.fullUrl : meta.thumbUrl;
-    const imgCacheKey = `bird-img:${speciesCode}:${size}`;
-    let imgCached = cache.get(imgCacheKey);
+    const imageRes = await fetch(imageUrl, { headers: { 'User-Agent': USER_AGENT } });
 
-    if (!imgCached) {
-      const imageRes = await fetch(imageUrl, { headers: { 'User-Agent': USER_AGENT } });
-
-      if (!imageRes.ok) {
-        res.set('Content-Type', 'image/svg+xml');
-        res.set('Cache-Control', 'public, max-age=86400');
-        return res.send(placeholderSvg());
-      }
-
-      const contentType = imageRes.headers.get('content-type') || 'image/jpeg';
-      const buffer = Buffer.from(await imageRes.arrayBuffer());
-      imgCached = { contentType, buffer };
-      cache.set(imgCacheKey, imgCached, IMG_TTL);
+    if (!imageRes.ok) {
+      res.set('Content-Type', 'image/svg+xml');
+      res.set('Cache-Control', 'public, max-age=86400');
+      return res.send(placeholderSvg());
     }
 
-    res.set('Content-Type', imgCached.contentType);
+    // Not held in the process cache: a month of full-size image bytes in a
+    // Map with no eviction is what the browser's max-age is already for.
+    res.set('Content-Type', imageRes.headers.get('content-type') || 'image/jpeg');
     res.set('Cache-Control', 'public, max-age=2592000');
-    res.send(imgCached.buffer);
+    res.send(Buffer.from(await imageRes.arrayBuffer()));
 
   } catch (error) {
     console.error('Bird image error:', error.message);

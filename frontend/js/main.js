@@ -26,7 +26,7 @@ import {
   locationNow
 } from './ui.js';
 import { initColourPicker, setWeatherData, applySavedOverrides } from './colour-picker.js';
-import { loadBirdData, calculateActivityCurve, isBirdFeatureAvailable } from './birds.js';
+import { loadBirdData, calculateActivityCurve, isBirdFeatureAvailable, clearBirdCache } from './birds.js';
 
 // Cache keys
 const FORECAST_CACHE_KEY = 'weather_forecast';
@@ -38,15 +38,16 @@ const CACHE_MAX_AGE = 60 * 60 * 1000; // 60 minutes
 async function init() {
   console.log('Sunbird initializing...');
 
-  // Register service worker with auto-update checking
+  // Register service worker with auto-update checking. Deliberately not
+  // awaited — nothing below depends on it, and awaiting it delays the
+  // location lookup and first forecast fetch.
   if ('serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.register('/service-worker.js');
+    navigator.serviceWorker.register('/service-worker.js').then((registration) => {
       console.log('Service Worker registered:', registration);
-      
+
       // Check for updates on every page load
       registration.update();
-      
+
       // Listen for new service worker waiting to activate
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
@@ -61,9 +62,9 @@ async function init() {
         console.log('New service worker active, refreshing...');
         window.location.reload();
       });
-    } catch (error) {
+    }).catch((error) => {
       console.error('Service Worker registration failed:', error);
-    }
+    });
   }
 
   // Check online/offline status
@@ -429,6 +430,17 @@ async function loadForecast(location, { silent = false } = {}) {
   if (!silent) showLoading();
   hideOfflineWarning();
 
+  // Bird data needs only coordinates, so start it here and let it run
+  // alongside the forecast instead of waiting for the forecast to render.
+  // The browser's hour seeds time-of-day scoring; showBirds() corrects it
+  // if the location turns out to be in a different timezone.
+  const browserHour = new Date().getHours();
+  const birdPromise = loadBirdData(location.lat, location.lon, browserHour)
+    .catch((error) => {
+      console.error('Bird data fetch failed:', error);
+      return null;
+    });
+
   try {
     const forecast = await getForecast(location.lat, location.lon);
     console.log('Loaded forecast:', forecast);
@@ -437,7 +449,7 @@ async function loadForecast(location, { silent = false } = {}) {
     cacheForecast(forecast);
 
     // Display
-    displayForecast(forecast);
+    displayForecast(forecast, { birdPromise, birdHour: browserHour });
 
   } catch (error) {
     console.error('Forecast fetch error:', error);
@@ -446,7 +458,7 @@ async function loadForecast(location, { silent = false } = {}) {
     const cachedForecast = getCachedForecast();
     if (cachedForecast) {
       console.log('Network failed, showing cached forecast');
-      displayForecast(cachedForecast);
+      displayForecast(cachedForecast, { birdPromise, birdHour: browserHour });
       showOfflineWarning(cachedForecast.generated_at);
     } else {
       showError(error.message);
@@ -461,8 +473,9 @@ let currentBirdData = null;
 /**
  * Display forecast data
  * @param {Object} forecast - Forecast data
+ * @param {Object} [birds] - In-flight bird request from loadForecast
  */
-function displayForecast(forecast) {
+function displayForecast(forecast, birds = {}) {
   // Set location timezone and latitude before any rendering
   if (forecast.timezone) setTimezone(forecast.timezone);
   const loc = getCachedLocation();
@@ -474,15 +487,14 @@ function displayForecast(forecast) {
     setWeatherData(forecast.current);
     applySavedOverrides();
     currentWeatherData = forecast.current;
-    // Load bird data in background
-    loadBirdsInBackground(forecast);
+    showBirds(forecast, birds);
   }
 }
 
 /**
- * Load bird data in the background (non-blocking)
+ * Render bird sections from the request started in loadForecast
  */
-async function loadBirdsInBackground(forecast) {
+async function showBirds(forecast, { birdPromise, birdHour } = {}) {
   const location = getCachedLocation();
   if (!location) return;
 
@@ -497,20 +509,28 @@ async function loadBirdsInBackground(forecast) {
   const locTime = { hour: locNow.getHours(), month: locNow.getMonth() };
 
   try {
-    const birdData = await loadBirdData(location.lat, location.lon, weather, locTime);
+    let birdData = birdPromise
+      ? await birdPromise
+      : await loadBirdData(location.lat, location.lon, locTime.hour);
 
     if (isBirdFeatureAvailable() === false) {
       disableBirdMode();
       return;
     }
 
+    // That request used the browser's hour. If the location is in another
+    // timezone, species were scored against the wrong time of day.
+    if (birdData && birdHour !== undefined && birdHour !== locTime.hour) {
+      clearBirdCache();
+      birdData = (await loadBirdData(location.lat, location.lon, locTime.hour)) || birdData;
+    }
+
     if (birdData) {
       currentBirdData = birdData;
-      const activity = birdData.activity || calculateActivityCurve(weather, locTime);
-      renderBirdSections(birdData, activity);
+      renderBirdSections(birdData, calculateActivityCurve(weather, locTime));
     }
   } catch (error) {
-    console.error('Background bird load failed:', error);
+    console.error('Bird load failed:', error);
   }
 }
 

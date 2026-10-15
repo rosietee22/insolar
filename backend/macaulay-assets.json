@@ -1,0 +1,20 @@
+{
+  "_format": [
+    "Hand-curated Macaulay Library photos, keyed by eBird species code.",
+    "These override the Wikimedia/iNaturalist lookup for that species.",
+    "",
+    "To add one: open macaulaylibrary.org, search the species, pick a photo,",
+    "then take the asset ID from its URL (macaulaylibrary.org/asset/<id>) and",
+    "the photographer's name from the caption. Restart the server to pick up",
+    "changes. Species codes are the eBird codes shown in /api/birds responses",
+    "(e.g. mallar3, casgul2, gbbgul).",
+    "",
+    "  \"mallar3\": { \"assetId\": \"303341711\", \"photographer\": \"Jane Doe\" }",
+    "",
+    "A bare \"speciesCode\": \"303341711\" also works if you don't want to record",
+    "the photographer; attribution then shows as Unknown.",
+    "",
+    "Macaulay's search API is behind a proof-of-work bot wall, so asset IDs",
+    "cannot be resolved automatically — only the asset CDN is reachable."
+  ]
+}

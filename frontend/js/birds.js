@@ -19,13 +19,15 @@ export function isBirdFeatureAvailable() {
 }
 
 /**
- * Load bird data with caching
+ * Load bird data with caching. Needs only coordinates, so it can run
+ * alongside the forecast request. The activity curve is computed by the
+ * caller, once the location's timezone and weather are known.
  * @param {number} lat
  * @param {number} lon
- * @param {Object} currentWeather - Current weather conditions
+ * @param {number|null} locationHour - Hour at the location, for time-of-day scoring
  * @returns {Promise<Object|null>} Bird data or null
  */
-export async function loadBirdData(lat, lon, currentWeather = {}, locationTime = {}) {
+export async function loadBirdData(lat, lon, locationHour = null) {
   const locKey = `${lat.toFixed(2)},${lon.toFixed(2)}`;
   const sameLocation = localStorage.getItem(BIRD_CACHE_LOC_KEY) === locKey;
 
@@ -33,15 +35,13 @@ export async function loadBirdData(lat, lon, currentWeather = {}, locationTime =
   if (cached) {
     const age = Date.now() - new Date(cached.generated_at).getTime();
     if (age < BIRD_CACHE_MAX_AGE) {
-      cached.activity = calculateActivityCurve(currentWeather, locationTime);
       featureAvailable = true;
       return cached;
     }
   }
 
   try {
-    const locationHour = locationTime?.hour ?? null;
-    const data = await getBirdData(lat, lon, currentWeather, locationHour);
+    const data = await getBirdData(lat, lon, locationHour);
     cacheBirdData(data, locKey);
     featureAvailable = true;
     return data;
@@ -51,11 +51,7 @@ export async function loadBirdData(lat, lon, currentWeather = {}, locationTime =
       return null;
     }
     console.error('Bird data fetch error:', error);
-    if (cached) {
-      cached.activity = calculateActivityCurve(currentWeather, locationTime);
-      return cached;
-    }
-    return null;
+    return cached || null;
   }
 }
 
@@ -91,11 +87,10 @@ export function getCachedBirdData() {
   }
 }
 
-// ==================== CLIENT-SIDE ACTIVITY MODEL ====================
+// ==================== ACTIVITY MODEL ====================
 
 /**
  * Calculate activity score for a specific hour
- * Mirrors backend/bird-activity.js
  */
 function scoreHour(hour, weather, month) {
   let score = 50;

@@ -57,6 +57,16 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="/css/styles.css">
 
+  <!-- Module graph: without these the browser cannot discover main.js's
+       imports until it has downloaded and parsed main.js -->
+  <link rel="modulepreload" href="/js/main.js">
+  <link rel="modulepreload" href="/js/api.js">
+  <link rel="modulepreload" href="/js/location.js">
+  <link rel="modulepreload" href="/js/ui.js">
+  <link rel="modulepreload" href="/js/theme.js">
+  <link rel="modulepreload" href="/js/colour-picker.js">
+  <link rel="modulepreload" href="/js/birds.js">
+
   <title>Sunbird: Bird activity near you</title>
 </head>
 <body>

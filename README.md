@@ -8,7 +8,7 @@ A bird activity forecast that reads the weather, light and season to tell you wh
 
 - **Bird-first hero** — Species count and activity headline as the default view, with a segmented toggle to switch to weather
 - **Bird activity strip** — 24-hour gradient showing dawn/dusk peaks, scored hourly by time of day, season, temperature, rain, wind, and cloud cover
-- **Notable species** — "What to look for" section with CC-licensed photos (Wikimedia Commons / iNaturalist), tappable for full-size images with attribution
+- **Notable species** — "What to look for" section with photos (hand-picked Macaulay Library assets, else Wikimedia Commons / iNaturalist), tappable for full-size images with attribution
 - **Sightings list** — All recent observations within 3–10 km, sorted by most recent, with observation times
 - **Daylight & UV strip** — Sunrise/sunset tracker with UV index and contextual labels (night mode shows "Until sunrise")
 - **12-hour hourly forecast** — Scrollable strip with weather icons, temperatures, and rain probability
@@ -33,10 +33,10 @@ A bird activity forecast that reads the weather, light and season to tell you wh
 - Express.js (Node.js 18+)
 - Google Weather API (WeatherNext AI)
 - eBird API v2 (Cornell Lab of Ornithology)
-- Bird image proxy (Wikimedia Commons / iNaturalist fallback) with 30-day cache
+- Bird image proxy (curated Macaulay asset → Wikimedia Commons → iNaturalist fallback)
 - OpenStreetMap Nominatim for reverse geocoding
 - IP-based approximate location (ip-api.com)
-- In-memory caching (5 min forecast, 2 hr bird data, 30 day bird images)
+- In-memory caching (5 min forecast, 2 hr bird data, 30 day bird image metadata)
 - HTTP-only session cookie authentication
 - Helmet, CORS, compression, rate limiting
 
@@ -67,14 +67,14 @@ sunbird/
 │   ├── routes/
 │   │   ├── forecast.js    # Weather forecast endpoint
 │   │   ├── birds.js       # Bird observations & activity endpoint
-│   │   ├── bird-image.js  # CC-licensed bird image proxy
+│   │   ├── bird-image.js  # Bird image proxy (Macaulay / Wikimedia / iNaturalist)
 │   │   └── location.js    # IP-based approximate location
 │   ├── providers/
 │   │   ├── base.js        # Provider interface
 │   │   ├── google-weather.js  # Google Weather API
 │   │   ├── ebird.js       # eBird API client (with time-of-day scoring)
 │   │   └── mock.js        # Dev/testing fallback
-│   ├── bird-activity.js   # Activity scoring model
+│   ├── macaulay-assets.json  # Hand-picked Macaulay photos per species
 │   ├── cache.js
 │   ├── auth.js
 │   └── schema.js
@@ -149,10 +149,10 @@ Bird activity is the primary feature, powered by the eBird API. When `EBIRD_API_
 - Recent bird observations are fetched from eBird (last 5 days, 3–10 km adaptive radius)
 - Species are deduplicated and scored by time-of-day relevance to the user's current hour
 - A weather-based activity model scores each hour (0–100) based on time of day, season, temperature, rain, wind, and cloud cover
-- Notable species show CC-licensed photos from Wikimedia Commons or iNaturalist (proxied and cached for 30 days)
+- Notable species show a hand-picked Macaulay Library photo where one is listed in `backend/macaulay-assets.json`, otherwise a CC-licensed photo from Wikimedia Commons or iNaturalist
 
 **Caching strategy:**
-- Backend: 2-hour cache for eBird observations, 30-day cache for bird image asset IDs
+- Backend: 2-hour cache for eBird observations, 30-day cache for bird image metadata. Image bytes are not held in process memory — the proxy sets a 30-day `max-age` and lets the browser cache them
 - Frontend: 30-minute localStorage cache
 - Activity scores recalculate instantly client-side using current weather
 
@@ -239,7 +239,9 @@ Authorization: Bearer <your_api_secret>
 
 ### `GET /api/bird-image/:speciesCode?sci=Scientific+Name&size=320|1200`
 
-Proxies CC-licensed bird photos (Wikimedia Commons → iNaturalist → placeholder fallback). Returns an openly licensed photo for the given eBird species code with 30-day caching. The `sci` parameter provides the scientific name for image lookup.
+Proxies bird photos (curated Macaulay asset → Wikimedia Commons → iNaturalist → placeholder fallback) for the given eBird species code, with a 30-day `max-age`. The `sci` parameter provides the scientific name for image lookup.
+
+Macaulay's search API sits behind a proof-of-work bot wall, so asset IDs cannot be resolved automatically. To use a Macaulay photo for a species, add its asset ID to `backend/macaulay-assets.json` by hand (the file documents its own format) and restart. Only the asset CDN is reachable programmatically, and it sends no CORS header, so those images are always served through this route rather than linked directly.
 
 ### `GET /api/bird-image/:speciesCode/info?sci=Scientific+Name`
 

@@ -3,7 +3,6 @@ const router = express.Router();
 const authMiddleware = require('../auth');
 const cache = require('../cache');
 const EBirdProvider = require('../providers/ebird');
-const { calculateActivityCurve } = require('../bird-activity');
 const { resolveImageMeta } = require('./bird-image');
 
 const provider = new EBirdProvider();
@@ -15,11 +14,12 @@ if (provider.isAvailable()) {
 }
 
 /**
- * GET /api/birds?lat=X&lon=Y&hour=H&temp_c=X&rain=X&wind=X&cloud=X
+ * GET /api/birds?lat=X&lon=Y&hour=H
  *
- * Fetch bird observations and activity for given coordinates.
+ * Fetch bird observations for given coordinates.
  * hour = location hour (0-23), used for time-of-day relevance scoring.
- * Weather params are optional (used for activity model).
+ * The activity curve is computed client-side, where the location's
+ * timezone is known.
  */
 router.get('/', authMiddleware, async (req, res, next) => {
   try {
@@ -90,20 +90,11 @@ router.get('/', authMiddleware, async (req, res, next) => {
     const scored = provider.deduplicateAndScore(cached.observations, locationHour);
     const notableSpecies = provider.selectNotableSpecies(scored);
 
-    const activity = calculateActivityCurve({
-      temp_c: parseFloat(req.query.temp_c) || 10,
-      rain_probability: parseFloat(req.query.rain) || 0,
-      wind_speed_ms: parseFloat(req.query.wind) || 0,
-      cloud_percent: parseFloat(req.query.cloud) || 50,
-    });
-
-    // Resolve image URLs for notable + visible species in parallel
-    const speciesNeedingImages = [
-      ...notableSpecies,
-      ...scored.slice(0, 20),
-    ];
+    // Only notable species show a thumbnail on load. Every other species
+    // resolves its image on demand via /api/bird-image when the user expands
+    // its row, so pre-resolving them here just blocks this response.
     const seen = new Set();
-    const unique = speciesNeedingImages.filter(s => {
+    const unique = notableSpecies.filter(s => {
       if (seen.has(s.species_code)) return false;
       seen.add(s.species_code);
       return true;
@@ -117,9 +108,15 @@ router.get('/', authMiddleware, async (req, res, next) => {
     unique.forEach((s, i) => {
       const result = imageMetas[i];
       if (result.status === 'fulfilled' && result.value) {
+        // Sources without a CORS header have to be served via our own proxy
+        // route rather than linked directly from the page.
+        const proxied = (extra = '') =>
+          `/api/bird-image/${encodeURIComponent(s.species_code)}`
+          + `?sci=${encodeURIComponent(s.scientific_name || '')}${extra}`;
+
         imageMap[s.species_code] = {
-          thumb: result.value.thumbUrl,
-          full: result.value.fullUrl,
+          thumb: result.value.proxyOnly ? proxied() : result.value.thumbUrl,
+          full: result.value.proxyOnly ? proxied('&size=1200') : result.value.fullUrl,
           photographer: result.value.photographer,
           license: result.value.license,
           licenseUrl: result.value.licenseUrl,
@@ -136,7 +133,6 @@ router.get('/', authMiddleware, async (req, res, next) => {
       all_species: scored,
       total_species_count: scored.length,
       observation_radius_km: cached.radius,
-      activity,
       images: imageMap,
       cached: !!cache.get(cacheKey),
     });
