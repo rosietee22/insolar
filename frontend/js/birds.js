@@ -5,9 +5,25 @@
 
 import { getBirdData } from './api.js';
 
-const BIRD_CACHE_KEY = 'bird_data';
-const BIRD_CACHE_LOC_KEY = 'bird_data_loc';
+// Bump when the cached response's shape or contents change, so browsers
+// holding data from an older deploy discard it rather than rendering it.
+// v2: thumbnail URLs are now requested from Commons rather than built by
+// rewriting a width, and v1 entries hold URLs that return 400.
+const CACHE_VERSION = 2;
+const BIRD_CACHE_KEY = `bird_data_v${CACHE_VERSION}`;
+const BIRD_CACHE_LOC_KEY = `bird_data_loc_v${CACHE_VERSION}`;
 const BIRD_CACHE_MAX_AGE = 30 * 60 * 1000; // 30 minutes
+
+// Drop entries written by earlier cache versions.
+try {
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith('bird_data') && key !== BIRD_CACHE_KEY && key !== BIRD_CACHE_LOC_KEY) {
+      localStorage.removeItem(key);
+    }
+  }
+} catch {
+  // Storage unavailable (private mode, blocked cookies)
+}
 
 let featureAvailable = null; // null = unknown, true/false after first check
 
